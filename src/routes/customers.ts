@@ -1,11 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import customers from '../services/customers'
-import { param, check, validationResult } from 'express-validator'
+import { validationResult } from 'express-validator'
 import objectResponse from '../utils/response'
-
-const validateId = check('id')
-  .not().isEmpty()
-  .isNumeric()
+import { validateId } from '../middlewares/validators'
 
 const router = Router()
 
@@ -33,9 +30,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
 router.put('/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
 
-  const errors = validationResult(req)
-
-  if (!errors.isEmpty()) {
+  if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação'))
   }
 
