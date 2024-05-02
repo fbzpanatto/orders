@@ -41,14 +41,14 @@ router.put('/:id', validateId, async (req: Request, res: Response, next: NextFun
   catch (error) { next(error) }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validateId, async (req, res, next) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação'))
   }
 
   try {
-    const result = await customers.remove(parseInt(req.params.id))
+    const result = await customers.remove(parseInt(req.params!.id))
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
