@@ -5,9 +5,9 @@ const router = Router()
 
 router.get('/', async function (req: Request, res: Response, next: NextFunction) {
 
-  const page = parseInt(req.query.page as string) ?? 1
+  // TODO: create a function that verifies the req.query.id
 
-  try { res.json(await customers.getMultiple(page)) }
+  try { res.json(await customers.getMultiple()) }
   catch (error) { next(error) }
 })
 

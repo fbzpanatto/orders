@@ -16,9 +16,11 @@ app.use(helmet())
 
 app.use(express.json())
 
+// app.use(express.urlencoded({ extended: true }))
+
 app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello World") })
 
-app.use('/costumers', customersRouter)
+app.use('/custumers', customersRouter)
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => { res.status(500).send(error.message) })
 
