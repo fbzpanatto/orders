@@ -22,6 +22,6 @@ app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello W
 
 app.use('/custumers', customersRouter)
 
-app.use((error: Error, req: Request, res: Response, next: NextFunction) => { res.status(500).send(error.message) })
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => { res.status(500).send({ status: 500, message: error.message }) })
 
 export default app

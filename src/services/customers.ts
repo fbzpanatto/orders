@@ -1,7 +1,8 @@
+import { ResultSetHeader } from 'mysql2';
 import db from './db'
 import config from '../config'
 import helper from '../helper'
-import { ResultSetHeader } from 'mysql2';
+import frontResult from '../utils/response';
 
 async function getMultiple(page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
@@ -53,14 +54,6 @@ async function remove(id: number) {
 
   if (!result.affectedRows) { return frontResult(400, 'Não foi possível processar sua solicitação.', {}) }
   return frontResult(204, 'Registro removido com sucesso.', {});
-}
-
-function frontResult(status: number, message: string, object: Object,) {
-  return {
-    status,
-    message,
-    ...object,
-  }
 }
 
 export default {
