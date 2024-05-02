@@ -18,7 +18,7 @@ async function getMultiple(page = 1) {
   }
 }
 
-async function create(el: {nome: string, idade: number, uf: string}) {
+async function create(el: { nome: string, idade: number, uf: string }) {
 
   const result = await db.query(
     `
@@ -27,11 +27,25 @@ async function create(el: {nome: string, idade: number, uf: string}) {
     `
   ) as ResultSetHeader
 
-  if (!result.affectedRows) { return { message: 'Não foi possível processar. Tente novamente mais tarde.' } }
+  if (!result.affectedRows) { return { message: 'Não foi possível processar essa solicitação. Tente novamente mais tarde.' } }
   return { message: 'Cliente criado com sucesso.' };
+}
+
+async function update(id: number, el: { nome: string, idade: number, uf: string }) {
+  const result = await db.query(
+    `
+    UPDATE Clientes 
+    SET nome="${el.nome}", idade=${el.idade}, uf="${el.uf}"
+    WHERE id=${id}
+    `
+  ) as ResultSetHeader
+
+  if (!result.affectedRows) { return { message: 'Não foi possível processar essa solicitação. Tente novamente mais tarde.' } }
+  return { message: 'Cliente alterado com sucesso.' };
 }
 
 export default {
   getMultiple,
-  create
+  create,
+  update
 }
