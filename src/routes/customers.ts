@@ -26,4 +26,14 @@ router.put('/:id', async function (req: Request, res: Response, next: NextFuncti
   catch (error) { next(error) }
 });
 
+router.delete('/:id', async function (req, res, next) {
+
+  // TODO: create a function that verifices the req.params.id
+
+  const id = parseInt(req.params.id)
+
+  try { res.json(await customers.remove(id)) }
+  catch (error) { next(error) }
+});
+
 export default router
