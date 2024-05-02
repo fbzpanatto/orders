@@ -11,4 +11,9 @@ router.get('/', async function (req: Request, res: Response, next: NextFunction)
   catch (error) { next(error) }
 })
 
+router.post('/', async function (req: Request, res: Response, next: NextFunction) {
+  try { res.json(await customers.create(req.body)) }
+  catch (error) { next(error) }
+});
+
 export default router

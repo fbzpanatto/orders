@@ -1,15 +1,16 @@
 import db from './db'
 import config from '../config'
-import helper from '../helper' 
+import helper from '../helper'
+import { ResultSetHeader } from 'mysql2';
 
-async function getMultiple(page = 1){
+async function getMultiple(page = 1) {
   const offset = helper.getOffset(page, config.listPerPage);
   const rows = await db.query(
     `SELECT ID, Nome, Idade, UF 
     FROM Clientes LIMIT ${offset},${config.listPerPage}`
   );
   const data = helper.emptyOrRows(rows);
-  const meta = {page};
+  const meta = { page };
 
   return {
     data,
@@ -17,6 +18,20 @@ async function getMultiple(page = 1){
   }
 }
 
+async function create(el: {nome: string, idade: number, uf: string}) {
+
+  const result = await db.query(
+    `
+    INSERT INTO Clientes (Nome, Idade, UF) 
+    VALUES ('${el.nome}', ${el.idade}, '${el.uf}')
+    `
+  ) as ResultSetHeader
+
+  if (!result.affectedRows) { return { message: 'Não foi possível processar. Tente novamente mais tarde.' } }
+  return { message: 'Cliente criado com sucesso.' };
+}
+
 export default {
-  getMultiple
+  getMultiple,
+  create
 }
