@@ -1,9 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import customers from '../services/customers'
+import { param, check, validationResult } from 'express-validator'
+import frontResult from '../utils/response'
+
+const validateId = check('id')
+  .not().isEmpty()
+  .isNumeric()
 
 const router = Router()
 
-router.get('/', async function (req: Request, res: Response, next: NextFunction) {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
   // TODO: create a function that verifies the req.query.id
 
@@ -14,7 +20,7 @@ router.get('/', async function (req: Request, res: Response, next: NextFunction)
   catch (error) { next(error) }
 })
 
-router.post('/', async function (req: Request, res: Response, next: NextFunction) {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
   const body = req.body
 
@@ -25,9 +31,13 @@ router.post('/', async function (req: Request, res: Response, next: NextFunction
   catch (error) { next(error) }
 });
 
-router.put('/:id', async function (req: Request, res: Response, next: NextFunction) {
+router.put('/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
 
-  // TODO: create a function that verifices the req.params.id
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json(frontResult(400, 'Não foi possível processar sua solicitação', {}))
+  }
 
   const id = parseInt(req.params.id)
 
@@ -38,7 +48,7 @@ router.put('/:id', async function (req: Request, res: Response, next: NextFuncti
   catch (error) { next(error) }
 });
 
-router.delete('/:id', async function (req, res, next) {
+router.delete('/:id', async (req, res, next) => {
 
   // TODO: create a function that verifices the req.params.id
 
