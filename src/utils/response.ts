@@ -1,4 +1,4 @@
-export default function frontResult(status: number, message: string, object: Object,) {
+export default function objectResponse(status: number, message: string, object = {}) {
   return {
     status,
     message,
