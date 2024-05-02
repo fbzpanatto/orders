@@ -34,10 +34,8 @@ router.put('/:id', validateId, async (req: Request, res: Response, next: NextFun
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação'))
   }
 
-  const id = parseInt(req.params.id)
-
   try {
-    const result = await customers.update(id, req.body)
+    const result = await customers.update(parseInt(req.params.id), req.body)
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
@@ -45,12 +43,12 @@ router.put('/:id', validateId, async (req: Request, res: Response, next: NextFun
 
 router.delete('/:id', async (req, res, next) => {
 
-  // TODO: create a function that verifices the req.params.id
-
-  const id = parseInt(req.params.id)
+  if (!validationResult(req).isEmpty()) {
+    return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação'))
+  }
 
   try {
-    const result = await customers.remove(id)
+    const result = await customers.remove(parseInt(req.params.id))
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
