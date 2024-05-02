@@ -7,12 +7,21 @@ router.get('/', async function (req: Request, res: Response, next: NextFunction)
 
   // TODO: create a function that verifies the req.query.id
 
-  try { res.json(await customers.getMultiple()) }
+  try {
+    const result = await customers.getMultiple() as any
+    return res.status(result.status).json(result)
+  }
   catch (error) { next(error) }
 })
 
 router.post('/', async function (req: Request, res: Response, next: NextFunction) {
-  try { res.json(await customers.create(req.body)) }
+
+  const body = req.body
+
+  try {
+    const result = await customers.create(body)
+    return res.status(result.status).json(result)
+  }
   catch (error) { next(error) }
 });
 
@@ -22,7 +31,10 @@ router.put('/:id', async function (req: Request, res: Response, next: NextFuncti
 
   const id = parseInt(req.params.id)
 
-  try { res.json(await customers.update(id, req.body)) }
+  try {
+    const result = await customers.update(id, req.body)
+    return res.status(result.status).json(result)
+  }
   catch (error) { next(error) }
 });
 
@@ -34,7 +46,7 @@ router.delete('/:id', async function (req, res, next) {
 
   try {
     const result = await customers.remove(id)
-    
+    return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
 });
