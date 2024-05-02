@@ -14,10 +14,8 @@ async function getMultiple(page = 1) {
   const data = helper.emptyOrRows(rows);
   const meta = { page };
 
-  return {
-    data,
-    meta
-  }
+  if (!rows) { return frontResult(400, 'Não foi possível processar sua solicitação.') }
+  return frontResult(200, 'Sucesso', { data, meta })
 }
 
 async function create(el: { nome: string, idade: number, uf: string }) {
@@ -29,8 +27,8 @@ async function create(el: { nome: string, idade: number, uf: string }) {
     `
   ) as ResultSetHeader
 
-  if (!result.affectedRows) { return { message: 'Não foi possível processar essa solicitação. Tente novamente mais tarde.' } }
-  return { message: 'Cliente criado com sucesso.' };
+  if (!result.affectedRows) { return frontResult(400, 'Não foi possível processar sua solicitação.') }
+  return frontResult(200, 'Registro criado com sucesso.');
 }
 
 async function update(id: number, el: { nome: string, idade: number, uf: string }) {
@@ -42,21 +40,27 @@ async function update(id: number, el: { nome: string, idade: number, uf: string 
     `
   ) as ResultSetHeader
 
-  if (!result.affectedRows) { return { message: 'Não foi possível processar essa solicitação. Tente novamente mais tarde.' } }
-  return { message: 'Cliente alterado com sucesso.' };
+  if (!result.affectedRows) { return frontResult(400, 'Não foi possível processar sua solicitação.') }
+  return frontResult(201, 'Registro atualizado com sucesso.');
 }
 
-async function remove(id: number){
+async function remove(id: number) {
   const result = await db.query(
     `
     DELETE FROM Clientes WHERE id=${id}
     `
   ) as ResultSetHeader
 
-  console.log(result)
+  if (!result.affectedRows) { return frontResult(400, 'Não foi possível processar sua solicitação.') }
+  return frontResult(204, 'Registro removido com sucesso.');
+}
 
-  if (!result.affectedRows) { return { message: 'Não foi possível processar essa solicitação. Tente novamente mais tarde.' } }
-  return { message: 'Cliente deletado com sucesso.' };
+function frontResult(status: number, message: string, data?: { [key: string]: any },) {
+  return {
+    status,
+    message,
+    ...data,
+  }
 }
 
 export default {

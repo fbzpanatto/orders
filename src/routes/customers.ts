@@ -32,7 +32,10 @@ router.delete('/:id', async function (req, res, next) {
 
   const id = parseInt(req.params.id)
 
-  try { res.json(await customers.remove(id)) }
+  try {
+    const result = await customers.remove(id)
+    
+  }
   catch (error) { next(error) }
 });
 
