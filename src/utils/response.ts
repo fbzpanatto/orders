@@ -1,4 +1,4 @@
-export default function objectResponse(status: number, message: string, object = {}) {
+export function objectResponse(status: number, message: string, object = {}) {
   return {
     status,
     message,

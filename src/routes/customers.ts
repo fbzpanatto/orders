@@ -1,8 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import customers from '../services/customers'
+import { create, getMultiple, remove, update } from '../services/customers'
 import { validationResult } from 'express-validator'
-import objectResponse from '../utils/response'
+import { objectResponse } from '../utils/response'
 import { validateId } from '../middlewares/validators'
+import { Person } from 'src/interfaces/person'
 
 const router = Router()
 
@@ -11,7 +12,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   // TODO: create a function that verifies the req.query.id
 
   try {
-    const result = await customers.getMultiple() as any
+    const result = await getMultiple() as any
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
@@ -19,10 +20,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
-  const body = req.body
-
   try {
-    const result = await customers.create(body)
+    const result = await create(req.body as Person)
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
@@ -35,7 +34,7 @@ router.put('/:id', validateId, async (req: Request, res: Response, next: NextFun
   }
 
   try {
-    const result = await customers.update(parseInt(req.params.id), req.body)
+    const result = await update(parseInt(req.params.id), req.body)
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
@@ -48,7 +47,7 @@ router.delete('/:id', validateId, async (req, res, next) => {
   }
 
   try {
-    const result = await customers.remove(parseInt(req.params!.id))
+    const result = await remove(parseInt(req.params!.id))
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
