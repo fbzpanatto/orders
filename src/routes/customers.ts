@@ -3,8 +3,8 @@ import { create, getMultiple, remove, update } from '../services/customers'
 import { validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
 import { validateId, validatePostCustomer } from '../middlewares/validators'
-import { customerExists } from '../middlewares/customerExists'
-import { Person } from 'src/interfaces/person'
+import { customerExistsByDoc, customerExistsById } from '../middlewares/customerExists'
+import { Person } from '../interfaces/person'
 
 const router = Router()
 
@@ -17,7 +17,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   catch (error) { next(error) }
 })
 
-router.post('/', validatePostCustomer, customerExists, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', validatePostCustomer, customerExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
@@ -30,7 +30,7 @@ router.post('/', validatePostCustomer, customerExists, async (req: Request, res:
   catch (error) { next(error) }
 });
 
-router.put('/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id', validateId, customerExistsById, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))

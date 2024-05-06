@@ -3,7 +3,7 @@ import { query } from './db'
 import { config } from '../config'
 import { emptyOrRows, getOffset } from '../helper'
 import { objectResponse } from '../utils/response';
-import { LegalPerson, NormalPerson, Person } from '../interfaces/person';
+import { Person } from '../interfaces/person';
 import { formatDate } from '../utils/formatDate';
 import { Request } from 'express';
 import { PersonCategories } from '../enums/personCategories';
@@ -40,17 +40,9 @@ export const update = async (personId: number, req: Request) => {
   const { query: qParams, body } = req
   const personCategoryId = qParams['category'] as string
 
-  if (parseInt(personCategoryId) === PersonCategories.legal) {
-    const result = await findOnePerson(DatabaseTables.legal_persons, 'person_id', personId) as Array<LegalPerson>
+  if (parseInt(personCategoryId) === PersonCategories.legal) { return await updatePerson(DatabaseTables.legal_persons, personId, body) }
 
-    return result.length ? updatePerson(DatabaseTables.legal_persons, personId, body) : objectResponse(404, 'Registro não encontrado.')
-  }
-
-  else if (parseInt(personCategoryId) === PersonCategories.normal) {
-    const result = await findOnePerson(DatabaseTables.normal_persons, 'person_id', personId) as Array<NormalPerson>
-
-    return result.length ? updatePerson(DatabaseTables.normal_persons, personId, body) : objectResponse(404, 'Registro não encontrado.')
-  }
+  else if (parseInt(personCategoryId) === PersonCategories.normal) { return await updatePerson(DatabaseTables.normal_persons, personId, body) }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
