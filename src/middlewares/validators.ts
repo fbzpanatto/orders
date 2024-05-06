@@ -12,6 +12,14 @@ export const validatePostCustomer = checkSchema({
     optional: true,
     isLength: { options: { min: 11, max: 11 } }
   },
+  first_name: {
+    optional: true,
+    isLength: { options: { min: 3 } }
+  },
+  last_name: {
+    optional: true,
+    isLength: { options: { min: 3 } }
+  },
   cnpj: {
     optional: true,
     isLength: { options: { min: 14, max: 14 } }
