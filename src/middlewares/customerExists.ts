@@ -12,17 +12,17 @@ export const customerExists = async (req: Request, res: Response, next: NextFunc
 
     // TODO: create a logging system.
     console.log('Dado duplicado: body.cnpj')
-    return result.length ? res.status(409).json(objectResponse(400, 'Não foi possível processar sua solicitação.')) : next()
+    return result.length ? res.status(409).json(objectResponse(409, 'Conflito.')) : next()
 
   } else if (body.cpf) {
     const result = await normalExists(body) as Array<NormalPerson>
 
     // TODO: create a logging system.
     console.log('Dado duplicado: body.cpf')
-    return result.length ? res.status(409).json(objectResponse(400, 'Não foi possível processar sua solicitação.')) : next()
+    return result.length ? res.status(409).json(objectResponse(409, 'Conflito.')) : next()
     
   } else {
-    return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
+    return res.status(400).json(objectResponse(400, 'CPF ou CNPJ não informado.'))
   }
 }
 
