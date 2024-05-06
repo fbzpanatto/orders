@@ -73,22 +73,6 @@ export const findOnePerson = async (table: string, field: string, value: string 
   )
 }
 
-const updatePerson = async (table: string, personId: number, body: Person) => {
-
-  // TODO: set updated_at IN THIS TABLE. remove from persons?
-  // TODO: check if the field is integer.
-
-  const personUpdates = Object.entries(body)
-    .filter(([key]) => !['person_id', 'person_category'].includes(key))
-    .map(([key, value]) => `${key}='${value}'`)
-
-  const queryString = `UPDATE ${table} SET ${personUpdates.join(', ')} WHERE person_id=${personId}`;
-
-  const queryResult = await query(queryString) as ResultSetHeader;
-
-  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
-}
-
 const createPerson = async (body: Person) => {
   return await query(
     `
@@ -96,7 +80,7 @@ const createPerson = async (body: Person) => {
     VALUES (${body.person_category.id}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
     `
   ) as ResultSetHeader
-}
+};
 
 const createLegalOrNormalPerson = async (table: string, body: Person) => {
 
@@ -118,8 +102,24 @@ const createLegalOrNormalPerson = async (table: string, body: Person) => {
   return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows)
 };
 
+const updatePerson = async (table: string, personId: number, body: Person) => {
+
+  // TODO: set updated_at IN THIS TABLE. remove from persons?
+  // TODO: check if the field is integer.
+
+  const personUpdates = Object.entries(body)
+    .filter(([key]) => !['person_id', 'person_category'].includes(key))
+    .map(([key, value]) => `${key}='${value}'`)
+
+  const queryString = `UPDATE ${table} SET ${personUpdates.join(', ')} WHERE person_id=${personId}`;
+
+  const queryResult = await query(queryString) as ResultSetHeader;
+
+  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
+};
+
 const setResponse = (status: number, message: string, affectedRows: number | undefined) => {
   return affectedRows ?
     objectResponse(status, message) :
     objectResponse(400, 'Não foi possível processar sua solicitação.')
-}
+};
