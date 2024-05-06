@@ -7,6 +7,7 @@ import { LegalPerson, NormalPerson, Person } from '../interfaces/person';
 import { formatDate } from '../utils/formatDate';
 import { Request } from 'express';
 import { PersonCategories } from '../enums/personCategories';
+import { DatabaseTables } from '../enums/tables'
 
 export const getMultiple = async (page = 1) => {
   const offset = getOffset(page, config.listPerPage);
@@ -27,9 +28,9 @@ export const create = async (body: Person) => {
 
   const { insertId: personId } = await createPerson(body)
 
-  if (personId && body.cnpj) { return await createLegalOrNormalPerson('legal_persons', { person_id: personId, ...body }) }
+  if (personId && body.cnpj) { return await createLegalOrNormalPerson(DatabaseTables.legal_persons, { person_id: personId, ...body }) }
 
-  else if (personId && body.cpf) { return await createLegalOrNormalPerson('normal_persons', { person_id: personId, ...body }) }
+  else if (personId && body.cpf) { return await createLegalOrNormalPerson(DatabaseTables.normal_persons, { person_id: personId, ...body }) }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
@@ -40,15 +41,15 @@ export const update = async (personId: number, req: Request) => {
   const personCategoryId = qParams['category'] as string
 
   if (parseInt(personCategoryId) === PersonCategories.legal) {
-    const result = await findOnePerson('legal_persons', 'person_id', personId) as Array<LegalPerson>
+    const result = await findOnePerson(DatabaseTables.legal_persons, 'person_id', personId) as Array<LegalPerson>
 
-    return result.length ? updatePerson('legal_persons', personId, body) : objectResponse(404, 'Registro não encontrado.')
+    return result.length ? updatePerson(DatabaseTables.legal_persons, personId, body) : objectResponse(404, 'Registro não encontrado.')
   }
 
   else if (parseInt(personCategoryId) === PersonCategories.normal) {
-    const result = await findOnePerson('normal_persons', 'person_id', personId) as Array<NormalPerson>
+    const result = await findOnePerson(DatabaseTables.normal_persons, 'person_id', personId) as Array<NormalPerson>
 
-    return result.length ? updatePerson('normal_persons', personId, body) : objectResponse(404, 'Registro não encontrado.')
+    return result.length ? updatePerson(DatabaseTables.normal_persons, personId, body) : objectResponse(404, 'Registro não encontrado.')
   }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
