@@ -20,7 +20,7 @@ app.use(express.json())
 
 app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello World") })
 
-app.use('/custumers', customersRouter)
+app.use('/persons', customersRouter)
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => { res.status(500).send({ status: 500, message: error.message }) })
 

@@ -3,7 +3,8 @@ import { query } from './db'
 import { config } from '../config'
 import { emptyOrRows, getOffset } from '../helper'
 import { objectResponse } from '../utils/response';
-import { Person } from 'src/interfaces/person';
+import { Person } from '../interfaces/person';
+import { formatDate } from '../utils/formatDate';
 
 export async function getMultiple(page = 1) {
   const offset = getOffset(page, config.listPerPage);
@@ -22,36 +23,11 @@ export async function getMultiple(page = 1) {
 
 export async function create(body: Person) {
 
-  const queryResult = await query(
-    `
-    INSET INTO persons (person_category_id, created_at, updated_at)
-    VALUES (${body.person_category.id}, '${body.created_at ?? new Date()}', '${body.updated_at ?? new Date()}')
-    `
-  ) as ResultSetHeader
+  const { insertId: personId } = await createPerson(body)
 
-  const { insertId: personId } = queryResult
+  if (personId && body.cnpj) { return await createLegalPerson(personId, body) }
 
-  if (body.cnpj) {
-    const queryResult = await query(
-      `
-      INSERT INTO legal_persons (person_id, cnpj, state_registration, corporate_name, social_name)
-      VALUES(${personId}, '${body.cnpj}', '${body.state_registration}', '${body.corporate_name}', '${body.social_name}')
-      `
-    ) as ResultSetHeader
-
-    return setResponse(queryResult.insertId)
-  }
-
-  else if (body.cpf) {
-    const queryResult = await query(
-      `
-      INSERT INTO normal_persons (person_id, cpf, first_name, middle_name, last_name)
-      VALUES(${personId}, '${body.cpf}', '${body.first_name}', '${body.middle_name}', '${body.last_name}')
-      `
-    ) as ResultSetHeader
-
-    return setResponse(queryResult.insertId)
-  }
+  else if (personId && body.cpf) { return await createNormalPerson(personId, body) }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
@@ -80,8 +56,39 @@ export async function remove(id: number) {
   return objectResponse(204, 'Registro removido com sucesso.');
 }
 
-const setResponse = (insertId: number | undefined) => {
-  return insertId ?
+const createPerson = async (body: Person) => {
+  return await query(
+    `
+    INSERT INTO persons (person_category_id, created_at, updated_at)
+    VALUES (${body.person_category.id}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
+    `
+  ) as ResultSetHeader
+}
+
+const createLegalPerson = async (personId: number, body: Person) => {
+  const queryResult = await query(
+    `
+    INSERT INTO legal_persons (person_id, cnpj, state_registration, corporate_name, social_name)
+    VALUES(${personId}, '${body.cnpj}', '${body.state_registration}', '${body.corporate_name}', '${body.social_name}')
+    `
+  ) as ResultSetHeader
+
+  return setResponse(queryResult.affectedRows)
+}
+
+const createNormalPerson = async (personId: number, body: Person) => {
+  const queryResult = await query(
+    `
+    INSERT INTO normal_persons (person_id, cpf, first_name, middle_name, last_name)
+    VALUES(${personId}, '${body.cpf}', '${body.first_name}', '${body.middle_name}', '${body.last_name}')
+    `
+  ) as ResultSetHeader
+
+  return setResponse(queryResult.affectedRows)
+}
+
+const setResponse = (affectedRows: number | undefined) => {
+  return affectedRows ?
     objectResponse(200, 'Registro criado com sucesso.') :
     objectResponse(400, 'Não foi possível processar sua solicitação.')
 }

@@ -3,6 +3,7 @@ import { create, getMultiple, remove, update } from '../services/customers'
 import { validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
 import { validateId } from '../middlewares/validators'
+import { customerExists } from '../middlewares/customerExists'
 import { Person } from 'src/interfaces/person'
 
 const router = Router()
@@ -18,7 +19,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   catch (error) { next(error) }
 })
 
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', customerExists, async (req: Request, res: Response, next: NextFunction) => {
 
   try {
     const result = await create(req.body as Person)

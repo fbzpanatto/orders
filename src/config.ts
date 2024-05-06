@@ -3,7 +3,7 @@ export const config = {
     host: "localhost",
     user: "fbzpanatto",
     password: "fnp181292",
-    database: "generic",
+    database: "mydb",
     connectTimeout: 60000
   },
   listPerPage: 10,
