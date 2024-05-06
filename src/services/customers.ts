@@ -3,10 +3,12 @@ import { query } from './db'
 import { config } from '../config'
 import { emptyOrRows, getOffset } from '../helper'
 import { objectResponse } from '../utils/response';
-import { Person } from '../interfaces/person';
+import { LegalPerson, NormalPerson, Person } from '../interfaces/person';
 import { formatDate } from '../utils/formatDate';
+import { Request } from 'express';
+import { PersonCategories } from '../enums/personCategories';
 
-export async function getMultiple(page = 1) {
+export const getMultiple = async (page = 1) => {
   const offset = getOffset(page, config.listPerPage);
   const rows = await query(
     `
@@ -18,10 +20,10 @@ export async function getMultiple(page = 1) {
   const meta = { page };
 
   if (!rows) { return objectResponse(400, 'Não foi possível processar sua solicitação.', { teste: 'data' }) }
-  return objectResponse(200, 'Sucesso', { data, meta })
+  return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
 }
 
-export async function create(body: Person) {
+export const create = async (body: Person) => {
 
   const { insertId: personId } = await createPerson(body)
 
@@ -32,20 +34,27 @@ export async function create(body: Person) {
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
 
-export async function update(id: number, el: { nome: string, idade: number, uf: string }) {
-  const result = await query(
-    `
-    UPDATE Clientes 
-    SET nome="${el.nome}", idade=${el.idade}, uf="${el.uf}"
-    WHERE id=${id}
-    `
-  ) as ResultSetHeader
+export const update = async (personId: number, req: Request) => {
 
-  if (!result.affectedRows) { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
-  return objectResponse(201, 'Registro atualizado com sucesso.');
+  const { query: qParams, body } = req
+  const personCategoryId = qParams['category'] as string
+
+  if (parseInt(personCategoryId) === PersonCategories.legal) {
+    const result = await findOnePerson('legal_persons', 'person_id', personId) as Array<LegalPerson>
+
+    return result.length ? updateLegalPerson(personId, body) : objectResponse(404, 'Registro não encontrado.')
+  }
+
+  else if (parseInt(personCategoryId) === PersonCategories.normal) {
+    const result = await findOnePerson('normal_persons', 'person_id', personId) as Array<NormalPerson>
+
+    return result.length ? updateNormalPerson('normal_persons', personId, body) : objectResponse(404, 'Registro não encontrado.')
+  }
+
+  else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
 
-export async function remove(id: number) {
+export const remove = async (id: number) => {
   const result = await query(
     `
     DELETE FROM Clientes WHERE id=${id}
@@ -54,6 +63,36 @@ export async function remove(id: number) {
 
   if (!result.affectedRows) { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
   return objectResponse(204, 'Registro removido com sucesso.');
+}
+
+export const findOnePerson = async (table: string, field: string, value: string | number) => {
+  return await query(
+    `
+    SELECT * FROM ${table} WHERE ${field}=${value} LIMIT 1
+    `
+  )
+}
+
+const updateLegalPerson = async (personId: number, body: Person) => {
+  const queryResult = await query(
+    `
+
+    `
+  ) as ResultSetHeader
+
+  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
+}
+
+const updateNormalPerson = async (table: string, personId: number, body: Person) => {
+
+  let queryString = `UPDATE ${table} SET `
+  let keyPairValue: string[] = []
+
+  for (let key of Object.keys(body)) { keyPairValue.push(`${key}=${body[key as keyof Person]}`) }
+
+  const queryResult = await query(queryString + keyPairValue.join(', ') + ` WHERE person_id=${personId}`) as ResultSetHeader
+
+  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
 }
 
 const createPerson = async (body: Person) => {
@@ -73,7 +112,7 @@ const createLegalPerson = async (personId: number, body: Person) => {
     `
   ) as ResultSetHeader
 
-  return setResponse(queryResult.affectedRows)
+  return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows)
 }
 
 const createNormalPerson = async (personId: number, body: Person) => {
@@ -84,11 +123,11 @@ const createNormalPerson = async (personId: number, body: Person) => {
     `
   ) as ResultSetHeader
 
-  return setResponse(queryResult.affectedRows)
+  return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows)
 }
 
-const setResponse = (affectedRows: number | undefined) => {
+const setResponse = (status: number, message: string, affectedRows: number | undefined) => {
   return affectedRows ?
-    objectResponse(200, 'Registro criado com sucesso.') :
+    objectResponse(status, message) :
     objectResponse(400, 'Não foi possível processar sua solicitação.')
 }

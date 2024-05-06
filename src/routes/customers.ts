@@ -10,8 +10,6 @@ const router = Router()
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
-  // TODO: create a function that verifies the req.query.id
-
   try {
     const result = await getMultiple() as any
     return res.status(result.status).json(result)
@@ -39,7 +37,7 @@ router.put('/:id', validateId, async (req: Request, res: Response, next: NextFun
   }
 
   try {
-    const result = await update(parseInt(req.params.id), req.body)
+    const result = await update(parseInt(req.params.id), req)
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }

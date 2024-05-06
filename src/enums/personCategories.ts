@@ -1,3 +1,4 @@
 export enum PersonCategories {
-  customer = 2
+  legal = 1,
+  normal = 2
 }
