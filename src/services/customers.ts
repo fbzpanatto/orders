@@ -27,9 +27,9 @@ export const create = async (body: Person) => {
 
   const { insertId: personId } = await createPerson(body)
 
-  if (personId && body.cnpj) { return await createLegalPerson(personId, body) }
+  if (personId && body.cnpj) { return await createLegalOrNormalPerson('legal_persons', { person_id: personId, ...body }) }
 
-  else if (personId && body.cpf) { return await createNormalPerson(personId, body) }
+  else if (personId && body.cpf) { return await createLegalOrNormalPerson('normal_persons', { person_id: personId, ...body }) }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
@@ -79,8 +79,8 @@ const updatePerson = async (table: string, personId: number, body: Person) => {
   // TODO: check if the field is integer.
 
   const personUpdates = Object.entries(body)
-    .filter(([key]) => key !== 'person_id')
-    .map(([key, value]) => `${key}='${value}'`);
+    .filter(([key]) => !['person_id', 'person_category'].includes(key))
+    .map(([key, value]) => `${key}='${value}'`)
 
   const queryString = `UPDATE ${table} SET ${personUpdates.join(', ')} WHERE person_id=${personId}`;
 
@@ -98,27 +98,25 @@ const createPerson = async (body: Person) => {
   ) as ResultSetHeader
 }
 
-const createLegalPerson = async (personId: number, body: Person) => {
-  const queryResult = await query(
-    `
-    INSERT INTO legal_persons (person_id, cnpj, state_registration, corporate_name, social_name)
-    VALUES(${personId}, '${body.cnpj}', '${body.state_registration}', '${body.corporate_name}', '${body.social_name}')
-    `
-  ) as ResultSetHeader
+const createLegalOrNormalPerson = async (table: string, body: Person) => {
+
+  let keys: string[] = []
+  let values: any[] = []
+
+  Object.entries(body)
+    .filter(([key]) => key !== 'person_category')
+    .reduce((accum, [key, value]) => {
+      accum.keys.push(key);
+      accum.values.push(typeof value === 'number' ? value : `'${value}'`);
+      return accum;
+    }, { keys, values });
+
+  const queryString = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${values.join(', ')})`;
+
+  const queryResult = await query(queryString) as ResultSetHeader;
 
   return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows)
-}
-
-const createNormalPerson = async (personId: number, body: Person) => {
-  const queryResult = await query(
-    `
-    INSERT INTO normal_persons (person_id, cpf, first_name, middle_name, last_name)
-    VALUES(${personId}, '${body.cpf}', '${body.first_name}', '${body.middle_name}', '${body.last_name}')
-    `
-  ) as ResultSetHeader
-
-  return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows)
-}
+};
 
 const setResponse = (status: number, message: string, affectedRows: number | undefined) => {
   return affectedRows ?
