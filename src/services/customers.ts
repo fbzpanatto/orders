@@ -42,13 +42,13 @@ export const update = async (personId: number, req: Request) => {
   if (parseInt(personCategoryId) === PersonCategories.legal) {
     const result = await findOnePerson('legal_persons', 'person_id', personId) as Array<LegalPerson>
 
-    return result.length ? updateLegalPerson(personId, body) : objectResponse(404, 'Registro não encontrado.')
+    return result.length ? updatePerson('legal_persons', personId, body) : objectResponse(404, 'Registro não encontrado.')
   }
 
   else if (parseInt(personCategoryId) === PersonCategories.normal) {
     const result = await findOnePerson('normal_persons', 'person_id', personId) as Array<NormalPerson>
 
-    return result.length ? updateNormalPerson('normal_persons', personId, body) : objectResponse(404, 'Registro não encontrado.')
+    return result.length ? updatePerson('normal_persons', personId, body) : objectResponse(404, 'Registro não encontrado.')
   }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
@@ -73,24 +73,18 @@ export const findOnePerson = async (table: string, field: string, value: string 
   )
 }
 
-const updateLegalPerson = async (personId: number, body: Person) => {
-  const queryResult = await query(
-    `
+const updatePerson = async (table: string, personId: number, body: Person) => {
 
-    `
-  ) as ResultSetHeader
+  // TODO: set updated_at IN THIS TABLE. remove from persons?
+  // TODO: check if the field is integer.
 
-  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
-}
+  const personUpdates = Object.entries(body)
+    .filter(([key]) => key !== 'person_id')
+    .map(([key, value]) => `${key}='${value}'`);
 
-const updateNormalPerson = async (table: string, personId: number, body: Person) => {
+  const queryString = `UPDATE ${table} SET ${personUpdates.join(', ')} WHERE person_id=${personId}`;
 
-  let queryString = `UPDATE ${table} SET `
-  let keyPairValue: string[] = []
-
-  for (let key of Object.keys(body)) { keyPairValue.push(`${key}=${body[key as keyof Person]}`) }
-
-  const queryResult = await query(queryString + keyPairValue.join(', ') + ` WHERE person_id=${personId}`) as ResultSetHeader
+  const queryResult = await query(queryString) as ResultSetHeader;
 
   return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
 }
