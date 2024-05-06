@@ -19,7 +19,7 @@ export const customerExistsByDoc = async (req: Request, res: Response, next: Nex
 
     return result.length ? res.status(409).json(objectResponse(409, 'Conflito.')) : next()
 
-  } else { return res.status(400).json(objectResponse(400, 'CPF ou CNPJ não informado.')) }
+  } else { return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.')) }
 }
 
 export const customerExistsById = async (req: Request, res: Response, next: NextFunction) => {
