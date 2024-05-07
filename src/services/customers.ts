@@ -13,10 +13,16 @@ export const getMultiple = async (page = 1) => {
   const offset = getOffset(page, config.listPerPage);
   const rows = await query(
     `
-    SELECT p.id, p.person_category_id, p.created_at, pc.name
-    FROM persons as p
-    INNER JOIN person_categories as pc
-    ON p.person_category_id = pc.id
+    SELECT p.id AS person_id,
+    pc.name AS person_category,
+    n.cpf AS cpf,
+    CONCAT(n.first_name, ' ', n.last_name) AS full_name,
+    l.cnpj AS cnpj,
+    l.social_name AS social_name
+    FROM persons AS p
+    LEFT JOIN person_categories AS pc ON p.person_category_id = pc.id
+    LEFT JOIN normal_persons AS n ON p.id = n.person_id
+    LEFT JOIN legal_persons AS l ON p.id = l.person_id
     LIMIT ${offset},${config.listPerPage}
     `
   );
@@ -25,6 +31,10 @@ export const getMultiple = async (page = 1) => {
 
   if (!rows) { return objectResponse(400, 'Não foi possível processar sua solicitação.', { teste: 'data' }) }
   return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+}
+
+export const findOnePerson = async (table: string, field: string, value: string | number) => {
+  return await query(`SELECT * FROM ${table} WHERE ${field}=${value} LIMIT 1`)
 }
 
 export const create = async (body: Person) => {
@@ -59,14 +69,6 @@ export const remove = async (id: number) => {
 
   if (!result.affectedRows) { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
   return objectResponse(204, 'Registro removido com sucesso.');
-}
-
-export const findOnePerson = async (table: string, field: string, value: string | number) => {
-  return await query(
-    `
-    SELECT * FROM ${table} WHERE ${field}=${value} LIMIT 1
-    `
-  )
 }
 
 const createPerson = async (body: Person) => {
