@@ -30,7 +30,7 @@ router.post('/', validatePostCustomer, customerExistsByDoc, async (req: Request,
   catch (error) { next(error) }
 });
 
-router.put('/:id', validateId, validatePatchCustomer, customerExistsById, async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/:id', validateId, validatePatchCustomer, customerExistsById, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
