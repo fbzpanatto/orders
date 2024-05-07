@@ -6,21 +6,27 @@ export const validateId = check('id')
 
 const addressesSchemaValidation = {
   add_street: {
+    optional: true,
     isLength: { options: { min: 3 } }
   },
   add_number: {
+    optional: true,
     isLength: { options: { min: 3 } }
   },
   add_zipcode: {
+    optional: true,
     isLength: { options: { min: 8, max: 8 } }
   },
   add_city: {
+    optional: true,
     isLength: { options: { min: 3 } }
   },
   add_neighborhood: {
+    optional: true,
     isLength: { options: { min: 3 } }
   },
   created_at: {
+    optional: true,
     isDate: true
   },
   updated_at: {
