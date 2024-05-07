@@ -7,38 +7,46 @@ export const validateId = check('id')
 const addressesSchemaValidation: Schema = {
   add_street: {
     optional: true,
-    isLength: { options: { min: 3 } }
+    isLength: { options: { min: 3 } },
+    escape: true
   },
   add_number: {
     optional: true,
-    isLength: { options: { min: 3 } }
+    isLength: { options: { min: 3 } },
+    escape: true
   },
   add_zipcode: {
     optional: true,
-    isLength: { options: { min: 8, max: 8 } }
+    isLength: { options: { min: 8, max: 8 } },
+    escape: true
   },
   add_city: {
     optional: true,
-    isLength: { options: { min: 3 } }
+    isLength: { options: { min: 3 } },
+    escape: true
   },
   add_neighborhood: {
     optional: true,
-    isLength: { options: { min: 3 } }
+    isLength: { options: { min: 3 } },
+    escape: true
   },
   created_at: {
     optional: true,
-    isDate: true
+    isDate: true,
+    escape: true
   },
   updated_at: {
     optional: true,
-    isDate: true
+    isDate: true,
+    escape: true
   }
 }
 
 export const validatePostAddresses = checkSchema({
   person_id: {
     exists: true,
-    isNumeric: true
+    isNumeric: true,
+    escape: true
   },
   ...addressesSchemaValidation
 })
@@ -48,39 +56,47 @@ export const validatePatchAddresses = checkSchema(addressesSchemaValidation)
 const customerSchemaValidation: Schema = {
   cpf: {
     optional: true,
-    isLength: { options: { min: 11, max: 11 } }
+    isLength: { options: { min: 11, max: 11 } },
+    escape: true
   },
   first_name: {
     optional: true,
-    isLength: { options: { min: 3 } }
+    isLength: { options: { min: 3 } },
+    escape: true
   },
   middle_name: {
-    optional: true
+    optional: true,
+    escape: true
   },
   last_name: {
     optional: true,
-    isLength: { options: { min: 3 } }
+    isLength: { options: { min: 3 } },
+    escape: true
   },
   cnpj: {
     optional: true,
-    isLength: { options: { min: 14, max: 14 } }
+    isLength: { options: { min: 14, max: 14 } },
+    escape: true
   },
   corporate_name: {
     optional: true,
-    isLength: { options: { min: 3 } }
+    isLength: { options: { min: 3 } },
+    escape: true
   },
   social_name: {
     optional: true,
-    isLength: { options: { min: 3 } }
+    isLength: { options: { min: 3 } },
+    escape: true
   },
   state_registration: {
     optional: true,
-    isLength: { options: { min: 9, max: 9 } }
+    isLength: { options: { min: 9, max: 9 } },
+    escape: true
   }
 }
 
 export const validatePostCustomer = checkSchema({
-  person_category_id: { exists: true },
+  person_category_id: { exists: true, escape: true },
   ...customerSchemaValidation
 });
 

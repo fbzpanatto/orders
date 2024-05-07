@@ -27,10 +27,7 @@ router.post('/', validatePostCustomer, customerExistsByDoc, async (req: Request,
     const result = await create(req.body as Person)
     return res.status(result.status).json(result)
   }
-  catch (error) {
-    console.log(error)
-     next(error) 
-    }
+  catch (error) { next(error) }
 });
 
 router.patch('/:id', validateId, validatePatchCustomer, customerExistsById, async (req: Request, res: Response, next: NextFunction) => {
