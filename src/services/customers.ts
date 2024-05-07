@@ -39,13 +39,13 @@ export const create = async (body: Person) => {
   const { insertId: personId } = await query(
     `
     INSERT INTO persons (person_category_id, created_at, updated_at)
-    VALUES (${body.person_category.id}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
+    VALUES (${body.person_category_id}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
     `
   ) as ResultSetHeader
 
-  if (personId && body.cnpj) { return await createRow(DatabaseTables.legal_persons, { person_id: personId, ...body }, ['person_category']) }
+  if (personId && body.cnpj) { return await createRow(DatabaseTables.legal_persons, { person_id: personId, ...body }, ['person_category_id']) }
 
-  else if (personId && body.cpf) { return await createRow(DatabaseTables.normal_persons, { person_id: personId, ...body }, ['person_category']) }
+  else if (personId && body.cpf) { return await createRow(DatabaseTables.normal_persons, { person_id: personId, ...body }, ['person_category_id']) }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }

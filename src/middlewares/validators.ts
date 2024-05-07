@@ -80,7 +80,7 @@ const customerSchemaValidation: Schema = {
 }
 
 export const validatePostCustomer = checkSchema({
-  'person_category.id': { exists: true },
+  person_category_id: { exists: true },
   ...customerSchemaValidation
 });
 

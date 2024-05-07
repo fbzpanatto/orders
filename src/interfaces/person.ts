@@ -15,8 +15,8 @@ export interface NormalPerson {
 }
 
 export interface Person extends LegalPerson, NormalPerson {
-  id?: number
-  person_category: { id: number },
+  id?: number,
+  person_category_id: number,
   created_at?: Date,
   updated_at?: Date
 }
