@@ -55,9 +55,9 @@ export const update = async (personId: number, req: Request) => {
   const { query: qParams, body } = req
   const personCategoryId = qParams['category'] as string
 
-  if (parseInt(personCategoryId) === PersonCategories.legal) { return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, body, ['person_id', 'person_category']) }
+  if (parseInt(personCategoryId) === PersonCategories.legal) { return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, body, ['person_id', 'person_category_id']) }
 
-  else if (parseInt(personCategoryId) === PersonCategories.normal) { return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, body, ['person_id', 'person_category']) }
+  else if (parseInt(personCategoryId) === PersonCategories.normal) { return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, body, ['person_id', 'person_category_id']) }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
