@@ -13,8 +13,11 @@ export const getMultiple = async (page = 1) => {
   const offset = getOffset(page, config.listPerPage);
   const rows = await query(
     `
-    SELECT *
-    FROM persons LIMIT ${offset},${config.listPerPage}
+    SELECT p.id, p.person_category_id, p.created_at, pc.name
+    FROM persons as p
+    INNER JOIN person_categories as pc
+    ON p.person_category_id = pc.id
+    LIMIT ${offset},${config.listPerPage}
     `
   );
   const data = emptyOrRows(rows);
@@ -97,12 +100,9 @@ const createLegalOrNormalPerson = async (table: string, body: Person) => {
 
 const updatePerson = async (table: string, personId: number, body: Person) => {
 
-  // TODO: set updated_at IN THIS TABLE. remove from persons?
-  // TODO: check if the field is integer.
-
   const personUpdates = Object.entries(body)
     .filter(([key]) => !['person_id', 'person_category'].includes(key))
-    .map(([key, value]) => `${key}='${value}'`)
+    .map(([key, value]) => typeof value === 'number' ? `${key}=${value}` : `${key}='${value}'`)
 
   const queryString = `UPDATE ${table} SET ${personUpdates.join(', ')} WHERE person_id=${personId}`;
 

@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { create, getMultiple, remove, update } from '../services/customers'
 import { validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
-import { validateId, validatePostCustomer } from '../middlewares/validators'
+import { validateId, validatePostCustomer, validatePatchCustomer } from '../middlewares/validators'
 import { customerExistsByDoc, customerExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'
 
@@ -30,7 +30,7 @@ router.post('/', validatePostCustomer, customerExistsByDoc, async (req: Request,
   catch (error) { next(error) }
 });
 
-router.put('/:id', validateId, customerExistsById, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id', validateId, validatePatchCustomer, customerExistsById, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
