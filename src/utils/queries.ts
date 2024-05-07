@@ -1,4 +1,4 @@
-import { ResultSetHeader } from 'mysql2';
+import { ResultSetHeader, format } from 'mysql2';
 import { query } from '../services/db'
 import { setResponse } from './response';
 
@@ -7,34 +7,48 @@ export const findOneRegister = async (table: string, field: string, value: strin
 }
 
 export const createRow = async (table: string, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
-
-  let keys: string[] = []
-  let values: any[] = []
-
-  Object.entries(body)
+  // Filter and prepare column names
+  const columns = Object.entries(body)
     .filter(([key]) => !bodyFieldsToIgnore.includes(key))
-    .reduce((accum, [key, value]) => {
-      accum.keys.push(key);
-      accum.values.push(typeof value === 'number' ? value : `'${value}'`);
-      return accum;
-    }, { keys, values });
+    .map(([key]) => key);
 
-  const queryString = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${values.join(', ')})`;
+  // Prepare placeholders for values
+  const placeholders = columns.map(() => '?');
 
-  const queryResult = await query(queryString) as ResultSetHeader;
+  // Prepare query string with placeholders
+  const queryString = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`;
 
-  return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows)
+  // Prepare values array
+  const values = Object.values(body).filter((_, index) => !bodyFieldsToIgnore.includes(columns[index]));
+
+  // Execute query with prepared statement
+  const queryResult = await query(format(queryString, values)) as ResultSetHeader
+
+  return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows);
 };
 
 export const updateRow = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
-
-  const rowUpdates = Object.entries(body)
+  // Filter and prepare update statements with placeholders
+  const updates = Object.entries(body)
     .filter(([key]) => !bodyFieldsToIgnore.includes(key))
-    .map(([key, value]) => typeof value === 'number' ? `${key}=${value}` : `${key}='${value}'`)
+    .map(([key]) => `${key}=?`);
 
-  const queryString = `UPDATE ${table} SET ${rowUpdates.join(', ')} WHERE ${whereField}=${param}`;
+  // Prepare WHERE clause with placeholder
+  const whereClause = `${whereField}=?`;
 
-  const queryResult = await query(queryString) as ResultSetHeader;
+  // Combine updates and WHERE clause with placeholders
+  const queryString = `UPDATE ${table} SET ${updates.join(', ')} WHERE ${whereClause}`;
 
-  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
+  // Prepare values for parameters
+  const values = [
+    ...Object.values(body).filter(([key]) => !bodyFieldsToIgnore.includes(key)), // Update values
+    param, // WHERE clause parameter
+  ];
+
+  console.log(queryString, values)
+
+  // Execute query with prepared statement
+  const queryResult = await query(format(queryString, values)) as ResultSetHeader
+
+  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows);
 };

@@ -8,7 +8,7 @@ import { formatDate } from '../utils/formatDate';
 import { Request } from 'express';
 import { PersonCategories } from '../enums/personCategories';
 import { DatabaseTables } from '../enums/tables'
-import { updateRow, createRow } from '../utils/queries';
+import { createRow, updateRow } from '../utils/queries';
 
 export const getMultiple = async (page = 1) => {
   const offset = getOffset(page, config.listPerPage);
@@ -36,10 +36,12 @@ export const getMultiple = async (page = 1) => {
 
 export const create = async (body: Person) => {
 
+  let person_category = body.cnpj ? PersonCategories.legal : PersonCategories.normal
+
   const { insertId: personId } = await query(
     `
     INSERT INTO persons (person_category_id, created_at, updated_at)
-    VALUES (${body.person_category_id}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
+    VALUES (${person_category}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
     `
   ) as ResultSetHeader
 
