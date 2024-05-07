@@ -28,26 +28,19 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
 };
 
 export const updateRow = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
-  // Filter and prepare update statements with placeholders
   const updates = Object.entries(body)
     .filter(([key]) => !bodyFieldsToIgnore.includes(key))
     .map(([key]) => `${key}=?`);
 
-  // Prepare WHERE clause with placeholder
   const whereClause = `${whereField}=?`;
 
-  // Combine updates and WHERE clause with placeholders
   const queryString = `UPDATE ${table} SET ${updates.join(', ')} WHERE ${whereClause}`;
 
-  // Prepare values for parameters
   const values = [
-    ...Object.values(body).filter(([key]) => !bodyFieldsToIgnore.includes(key)), // Update values
-    param, // WHERE clause parameter
+    ...Object.values(body).filter(([key]) => !bodyFieldsToIgnore.includes(key)),
+    param,
   ];
 
-  console.log(queryString, values)
-
-  // Execute query with prepared statement
   const queryResult = await query(format(queryString, values)) as ResultSetHeader
 
   return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows);
