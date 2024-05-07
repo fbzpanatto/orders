@@ -4,7 +4,7 @@ export const validateId = check('id')
   .not().isEmpty()
   .isNumeric()
 
-const addressesSchemaValidation = {
+const addressesSchemaValidation: Schema = {
   add_street: {
     optional: true,
     isLength: { options: { min: 3 } }
@@ -36,8 +36,9 @@ const addressesSchemaValidation = {
 }
 
 export const validatePostAddresses = checkSchema({
-  'person.id': {
-    exists: true
+  person_id: {
+    exists: true,
+    isNumeric: true
   },
   ...addressesSchemaValidation
 })
@@ -54,8 +55,7 @@ const customerSchemaValidation: Schema = {
     isLength: { options: { min: 3 } }
   },
   middle_name: {
-    optional: true,
-    isLength: { options: { min: 2 } }
+    optional: true
   },
   last_name: {
     optional: true,

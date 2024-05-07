@@ -3,6 +3,7 @@ import { getOneAddress, createAddress, updateAdress } from '../services/addresse
 import { validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
 import { PersonAddresses } from 'src/interfaces/addresses'
+import { validatePostAddresses } from '../middlewares/validators'
 
 const router = Router()
 
@@ -17,7 +18,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   catch (error) { next(error) }
 })
 
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', validatePostAddresses, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
