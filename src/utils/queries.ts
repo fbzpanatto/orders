@@ -3,8 +3,17 @@ import { query } from '../services/db'
 import { setResponse } from './response';
 
 export const findOneRegister = async (table: string, field: string, value: string | number) => {
-  return await query(`SELECT * FROM ${table} WHERE ${field}=${value}`)
-}
+
+  const placeholder = '?';
+
+  const queryString = `SELECT * FROM ${table} WHERE ${field}=${placeholder}`;
+
+  const values = [value];
+
+  const results = await query(format(queryString, values)) as Array<{ [key: string]: any }>
+
+  return results.length ? results[0] : null;
+};
 
 export const createRow = async (table: string, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
 
