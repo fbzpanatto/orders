@@ -3,7 +3,7 @@ import { query } from '../services/db'
 import { setResponse } from './response';
 
 export const findOneRegister = async (table: string, field: string, value: string | number) => {
-  return await query(`SELECT * FROM ${table} WHERE ${field}=${value} LIMIT 1`)
+  return await query(`SELECT * FROM ${table} WHERE ${field}=${value}`)
 }
 
 export const updateRow = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
