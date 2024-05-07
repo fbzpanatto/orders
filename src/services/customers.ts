@@ -18,7 +18,7 @@ export const getMultiple = async (page = 1) => {
     n.cpf AS cpf,
     CONCAT(n.first_name, ' ', n.last_name) AS full_name,
     l.cnpj AS cnpj,
-    l.social_name AS social_name
+    l.corporate_name AS corporate_name
     FROM persons AS p
     LEFT JOIN person_categories AS pc ON p.person_category_id = pc.id
     LEFT JOIN normal_persons AS n ON p.id = n.person_id
@@ -61,6 +61,7 @@ export const update = async (personId: number, req: Request) => {
 }
 
 export const remove = async (id: number) => {
+  // TODO: Review remove method.
   const result = await query(
     `
     DELETE FROM Clientes WHERE id=${id}
