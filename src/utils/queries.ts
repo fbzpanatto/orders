@@ -7,21 +7,18 @@ export const findOneRegister = async (table: string, field: string, value: strin
 }
 
 export const createRow = async (table: string, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
-  // Filter and prepare column names
+
   const columns = Object.entries(body)
     .filter(([key]) => !bodyFieldsToIgnore.includes(key))
     .map(([key]) => key);
 
-  // Prepare placeholders for values
-  const placeholders = columns.map(() => '?');
+  const placeholders = columns.map(() => '?')
 
-  // Prepare query string with placeholders
+
   const queryString = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`;
 
-  // Prepare values array
   const values = Object.values(body).filter((_, index) => !bodyFieldsToIgnore.includes(columns[index]));
 
-  // Execute query with prepared statement
   const queryResult = await query(format(queryString, values)) as ResultSetHeader
 
   return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows);
