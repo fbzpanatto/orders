@@ -2,7 +2,7 @@ import { ResultSetHeader } from 'mysql2';
 import { query } from './db'
 import { config } from '../config'
 import { emptyOrRows, getOffset } from '../helper'
-import { objectResponse } from '../utils/response';
+import { objectResponse, setResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
 import { formatDate } from '../utils/formatDate';
 import { Request } from 'express';
@@ -60,18 +60,6 @@ export const update = async (personId: number, req: Request) => {
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
 
-export const remove = async (id: number) => {
-  // TODO: Review remove method.
-  const result = await query(
-    `
-    DELETE FROM Clientes WHERE id=${id}
-    `
-  ) as ResultSetHeader
-
-  if (!result.affectedRows) { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
-  return objectResponse(204, 'Registro removido com sucesso.');
-}
-
 const createPerson = async (body: Person) => {
   return await query(
     `
@@ -112,10 +100,4 @@ const updatePerson = async (table: string, personId: number, body: Person) => {
   const queryResult = await query(queryString) as ResultSetHeader;
 
   return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
-};
-
-const setResponse = (status: number, message: string, affectedRows: number | undefined) => {
-  return affectedRows ?
-    objectResponse(status, message) :
-    objectResponse(400, 'Não foi possível processar sua solicitação.')
 };

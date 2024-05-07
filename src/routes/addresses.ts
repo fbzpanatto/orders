@@ -1,44 +1,48 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { create, getMultiple, update } from '../services/customers'
+import { getOneAddress, createAddress, updateAdress } from '../services/addresses'
 import { validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
-import { validateId, validatePostCustomer, validatePatchCustomer } from '../middlewares/validators'
-import { customerExistsByDoc, customerExistsById } from '../middlewares/customerExists'
-import { Person } from '../interfaces/person'
+import { PersonAddresses } from 'src/interfaces/addresses'
 
 const router = Router()
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
   try {
-    const result = await getMultiple() as any
+
+    const result = await getOneAddress(parseInt(req.params.id))
     return res.status(result.status).json(result)
+
   }
   catch (error) { next(error) }
 })
 
-router.post('/', validatePostCustomer, customerExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:personId', async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
   }
 
   try {
-    const result = await create(req.body as Person)
+
+    const result = await createAddress(req.body as PersonAddresses)
     return res.status(result.status).json(result)
+
   }
   catch (error) { next(error) }
-});
+})
 
-router.patch('/:id', validateId, validatePatchCustomer, customerExistsById, async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
   }
 
   try {
-    const result = await update(parseInt(req.params.id), req)
+
+    const result = await updateAdress(parseInt(req.params.id))
     return res.status(result.status).json(result)
+
   }
   catch (error) { next(error) }
 })

@@ -7,11 +7,11 @@ export interface LegalPerson {
 }
 
 export interface NormalPerson {
+  person_id?: number,
   cpf?: string,
   first_name?: string,
   middle_name?: string,
-  last_name?: string,
-  person_id?: number
+  last_name?: string
 }
 
 export interface Person extends LegalPerson, NormalPerson {

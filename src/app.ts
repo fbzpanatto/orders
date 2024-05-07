@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 
 import customersRouter from './routes/customers';
+import addressesRouter from './routes/addresses'
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use(express.json())
 
 app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello World") })
 
+app.use('/addresses', addressesRouter)
 app.use('/persons', customersRouter)
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => { res.status(500).send({ status: 500, message: error.message }) })
