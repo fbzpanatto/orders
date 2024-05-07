@@ -17,7 +17,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   catch (error) { next(error) }
 })
 
-router.post('/:personId', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
