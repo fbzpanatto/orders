@@ -1,37 +1,26 @@
-import { ResultSetHeader } from 'mysql2';
-import { query } from './db'
-import { config } from '../config'
-import { emptyOrRows } from '../helper';
-import { objectResponse, setResponse } from '../utils/response';
+import { objectResponse } from '../utils/response';
 import { PersonAddresses } from '../interfaces/addresses';
+import { findOneRegister, updateRow, createRow } from '../utils/queries';
+import { DatabaseTables } from '../enums/tables';
+import { Request } from 'express';
 
 export const getOneAddress = async (id: number) => {
-  const result = await query(
-    `
-    `
-  ) as ResultSetHeader
 
-  const data = (emptyOrRows(result) as Array<PersonAddresses>)
+  const result = await findOneRegister(DatabaseTables.person_adresses, 'person_id', id) as Array<PersonAddresses>
 
-  return objectResponse(200, '', { data })
+  return objectResponse(200, 'Consulta realizada com sucesso.', { result })
 }
 
 export const createAddress = async (body: PersonAddresses) => {
 
-  const queryResult = await query(
-    `
-    `
-  ) as ResultSetHeader
+  return await createRow(DatabaseTables.person_adresses, body, [])
 
-  return setResponse(200, 'Registro criado com sucesso.', queryResult.insertId)
 }
 
-export const updateAdress = async (id: number) => {
+export const updateAdress = async (id: number, req: Request) => {
 
-  const queryResult = await query(
-    `
-    `
-  ) as ResultSetHeader
+  const { body } = req
 
-  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
+  return await updateRow(DatabaseTables.person_adresses, 'id', id, body as PersonAddresses, [])
+
 }

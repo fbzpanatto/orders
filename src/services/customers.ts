@@ -2,12 +2,13 @@ import { ResultSetHeader } from 'mysql2';
 import { query } from './db'
 import { config } from '../config'
 import { emptyOrRows, getOffset } from '../helper'
-import { objectResponse, setResponse } from '../utils/response';
+import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
 import { formatDate } from '../utils/formatDate';
 import { Request } from 'express';
 import { PersonCategories } from '../enums/personCategories';
 import { DatabaseTables } from '../enums/tables'
+import { updateRow, createRow } from '../utils/queries';
 
 export const getMultiple = async (page = 1) => {
   const offset = getOffset(page, config.listPerPage);
@@ -33,17 +34,18 @@ export const getMultiple = async (page = 1) => {
   return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
 }
 
-export const findOnePerson = async (table: string, field: string, value: string | number) => {
-  return await query(`SELECT * FROM ${table} WHERE ${field}=${value} LIMIT 1`)
-}
-
 export const create = async (body: Person) => {
 
-  const { insertId: personId } = await createPerson(body)
+  const { insertId: personId } = await query(
+    `
+    INSERT INTO persons (person_category_id, created_at, updated_at)
+    VALUES (${body.person_category.id}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
+    `
+  ) as ResultSetHeader
 
-  if (personId && body.cnpj) { return await createLegalOrNormalPerson(DatabaseTables.legal_persons, { person_id: personId, ...body }) }
+  if (personId && body.cnpj) { return await createRow(DatabaseTables.legal_persons, { person_id: personId, ...body }, ['person_category']) }
 
-  else if (personId && body.cpf) { return await createLegalOrNormalPerson(DatabaseTables.normal_persons, { person_id: personId, ...body }) }
+  else if (personId && body.cpf) { return await createRow(DatabaseTables.normal_persons, { person_id: personId, ...body }, ['person_category']) }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
@@ -53,51 +55,9 @@ export const update = async (personId: number, req: Request) => {
   const { query: qParams, body } = req
   const personCategoryId = qParams['category'] as string
 
-  if (parseInt(personCategoryId) === PersonCategories.legal) { return await updatePerson(DatabaseTables.legal_persons, personId, body) }
+  if (parseInt(personCategoryId) === PersonCategories.legal) { return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, body, ['person_id', 'person_category']) }
 
-  else if (parseInt(personCategoryId) === PersonCategories.normal) { return await updatePerson(DatabaseTables.normal_persons, personId, body) }
+  else if (parseInt(personCategoryId) === PersonCategories.normal) { return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, body, ['person_id', 'person_category']) }
 
   else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
 }
-
-const createPerson = async (body: Person) => {
-  return await query(
-    `
-    INSERT INTO persons (person_category_id, created_at, updated_at)
-    VALUES (${body.person_category.id}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
-    `
-  ) as ResultSetHeader
-};
-
-const createLegalOrNormalPerson = async (table: string, body: Person) => {
-
-  let keys: string[] = []
-  let values: any[] = []
-
-  Object.entries(body)
-    .filter(([key]) => key !== 'person_category')
-    .reduce((accum, [key, value]) => {
-      accum.keys.push(key);
-      accum.values.push(typeof value === 'number' ? value : `'${value}'`);
-      return accum;
-    }, { keys, values });
-
-  const queryString = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${values.join(', ')})`;
-
-  const queryResult = await query(queryString) as ResultSetHeader;
-
-  return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows)
-};
-
-const updatePerson = async (table: string, personId: number, body: Person) => {
-
-  const personUpdates = Object.entries(body)
-    .filter(([key]) => !['person_id', 'person_category'].includes(key))
-    .map(([key, value]) => typeof value === 'number' ? `${key}=${value}` : `${key}='${value}'`)
-
-  const queryString = `UPDATE ${table} SET ${personUpdates.join(', ')} WHERE person_id=${personId}`;
-
-  const queryResult = await query(queryString) as ResultSetHeader;
-
-  return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows)
-};

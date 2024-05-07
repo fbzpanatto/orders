@@ -40,7 +40,7 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
 
   try {
 
-    const result = await updateAdress(parseInt(req.params.id))
+    const result = await updateAdress(parseInt(req.params.id), req)
     return res.status(result.status).json(result)
 
   }
