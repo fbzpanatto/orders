@@ -7,11 +7,11 @@ import { validatePostAddresses } from '../middlewares/validators'
 
 const router = Router()
 
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:personId', async (req: Request, res: Response, next: NextFunction) => {
 
   try {
 
-    const result = await getOneAddress(parseInt(req.params.id))
+    const result = await getOneAddress(parseInt(req.params.personId))
     return res.status(result.status).json(result)
 
   }

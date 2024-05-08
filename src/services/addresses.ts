@@ -4,9 +4,9 @@ import { findOneRegister, updateRow, createRow } from '../utils/queries';
 import { DatabaseTables } from '../enums/tables';
 import { Request } from 'express';
 
-export const getOneAddress = async (id: number) => {
+export const getOneAddress = async (personId: number) => {
 
-  const result = await findOneRegister(DatabaseTables.person_addresses, 'person_id', id) as Array<PersonAddresses>
+  const result = await findOneRegister(DatabaseTables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
 
   return objectResponse(200, 'Consulta realizada com sucesso.', { result })
 }

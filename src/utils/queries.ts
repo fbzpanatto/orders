@@ -12,6 +12,8 @@ export const findOneRegister = async (table: string, field: string, value: strin
 
   const results = await query(format(queryString, values)) as Array<{ [key: string]: any }>
 
+  console.log('results', results)
+
   return results.length ? results[0] : null;
 };
 
@@ -29,6 +31,8 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
   const values = Object.values(body).filter((_, index) => !bodyFieldsToIgnore.includes(columns[index]));
 
   const queryResult = await query(format(queryString, values)) as ResultSetHeader
+
+  console.log('queryResult', queryResult)
 
   return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows);
 };
@@ -48,6 +52,8 @@ export const updateRow = async (table: string, whereField: string, param: number
   ];
 
   const queryResult = await query(format(queryString, values)) as ResultSetHeader
+
+  console.log('queryResult', queryResult)
 
   return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows);
 };
