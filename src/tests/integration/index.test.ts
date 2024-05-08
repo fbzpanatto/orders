@@ -3,15 +3,18 @@ import { query } from "../../services/db";
 import request from 'supertest'
 import app from '../../app'
 
+async function dataBaseTestSettings() {
+  await query('SET FOREIGN_KEY_CHECKS = 0')
+  await query('TRUNCATE TABLE legal_persons')
+  await query('TRUNCATE TABLE normal_persons')
+  await query('TRUNCATE TABLE persons')
+  await query('SET FOREIGN_KEY_CHECKS = 1')
+}
+
 describe('Endpoints', () => {
 
-  beforeAll(async () => {
-    await query('SET FOREIGN_KEY_CHECKS = 0')
-    await query('TRUNCATE TABLE legal_persons')
-    await query('TRUNCATE TABLE normal_persons')
-    await query('TRUNCATE TABLE persons')
-    await query('SET FOREIGN_KEY_CHECKS = 1')
-  })
+  beforeAll(async () => { await dataBaseTestSettings() })
+  afterAll(async () => { await dataBaseTestSettings() })
 
   it('Return Hello World', async () => {
     const response = await request(app).get('/api')
