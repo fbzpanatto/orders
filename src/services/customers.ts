@@ -11,7 +11,7 @@ import { DatabaseTables } from '../enums/tables'
 import { createRow, updateRow } from '../utils/queries';
 
 export const getMultiple = async (page = 1) => {
-  const offset = getOffset(page, config.listPerPage);
+  const offset = getOffset(page, config().listPerPage);
   const rows = await query(
     `
     SELECT p.id AS person_id,
@@ -24,7 +24,7 @@ export const getMultiple = async (page = 1) => {
     LEFT JOIN person_categories AS pc ON p.person_category_id = pc.id
     LEFT JOIN normal_persons AS n ON p.id = n.person_id
     LEFT JOIN legal_persons AS l ON p.id = l.person_id
-    LIMIT ${offset},${config.listPerPage}
+    LIMIT ${offset},${config().listPerPage}
     `
   );
   const data = emptyOrRows(rows);

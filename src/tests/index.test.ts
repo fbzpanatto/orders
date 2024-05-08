@@ -1,22 +1,23 @@
 import { describe, test, expect } from "@jest/globals"
 import { sum } from './index'
-import supertest from 'supertest'
+import request from 'supertest'
 import app from '../app'
 
 import dotenv from 'dotenv';
 dotenv.config();
 
-const request = supertest(app)
+describe('Endpoints', () => {
 
-describe('Sum function2', () => {
-  it('Returns correct value', () => {
-    expect(sum(2, 3)).toEqual(5)
+  it('Return Hello World', async () => {
+    const response = await request(app).get('/api')
+
+    expect(response.ok).toBeTruthy()
   })
 
-  it('Return Hello World', () => {
-    const response = request.get('/api')
+  it('Return Persons', async () => {
+    const response = await request(app).get('/persons')
 
-    console.log(process.env.PORT, process.env.DATABASE)
+    console.log(response.body)
 
     expect(response.ok).toBeTruthy()
   })
