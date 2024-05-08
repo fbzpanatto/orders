@@ -1,10 +1,15 @@
 import mysql from 'mysql2/promise'
 import { config } from '../config'
 
+import dotenv from 'dotenv';
+dotenv.config();
+
+console.log('process.env.NODE', process.env.NODE_ENV)
+
 const pool = mysql.createPool({
   host: 'localhost',
   user: 'fbzpanatto',
-  database: 'mydbTest',
+  database: process.env.NODE_ENV === 'development' ? 'mydb' : 'mydbTest',
   password: 'fnp181292',
   waitForConnections: true,
   connectionLimit: 10,
