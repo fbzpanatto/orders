@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "test": "jest --watch",
+    "test": "jest --watchAll",
     "dev": "npx nodemon src/server.ts --watch 'src/' -e ts",
     "compile": "npx tsc",
     "start": "node ./dist/server.js"
