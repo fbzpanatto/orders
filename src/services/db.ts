@@ -15,15 +15,6 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0,
 });
 
-// export async function query(sql: string, params?: any) {
-
-//   const connection = await mysql.createConnection(config().db)
-
-//   const [results,] = await connection.execute(sql, params)
-
-//   return results
-// }
-
 export async function query(sql: string, params?: any) {
   const [results,] = await pool.query(sql, params)
   return results
