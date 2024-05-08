@@ -1,4 +1,4 @@
-import { LegalPerson, NormalPerson, Person } from "src/interfaces/person"
+import { LegalPerson, NormalPerson, Person } from "../interfaces/person"
 import { objectResponse } from "../utils/response"
 import { Request, Response, NextFunction } from 'express'
 import { findOneRegister } from "../utils/queries"

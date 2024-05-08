@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { getOneAddress, createAddress, updateAdress } from '../services/addresses'
 import { validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
-import { PersonAddresses } from 'src/interfaces/addresses'
+import { PersonAddresses } from '../interfaces/addresses'
 import { validatePostAddresses } from '../middlewares/validators'
 
 const router = Router()
