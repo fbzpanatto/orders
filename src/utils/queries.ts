@@ -2,7 +2,7 @@ import { ResultSetHeader, format } from 'mysql2';
 import { query } from '../services/db'
 import { setResponse } from './response';
 
-export const findOneRegister = async (table: string, field: string, value: string | number) => {
+export const findRegisters = async (table: string, field: string, value: string | number) => {
 
   const placeholder = '?';
 
@@ -10,11 +10,7 @@ export const findOneRegister = async (table: string, field: string, value: strin
 
   const values = [value];
 
-  const results = await query(format(queryString, values)) as Array<{ [key: string]: any }>
-
-  console.log('results', results)
-
-  return results.length ? results[0] : null;
+  return await query(format(queryString, values)) as Array<{ [key: string]: any }>
 };
 
 export const createRow = async (table: string, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
@@ -25,14 +21,11 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
 
   const placeholders = columns.map(() => '?')
 
-
   const queryString = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`;
 
   const values = Object.values(body).filter((_, index) => !bodyFieldsToIgnore.includes(columns[index]));
 
   const queryResult = await query(format(queryString, values)) as ResultSetHeader
-
-  console.log('queryResult', queryResult)
 
   return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows);
 };
@@ -52,8 +45,6 @@ export const updateRow = async (table: string, whereField: string, param: number
   ];
 
   const queryResult = await query(format(queryString, values)) as ResultSetHeader
-
-  console.log('queryResult', queryResult)
 
   return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows);
 };

@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { create, getMultiple, update } from '../services/customers'
-import { validationResult } from 'express-validator'
+import { body, validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
 import { validateId, validatePostCustomer, validatePatchCustomer } from '../middlewares/validators'
 import { customerExistsByDoc, customerExistsById } from '../middlewares/customerExists'

@@ -4,6 +4,9 @@ import { config } from '../config'
 export async function query(sql: string, params?: any) {
 
   const connection = await mysql.createConnection(config().db)
+
+  console.log(config().db)
+
   const [results,] = await connection.execute(sql, params)
 
   return results
