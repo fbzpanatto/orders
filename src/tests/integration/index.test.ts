@@ -22,13 +22,13 @@ describe('Endpoints', () => {
     expect(response.ok).toBeTruthy()
   })
 
-  // it('Return Persons', async () => {
-  //   const response = await request(app).get('/persons')
+  it('Return empty array of persons.', async () => {
+    const response = await request(app).get('/persons')
 
-  //   expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
-  // })
+    expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
+  })
 
-  it('Create Normal Person', async () => {
+  it('Create normal person.', async () => {
 
     const response = await request(app).post('/persons').send({
       first_name: "João",
