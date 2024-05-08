@@ -1,5 +1,4 @@
-import { describe, test, expect } from "@jest/globals"
-import { sum } from './index'
+import { describe, expect } from "@jest/globals"
 import request from 'supertest'
 import app from '../app'
 
@@ -17,8 +16,6 @@ describe('Endpoints', () => {
   it('Return Persons', async () => {
     const response = await request(app).get('/persons')
 
-    console.log(response.body)
-
-    expect(response.ok).toBeTruthy()
+    expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
   })
 })
