@@ -1,8 +1,8 @@
 import { describe, expect } from "@jest/globals"
-import request from 'supertest'
-import app from '../app'
-
 import dotenv from 'dotenv';
+import request from 'supertest'
+import app from '../../app'
+
 dotenv.config();
 
 describe('Endpoints', () => {

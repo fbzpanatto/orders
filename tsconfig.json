@@ -34,5 +34,5 @@
     "outDir": "./build",
     "rootDir": "./src"
   },
-  "include": ["src/**/*.ts", "src/tests/index.ts", "src/tests/index.test.ts"]
+  "include": ["src/**/*.ts", "src/tests/index.ts", "src/tests/integration/index.test.ts"]
 }
