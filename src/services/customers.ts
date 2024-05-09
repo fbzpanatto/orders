@@ -43,6 +43,8 @@ export const createNormalPerson = async (body: Person) => {
 
 export const createLegalPerson = async (body: Person) => {
 
+  // TODO: verify if only permited fields.
+
   const legalPersonId = await createPerson(body)
 
   return await createRow(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, ['person_category_id'])
