@@ -28,11 +28,21 @@ export const normalExistsByDoc = async (req: Request, res: Response, next: NextF
 }
 
 export const legalExistsById = async (req: Request, res: Response, next: NextFunction) => {
+
+  if (!validationResult(req).isEmpty()) {
+    return res.status(400).json(objectResponse(400, 'Parâmetros inválidos na requisição.'))
+  }
+
   return (await findRegisters(DatabaseTables.legal_persons, 'person_id', parseInt(req.params.id)) as Array<LegalPerson>).length ?
     next() : res.status(404).json(objectResponse(404, 'Registro não encontrado.'))
 }
 
 export const normalExistsById = async (req: Request, res: Response, next: NextFunction) => {
+
+  if (!validationResult(req).isEmpty()) {
+    return res.status(400).json(objectResponse(400, 'Parâmetros inválidos na requisição.'))
+  }
+
   return (await findRegisters(DatabaseTables.normal_persons, 'person_id', parseInt(req.params.id)) as Array<NormalPerson>).length ?
     next() : res.status(404).json(objectResponse(404, 'Registro não encontrado.'))
 }

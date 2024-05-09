@@ -34,11 +34,6 @@ router.post('/legal', validatePostLegal, legalExistsByDoc, async (req: Request, 
 });
 
 router.patch('/legal/:id', validateId, validatePatchLegal, legalExistsById, async (req: Request, res: Response, next: NextFunction) => {
-
-  if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Parâmetros inválidos na requisição.'))
-  }
-
   try {
     const result = await updateLegalPerson(parseInt(req.params.id), req)
     return res.status(result.status).json(result)
@@ -47,11 +42,6 @@ router.patch('/legal/:id', validateId, validatePatchLegal, legalExistsById, asyn
 })
 
 router.patch('/normal/:id', validateId, validatePatchNormal, normalExistsById, async (req: Request, res: Response, next: NextFunction) => {
-
-  if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Parâmetros inválidos na requisição.'))
-  }
-
   try {
     const result = await updateNormalPerson(parseInt(req.params.id), req)
     return res.status(result.status).json(result)
