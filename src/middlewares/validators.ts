@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { check, checkSchema, Schema } from 'express-validator'
+import { check, checkSchema, Schema, validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
 
 export const validateId = check('id')
@@ -152,7 +152,18 @@ export const validatePatchLegal = checkSchema(legal_schema_PATCH);
 export const validatePatchNormal = checkSchema(normal_schema_PATCH);
 
 
-export const validateBodyNormalPerson = (req: Request, res: Response, next: NextFunction) => {
+export const bodyValidationNormal = (req: Request, res: Response, next: NextFunction) => {
+
+  if (!validationResult(req).isEmpty()) { return res.status(400).json(objectResponse(400, 'Valor(es) inválido(s) no corpo da requisição.')) }
+
   const unexpectedFields = Object.keys(req.body).filter(key => !normal_schema_POST.hasOwnProperty(key));
-  return unexpectedFields.length ? res.status(400).json(objectResponse(400, 'Campos inesperados na requisição.')) : next()
+  return unexpectedFields.length ? res.status(400).json(objectResponse(400, 'Campo(s) inesperado(s) no corpo da requisição.')) : next()
+};
+
+export const bodyValidationLegal = (req: Request, res: Response, next: NextFunction) => {
+
+  if (!validationResult(req).isEmpty()) { return res.status(400).json(objectResponse(400, 'Valor(es) inválido(s) no corpo da requisição.')) }
+
+  const unexpectedFields = Object.keys(req.body).filter(key => !legal_schema_POST.hasOwnProperty(key));
+  return unexpectedFields.length ? res.status(400).json(objectResponse(400, 'Campo(s) inesperado(s) no corpo da requisição.')) : next()
 };
