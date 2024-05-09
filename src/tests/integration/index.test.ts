@@ -40,6 +40,18 @@ describe('PERSONS ENDPOINTS', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
+  it('Shoud not create a normal person with same cpf registered in database.', async () => {
+
+    const response = await request(app).post('/persons/normal').send({
+      first_name: "Marcos",
+      last_name: "Paulo",
+      cpf: "36937725877",
+      person_category_id: 2
+    })
+
+    expect(response.body).toEqual({ "message": "Conflito.", "status": 409})
+  })
+
   it('Shoud update a normal person.', async () => {
 
     const response = await request(app).patch('/persons/normal/1').send({
