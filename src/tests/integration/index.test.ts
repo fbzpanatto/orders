@@ -35,8 +35,7 @@ describe('/persons/normal', () => {
     const response = await request(app).post('/persons/normal').send({
       first_name: "People",
       last_name: "One",
-      cpf: "36937725877",
-      person_category_id: 2
+      cpf: "36937725877"
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -47,8 +46,7 @@ describe('/persons/normal', () => {
     const response = await request(app).post('/persons/normal').send({
       first_name: "People",
       last_name: "Two",
-      cpf: "12337725877",
-      person_category_id: 2
+      cpf: "12337725877"
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -59,11 +57,10 @@ describe('/persons/normal', () => {
     const response = await request(app).post('/persons/normal').send({
       first_name: "Marcos",
       last_name: "Paulo",
-      cpf: "36937725877",
-      person_category_id: 2
+      cpf: "36937725877"
     })
 
-    expect(response.body).toEqual({ "message": "Conflito.", "status": 409 })
+    expect(response.body).toEqual({ "message": "Dado duplicado.", "status": 409 })
   })
 
   it('Shoud update a normal person.', async () => {
