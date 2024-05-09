@@ -11,10 +11,10 @@ async function dataBaseTestSettings() {
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
-describe('PERSONS ENDPOINTS', () => {
+beforeAll(async () => { await dataBaseTestSettings() })
+afterAll(async () => { await dataBaseTestSettings() })
 
-  beforeAll(async () => { await dataBaseTestSettings() })
-  afterAll(async () => { await dataBaseTestSettings() })
+describe('/persons/normal', () => {
 
   it('Return Hello World', async () => {
     const response = await request(app).get('/api')
@@ -31,8 +31,8 @@ describe('PERSONS ENDPOINTS', () => {
   it('Shoud create a normal person.', async () => {
 
     const response = await request(app).post('/persons/normal').send({
-      first_name: "João",
-      last_name: "Ninguém",
+      first_name: "People",
+      last_name: "One",
       cpf: "36937725877",
       person_category_id: 2
     })
@@ -43,8 +43,8 @@ describe('PERSONS ENDPOINTS', () => {
   it('Shoud create other person.', async () => {
 
     const response = await request(app).post('/persons/normal').send({
-      first_name: "João",
-      last_name: "Ninguém",
+      first_name: "People",
+      last_name: "Two",
       cpf: "12337725877",
       person_category_id: 2
     })
@@ -61,7 +61,7 @@ describe('PERSONS ENDPOINTS', () => {
       person_category_id: 2
     })
 
-    expect(response.body).toEqual({ "message": "Conflito.", "status": 409})
+    expect(response.body).toEqual({ "message": "Conflito.", "status": 409 })
   })
 
   it('Shoud update a normal person.', async () => {
@@ -75,6 +75,29 @@ describe('PERSONS ENDPOINTS', () => {
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
+  it('Shoud not update a normal person with same cpf', async () => {
+
+    const response = await request(app).patch('/persons/normal/1').send({
+      first_name: "João",
+      middle_name: "da",
+      last_name: "Silva",
+      cpf: "12337725877",
+    })
+
+    expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
+  })
+
+  it('Shoud not update normal person if :id is not present.', async () => {
+
+    const response = await request(app).patch('/persons/normal/').send({
+      corporate_name: "Marketing Company updated corporate name",
+    })
+
+    expect(response.body).toEqual({})
+  })
+})
+
+describe('/persons/legal', () => {
   it('Shoud create a legal person.', async () => {
 
     const response = await request(app).post('/persons/legal').send({
@@ -99,15 +122,6 @@ describe('PERSONS ENDPOINTS', () => {
   it('Shoud not update legal person if :id is not present.', async () => {
 
     const response = await request(app).patch('/persons/legal/').send({
-      corporate_name: "Marketing Company updated corporate name",
-    })
-
-    expect(response.body).toEqual({})
-  })
-
-  it('Shoud not update normal person if :id is not present.', async () => {
-
-    const response = await request(app).patch('/persons/normal/').send({
       corporate_name: "Marketing Company updated corporate name",
     })
 
