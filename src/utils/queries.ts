@@ -2,7 +2,7 @@ import { ResultSetHeader, format } from 'mysql2';
 import { query } from '../services/db'
 import { objectResponse } from './response';
 
-export const findRegisters = async (table: string, field: string, value: string | number) => {
+export const findRegistersByOneParameter = async (table: string, field: string, value: string | number) => {
 
   const placeholder = '?';
 

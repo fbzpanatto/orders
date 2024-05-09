@@ -1,12 +1,12 @@
 import { objectResponse } from '../utils/response';
 import { PersonAddresses } from '../interfaces/addresses';
-import { findRegisters, updateRow, createRow } from '../utils/queries';
+import { findRegistersByOneParameter, updateRow, createRow } from '../utils/queries';
 import { DatabaseTables } from '../enums/tables';
 import { Request } from 'express';
 
 export const getOneAddress = async (personId: number) => {
 
-  const result = await findRegisters(DatabaseTables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
+  const result = await findRegistersByOneParameter(DatabaseTables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
 
   return objectResponse(200, 'Consulta realizada com sucesso.', { result })
 }
