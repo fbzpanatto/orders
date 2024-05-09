@@ -40,6 +40,18 @@ describe('PERSONS ENDPOINTS', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
+  it('Shoud create other person.', async () => {
+
+    const response = await request(app).post('/persons/normal').send({
+      first_name: "João",
+      last_name: "Ninguém",
+      cpf: "12337725877",
+      person_category_id: 2
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
   it('Shoud not create a normal person with same cpf registered in database.', async () => {
 
     const response = await request(app).post('/persons/normal').send({
@@ -77,7 +89,7 @@ describe('PERSONS ENDPOINTS', () => {
 
   it('Shoud update a legal person.', async () => {
 
-    const response = await request(app).patch('/persons/legal/2').send({
+    const response = await request(app).patch('/persons/legal/3').send({
       corporate_name: "Marketing Company updated corporate name",
     })
 
