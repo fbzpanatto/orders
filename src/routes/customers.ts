@@ -1,7 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { createNormalPerson, createLegalPerson, getMultiple, updateLegalPerson, updateNormalPerson } from '../services/customers'
-import { validationResult } from 'express-validator'
-import { objectResponse } from '../utils/response'
 import { validateId, validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal } from '../middlewares/validators'
 import { legalExistsByDoc, normalExistsByDoc, legalExistsById, normalExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'

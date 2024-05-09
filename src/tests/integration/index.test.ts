@@ -37,7 +37,7 @@ describe('PERSONS ENDPOINTS', () => {
       person_category_id: 2
     })
 
-    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200 })
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
   it('Shoud update a normal person.', async () => {
@@ -48,7 +48,7 @@ describe('PERSONS ENDPOINTS', () => {
       last_name: "Silva"
     })
 
-    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200 })
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
   it('Shoud create a legal person.', async () => {
@@ -60,7 +60,7 @@ describe('PERSONS ENDPOINTS', () => {
       cnpj: "25871712000109"
     })
 
-    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200 })
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
   it('Shoud update a legal person.', async () => {
@@ -69,7 +69,7 @@ describe('PERSONS ENDPOINTS', () => {
       corporate_name: "Marketing Company updated corporate name",
     })
 
-    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200 })
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
   it('Shoud not update legal person if :id is not present.', async () => {
