@@ -50,4 +50,15 @@ describe('Endpoints', () => {
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200 })
   })
+
+  it('Should not update a normal person when wrong category is informed into query parameters.', async () => {
+
+    const response = await request(app).patch('/persons/1?category=1').send({
+      first_name: "João",
+      middle_name: "da",
+      last_name: "Silva"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
+  })
 })
