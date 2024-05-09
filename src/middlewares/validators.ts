@@ -94,10 +94,5 @@ const customerSchemaValidation: Schema = {
     escape: true
   }
 }
-
-export const validatePostCustomer = checkSchema({
-  person_category_id: { exists: true, escape: true },
-  ...customerSchemaValidation
-});
-
+export const validatePostCustomer = checkSchema(customerSchemaValidation);
 export const validatePatchCustomer = checkSchema(customerSchemaValidation);

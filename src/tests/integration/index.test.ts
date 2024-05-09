@@ -11,7 +11,7 @@ async function dataBaseTestSettings() {
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
-describe('Endpoints', () => {
+describe('PERSONS ENDPOINTS', () => {
 
   beforeAll(async () => { await dataBaseTestSettings() })
   afterAll(async () => { await dataBaseTestSettings() })
@@ -57,6 +57,36 @@ describe('Endpoints', () => {
       first_name: "João",
       middle_name: "da",
       last_name: "Silva"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
+  })
+
+  it('Shoud create a legal person.', async () => {
+
+    const response = await request(app).post('/persons').send({
+      corporate_name: "Marketing Company",
+      social_name: "SkyLab Company",
+      state_registration: "123456789",
+      cnpj: "25871712000109"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200 })
+  })
+
+  it('Shoud update a legal person.', async () => {
+
+    const response = await request(app).patch('/persons/2?category=1').send({
+      corporate_name: "Marketing Company updated corporate name",
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200 })
+  })
+
+  it('Should not update a legal person when wrong category is informed into query parameters.', async () => {
+
+    const response = await request(app).patch('/persons/2?category=2').send({
+      corporate_name: "Marketing Company updated corporate name"
     })
 
     expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
