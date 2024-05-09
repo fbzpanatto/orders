@@ -109,6 +109,30 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
+  it('Shoud create other legal person.', async () => {
+
+    const response = await request(app).post('/persons/legal').send({
+      corporate_name: "Other Company",
+      social_name: "Other Company",
+      state_registration: "123456321",
+      cnpj: "25871712000798"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Shoud not create a legal person with same cnpf registered in database.', async () => {
+
+    const response = await request(app).post('/persons/legal').send({
+      corporate_name: "Another name",
+      social_name: "Other Company",
+      state_registration: "123456321",
+      cnpj: "25871712000798"
+    })
+
+    expect(response.body).toEqual({ "message": "Dado duplicado.", "status": 409 })
+  })
+
   it('Shoud update a legal person.', async () => {
 
     const response = await request(app).patch('/persons/legal/3').send({
