@@ -30,7 +30,7 @@ export const getMultiple = async (page = 1) => {
   const data = emptyOrRows(rows);
   const meta = { page };
 
-  if (!rows) { return objectResponse(400, 'Não foi possível processar sua solicitação.', { teste: 'data' }) }
+  if (!rows) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
 }
 
@@ -50,12 +50,12 @@ export const createLegalPerson = async (body: Person) => {
 
 export const updateLegalPerson = async (personId: number, req: Request) => {
 
-  return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, req.body, ['person_id', 'person_category_id'])
+  return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, req.body, [])
 }
 
 export const updateNormalPerson = async (personId: number, req: Request) => {
 
-  return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, req.body, ['person_id', 'person_category_id'])
+  return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, req.body, [])
 }
 
 const createPerson = async (body: Person) => {

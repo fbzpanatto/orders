@@ -58,8 +58,6 @@ router.patch('/legal/:id', validateId, validatePatchLegal, legalExistsById, asyn
 
 router.patch('/normal/:id', validateId, validatePatchNormal, normalExistsById, async (req: Request, res: Response, next: NextFunction) => {
 
-  console.log('/normal/:id')
-
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Bad request.'))
   }
