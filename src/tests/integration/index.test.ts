@@ -14,13 +14,15 @@ async function dataBaseTestSettings() {
 beforeAll(async () => { await dataBaseTestSettings() })
 afterAll(async () => { await dataBaseTestSettings() })
 
-describe('/persons/normal', () => {
-
+describe('/api', () => {
   it('Return Hello World', async () => {
     const response = await request(app).get('/api')
 
     expect(response.ok).toBeTruthy()
   })
+})
+
+describe('/persons/normal', () => {
 
   it('Should return empty array of persons.', async () => {
     const response = await request(app).get('/persons')
