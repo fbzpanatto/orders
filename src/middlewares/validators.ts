@@ -1,4 +1,6 @@
+import { Request, Response, NextFunction } from 'express'
 import { check, checkSchema, Schema } from 'express-validator'
+import { objectResponse } from '../utils/response'
 
 export const validateId = check('id')
   .not().isEmpty()
@@ -53,7 +55,7 @@ export const validatePostAddresses = checkSchema({
 
 export const validatePatchAddresses = checkSchema(addressesSchemaValidation)
 
-const normal_schema_POST: Schema = {
+const normal_schema_POST = {
   cpf: {
     exists: true,
     optional: false,
@@ -76,7 +78,7 @@ const normal_schema_POST: Schema = {
   }
 }
 
-const legal_schema_POST: Schema = {
+const legal_schema_POST = {
   cnpj: {
     exists: true,
     isLength: { options: { min: 14, max: 14 } },
@@ -99,7 +101,7 @@ const legal_schema_POST: Schema = {
   }
 }
 
-const normal_schema_PATCH: Schema = {
+const normal_schema_PATCH = {
   cpf: {
     optional: true,
     isLength: { options: { min: 11, max: 11 } },
@@ -121,7 +123,7 @@ const normal_schema_PATCH: Schema = {
   }
 }
 
-const legal_schema_PATCH: Schema = {
+const legal_schema_PATCH = {
   cnpj: {
     optional: true,
     isLength: { options: { min: 14, max: 14 } },
@@ -148,3 +150,9 @@ export const validatePostLegal = checkSchema(legal_schema_POST);
 export const validatePostNormal = checkSchema(normal_schema_POST);
 export const validatePatchLegal = checkSchema(legal_schema_PATCH);
 export const validatePatchNormal = checkSchema(normal_schema_PATCH);
+
+
+export const validateBodyNormalPerson = (req: Request, res: Response, next: NextFunction) => {
+  const unexpectedFields = Object.keys(req.body).filter(key => !normal_schema_POST.hasOwnProperty(key));
+  return unexpectedFields.length ? res.status(400).json(objectResponse(400, 'Campos inesperados na requisição.')) : next()
+};

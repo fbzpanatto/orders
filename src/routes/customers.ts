@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { createNormalPerson, createLegalPerson, getMultiple, updateLegalPerson, updateNormalPerson } from '../services/customers'
-import { validateId, validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal } from '../middlewares/validators'
+import { validateId, validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal, validateBodyNormalPerson } from '../middlewares/validators'
 import { legalExistsByDoc, normalExistsByDoc, legalExistsById, normalExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'
 
@@ -15,7 +15,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   catch (error) { next(error) }
 })
 
-router.post('/normal', validatePostNormal, normalExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/normal', validatePostNormal, validateBodyNormalPerson, normalExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await createNormalPerson(req.body as Person)
     return res.status(result.status).json(result)
