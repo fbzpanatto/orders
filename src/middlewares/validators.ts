@@ -55,12 +55,13 @@ export const validatePatchAddresses = checkSchema(addressesSchemaValidation)
 
 const normal_schema_POST: Schema = {
   cpf: {
+    exists: true,
     optional: false,
     isLength: { options: { min: 11, max: 11 } },
     escape: true
   },
   first_name: {
-    optional: false,
+    exists: true,
     isLength: { options: { min: 3 } },
     escape: true
   },
@@ -69,7 +70,7 @@ const normal_schema_POST: Schema = {
     escape: true
   },
   last_name: {
-    optional: false,
+    exists: true,
     isLength: { options: { min: 3 } },
     escape: true
   }
@@ -77,22 +78,22 @@ const normal_schema_POST: Schema = {
 
 const legal_schema_POST: Schema = {
   cnpj: {
-    optional: false,
+    exists: true,
     isLength: { options: { min: 14, max: 14 } },
     escape: true
   },
   corporate_name: {
-    optional: false,
+    exists: true,
     isLength: { options: { min: 3 } },
     escape: true
   },
   social_name: {
-    optional: false,
+    exists: true,
     isLength: { options: { min: 3 } },
     escape: true
   },
   state_registration: {
-    optional: false,
+    exists: true,
     isLength: { options: { min: 9, max: 9 } },
     escape: true
   }
@@ -144,6 +145,6 @@ const legal_schema_PATCH: Schema = {
 }
 
 export const validatePostLegal = checkSchema(legal_schema_POST);
-export const validatePostNormal = checkSchema(normal_schema_POST);
+export const validatePostNormal = checkSchema({...normal_schema_POST});
 export const validatePatchLegal = checkSchema(legal_schema_PATCH);
 export const validatePatchNormal = checkSchema(normal_schema_PATCH);

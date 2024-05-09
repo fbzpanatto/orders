@@ -71,4 +71,22 @@ describe('PERSONS ENDPOINTS', () => {
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200 })
   })
+
+  it('Shoud not update legal person if :id is not present.', async () => {
+
+    const response = await request(app).patch('/persons/legal/').send({
+      corporate_name: "Marketing Company updated corporate name",
+    })
+
+    expect(response.body).toEqual({})
+  })
+
+  it('Shoud not update normal person if :id is not present.', async () => {
+
+    const response = await request(app).patch('/persons/normal/').send({
+      corporate_name: "Marketing Company updated corporate name",
+    })
+
+    expect(response.body).toEqual({})
+  })
 })

@@ -18,11 +18,6 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.post('/normal', validatePostNormal, normalExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
-
-  if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Bad request.'))
-  }
-
   try {
     const result = await createNormalPerson(req.body as Person)
     return res.status(result.status).json(result)
@@ -31,11 +26,6 @@ router.post('/normal', validatePostNormal, normalExistsByDoc, async (req: Reques
 });
 
 router.post('/legal', validatePostLegal, legalExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
-
-  if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Bad request.'))
-  }
-
   try {
     const result = await createLegalPerson(req.body as Person)
     return res.status(result.status).json(result)
@@ -46,7 +36,7 @@ router.post('/legal', validatePostLegal, legalExistsByDoc, async (req: Request, 
 router.patch('/legal/:id', validateId, validatePatchLegal, legalExistsById, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Bad request.'))
+    return res.status(400).json(objectResponse(400, 'Parâmetros inválidos na requisição.'))
   }
 
   try {
@@ -59,7 +49,7 @@ router.patch('/legal/:id', validateId, validatePatchLegal, legalExistsById, asyn
 router.patch('/normal/:id', validateId, validatePatchNormal, normalExistsById, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Bad request.'))
+    return res.status(400).json(objectResponse(400, 'Parâmetros inválidos na requisição.'))
   }
 
   try {
