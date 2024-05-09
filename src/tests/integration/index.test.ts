@@ -96,6 +96,29 @@ describe('/persons/normal', () => {
 
     expect(response.body).toEqual({})
   })
+
+    it('Shoud not update a normal person with invalid body fields values', async () => {
+
+    const response = await request(app).patch('/persons/normal/1').send({
+      first_name: "People",
+      last_name: "One",
+      cpf: "aa"
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Shoud not update a normal person with wrong body fields', async () => {
+
+    const response = await request(app).patch('/persons/normal/2').send({
+      wrong_field: "invalid field",
+      first_name: "People",
+      last_name: "Two",
+      cpf: "12337725877"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
 })
 
 describe('/persons/legal', () => {
