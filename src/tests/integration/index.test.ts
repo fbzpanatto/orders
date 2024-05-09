@@ -22,13 +22,15 @@ describe('/api', () => {
   })
 })
 
-describe('/persons/normal', () => {
-
+describe('/persons', () => {
   it('Should return empty array of persons.', async () => {
     const response = await request(app).get('/persons')
 
     expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
   })
+})
+
+describe('/persons/normal', () => {
 
   it('Shoud create a normal person.', async () => {
 
@@ -115,19 +117,19 @@ describe('/persons/legal', () => {
       corporate_name: "Other Company",
       social_name: "Other Company",
       state_registration: "123456321",
-      cnpj: "25871712000798"
+      cnpj: "11171712000798"
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  it('Shoud not create a legal person with same cnpf registered in database.', async () => {
+  it('Shoud not create a legal person with same cnpj registered in database.', async () => {
 
     const response = await request(app).post('/persons/legal').send({
       corporate_name: "Another name",
       social_name: "Other Company",
       state_registration: "123456321",
-      cnpj: "25871712000798"
+      cnpj: "25871712000109"
     })
 
     expect(response.body).toEqual({ "message": "Dado duplicado.", "status": 409 })
@@ -136,10 +138,25 @@ describe('/persons/legal', () => {
   it('Shoud update a legal person.', async () => {
 
     const response = await request(app).patch('/persons/legal/3').send({
-      corporate_name: "Marketing Company updated corporate name",
+      corporate_name: "Marketing Company",
+      social_name: "SkyLab Company",
+      state_registration: "123456789",
+      cnpj: "25871712000109"
     })
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Shoud not update a legal person with same cnpj', async () => {
+
+    const response = await request(app).patch('/persons/legal/4').send({
+      corporate_name: "Marketing Company",
+      social_name: "SkyLab Company",
+      state_registration: "123456789",
+      cnpj: "25871712000109"
+    })
+
+    expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
   })
 
   it('Shoud not update legal person if :id is not present.', async () => {
