@@ -5,21 +5,26 @@ import { findRegisters } from "../utils/queries"
 import { DatabaseTables } from "../enums/tables"
 import { PersonCategories } from "../enums/personCategories"
 
-export const customerExistsByDoc = async (req: Request, res: Response, next: NextFunction) => {
+export const legalExistsByDoc = async (req: Request, res: Response, next: NextFunction) => {
 
   const body = req.body as Person
 
-  if (body.cnpj) {
-    const result = await findRegisters(DatabaseTables.legal_persons, 'cnpj', body.cnpj) as Array<LegalPerson>
+  if (!body.cnpj) { return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.')) }
 
-    return result.length ? res.status(409).json(objectResponse(409, 'Conflito.')) : next()
+  const result = await findRegisters(DatabaseTables.legal_persons, 'cnpj', body.cnpj) as Array<LegalPerson>
 
-  } else if (body.cpf) {
-    const result = await findRegisters(DatabaseTables.normal_persons, 'cpf', body.cpf) as Array<NormalPerson>
+  return result.length ? res.status(409).json(objectResponse(409, 'Conflito.')) : next()
+}
 
-    return result.length ? res.status(409).json(objectResponse(409, 'Conflito.')) : next()
+export const normalExistsByDoc = async (req: Request, res: Response, next: NextFunction) => {
 
-  } else { return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.')) }
+  const body = req.body as Person
+
+  if (!body.cpf) { return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.')) }
+
+  const result = await findRegisters(DatabaseTables.normal_persons, 'cpf', body.cpf) as Array<NormalPerson>
+
+  return result.length ? res.status(409).json(objectResponse(409, 'Conflito.')) : next()
 }
 
 export const customerExistsById = async (req: Request, res: Response, next: NextFunction) => {
