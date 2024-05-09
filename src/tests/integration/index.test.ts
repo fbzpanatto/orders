@@ -22,13 +22,13 @@ describe('Endpoints', () => {
     expect(response.ok).toBeTruthy()
   })
 
-  it('Return empty array of persons.', async () => {
+  it('Should return empty array of persons.', async () => {
     const response = await request(app).get('/persons')
 
     expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
   })
 
-  it('Create normal person.', async () => {
+  it('Shoud create a normal person.', async () => {
 
     const response = await request(app).post('/persons').send({
       first_name: "João",
@@ -38,5 +38,16 @@ describe('Endpoints', () => {
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200 })
+  })
+
+  it('Shoud update a normal person.', async () => {
+
+    const response = await request(app).patch('/persons/1?category=2').send({
+      first_name: "João",
+      middle_name: "da",
+      last_name: "Silva"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200 })
   })
 })
