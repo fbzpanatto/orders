@@ -153,17 +153,18 @@ export const validatePatchNormal = checkSchema(normal_schema_PATCH);
 
 
 export const bodyValidationNormal = (req: Request, res: Response, next: NextFunction) => {
-
-  if (!validationResult(req).isEmpty()) { return res.status(400).json(objectResponse(400, 'Valor(es) inválido(s) no corpo da requisição.')) }
-
-  const unexpectedFields = Object.keys(req.body).filter(key => !normal_schema_POST.hasOwnProperty(key));
-  return unexpectedFields.length ? res.status(400).json(objectResponse(400, 'Campo(s) inesperado(s) no corpo da requisição.')) : next()
+  return !validationResult(req).isEmpty() ? invalidValues(res) : unexpectedFieldsFn(req, res, next, normal_schema_POST)
 };
 
 export const bodyValidationLegal = (req: Request, res: Response, next: NextFunction) => {
-
-  if (!validationResult(req).isEmpty()) { return res.status(400).json(objectResponse(400, 'Valor(es) inválido(s) no corpo da requisição.')) }
-
-  const unexpectedFields = Object.keys(req.body).filter(key => !legal_schema_POST.hasOwnProperty(key));
-  return unexpectedFields.length ? res.status(400).json(objectResponse(400, 'Campo(s) inesperado(s) no corpo da requisição.')) : next()
+  return !validationResult(req).isEmpty() ? invalidValues(res) : unexpectedFieldsFn(req, res, next, legal_schema_POST)
 };
+
+const invalidValues = (res: Response) => {
+  return res.status(400).json(objectResponse(400, 'Valor(es) inválido(s) no corpo da requisição.'))
+}
+
+const unexpectedFieldsFn = (req: Request, res: Response, next: NextFunction, schema: { [key: string]: any }) => {
+  const unexpectedFields = Object.keys(req.body).filter(key => !schema.hasOwnProperty(key));
+  return unexpectedFields.length ? res.status(400).json(objectResponse(400, 'Campo(s) inesperado(s) no corpo da requisição.')) : next()
+}

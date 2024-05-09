@@ -167,4 +167,29 @@ describe('/persons/legal', () => {
 
     expect(response.body).toEqual({})
   })
+
+  it('Shoud not update a legal person with invalid body fields values', async () => {
+
+    const response = await request(app).patch('/persons/legal/4').send({
+      corporate_name: "Marketing Company",
+      social_name: "SkyLab Company",
+      state_registration: "123456789",
+      cnpj: "aa"
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Shoud not update a legal person with wrong body fields', async () => {
+
+    const response = await request(app).patch('/persons/legal/4').send({
+      corporate_name: "Marketing Company",
+      social_name: "SkyLab Company",
+      state_registration: "123456789",
+      wrong_field: "invalid field",
+      cnpj: "25871712000109"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
 })
