@@ -30,7 +30,7 @@ describe('PERSONS ENDPOINTS', () => {
 
   it('Shoud create a normal person.', async () => {
 
-    const response = await request(app).post('/persons').send({
+    const response = await request(app).post('/persons/normal').send({
       first_name: "João",
       last_name: "Ninguém",
       cpf: "36937725877",
@@ -64,7 +64,7 @@ describe('PERSONS ENDPOINTS', () => {
 
   it('Shoud create a legal person.', async () => {
 
-    const response = await request(app).post('/persons').send({
+    const response = await request(app).post('/persons/legal').send({
       corporate_name: "Marketing Company",
       social_name: "SkyLab Company",
       state_registration: "123456789",

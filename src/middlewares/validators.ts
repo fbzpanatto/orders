@@ -53,7 +53,7 @@ export const validatePostAddresses = checkSchema({
 
 export const validatePatchAddresses = checkSchema(addressesSchemaValidation)
 
-const customerSchemaValidation: Schema = {
+const normalSchemaValidation: Schema = {
   cpf: {
     optional: true,
     isLength: { options: { min: 11, max: 11 } },
@@ -72,7 +72,10 @@ const customerSchemaValidation: Schema = {
     optional: true,
     isLength: { options: { min: 3 } },
     escape: true
-  },
+  }
+}
+
+const legalSchemaValidation: Schema = {
   cnpj: {
     optional: true,
     isLength: { options: { min: 14, max: 14 } },
@@ -94,5 +97,9 @@ const customerSchemaValidation: Schema = {
     escape: true
   }
 }
-export const validatePostCustomer = checkSchema(customerSchemaValidation);
-export const validatePatchCustomer = checkSchema(customerSchemaValidation);
+
+export const validatePostLegal = checkSchema(legalSchemaValidation);
+export const validatePostNormal = checkSchema(normalSchemaValidation);
+
+
+export const validatePatchCustomer = checkSchema(normalSchemaValidation);

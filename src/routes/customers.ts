@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { create, getMultiple, update } from '../services/customers'
+import { createNormalPerson, createLegalPerson, getMultiple, update } from '../services/customers'
 import { body, validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
-import { validateId, validatePostCustomer, validatePatchCustomer } from '../middlewares/validators'
+import { validateId, validatePostNormal, validatePostLegal, validatePatchCustomer } from '../middlewares/validators'
 import { customerExistsByDoc, customerExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'
 
@@ -17,14 +17,27 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   catch (error) { next(error) }
 })
 
-router.post('/', validatePostCustomer, customerExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/normal', validatePostNormal, customerExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
     return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
   }
 
   try {
-    const result = await create(req.body as Person)
+    const result = await createNormalPerson(req.body as Person)
+    return res.status(result.status).json(result)
+  }
+  catch (error) { next(error) }
+});
+
+router.post('/legal', validatePostLegal, customerExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
+
+  if (!validationResult(req).isEmpty()) {
+    return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
+  }
+
+  try {
+    const result = await createLegalPerson(req.body as Person)
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
