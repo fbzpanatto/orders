@@ -53,7 +53,52 @@ export const validatePostAddresses = checkSchema({
 
 export const validatePatchAddresses = checkSchema(addressesSchemaValidation)
 
-const normalSchemaValidation: Schema = {
+const normal_schema_POST: Schema = {
+  cpf: {
+    optional: false,
+    isLength: { options: { min: 11, max: 11 } },
+    escape: true
+  },
+  first_name: {
+    optional: false,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  middle_name: {
+    optional: true,
+    escape: true
+  },
+  last_name: {
+    optional: false,
+    isLength: { options: { min: 3 } },
+    escape: true
+  }
+}
+
+const legal_schema_POST: Schema = {
+  cnpj: {
+    optional: false,
+    isLength: { options: { min: 14, max: 14 } },
+    escape: true
+  },
+  corporate_name: {
+    optional: false,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  social_name: {
+    optional: false,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  state_registration: {
+    optional: false,
+    isLength: { options: { min: 9, max: 9 } },
+    escape: true
+  }
+}
+
+const normal_schema_PATCH: Schema = {
   cpf: {
     optional: true,
     isLength: { options: { min: 11, max: 11 } },
@@ -75,7 +120,7 @@ const normalSchemaValidation: Schema = {
   }
 }
 
-const legalSchemaValidation: Schema = {
+const legal_schema_PATCH: Schema = {
   cnpj: {
     optional: true,
     isLength: { options: { min: 14, max: 14 } },
@@ -98,8 +143,7 @@ const legalSchemaValidation: Schema = {
   }
 }
 
-export const validatePostLegal = checkSchema(legalSchemaValidation);
-export const validatePostNormal = checkSchema(normalSchemaValidation);
-
-
-export const validatePatchCustomer = checkSchema(normalSchemaValidation);
+export const validatePostLegal = checkSchema(legal_schema_POST);
+export const validatePostNormal = checkSchema(normal_schema_POST);
+export const validatePatchLegal = checkSchema(legal_schema_PATCH);
+export const validatePatchNormal = checkSchema(normal_schema_PATCH);

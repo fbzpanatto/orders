@@ -42,24 +42,13 @@ describe('PERSONS ENDPOINTS', () => {
 
   it('Shoud update a normal person.', async () => {
 
-    const response = await request(app).patch('/persons/1?category=2').send({
+    const response = await request(app).patch('/persons/normal/1').send({
       first_name: "João",
       middle_name: "da",
       last_name: "Silva"
     })
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200 })
-  })
-
-  it('Should not update a normal person when wrong category is informed into query parameters.', async () => {
-
-    const response = await request(app).patch('/persons/1?category=1').send({
-      first_name: "João",
-      middle_name: "da",
-      last_name: "Silva"
-    })
-
-    expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
   })
 
   it('Shoud create a legal person.', async () => {
@@ -76,19 +65,10 @@ describe('PERSONS ENDPOINTS', () => {
 
   it('Shoud update a legal person.', async () => {
 
-    const response = await request(app).patch('/persons/2?category=1').send({
+    const response = await request(app).patch('/persons/legal/2').send({
       corporate_name: "Marketing Company updated corporate name",
     })
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200 })
-  })
-
-  it('Should not update a legal person when wrong category is informed into query parameters.', async () => {
-
-    const response = await request(app).patch('/persons/2?category=2').send({
-      corporate_name: "Marketing Company updated corporate name"
-    })
-
-    expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
   })
 })

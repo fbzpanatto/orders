@@ -27,6 +27,8 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
 
   const queryResult = await query(format(queryString, values)) as ResultSetHeader
 
+  console.log('createRow: queryResult', queryResult)
+
   return setResponse(200, 'Registro criado com sucesso.', queryResult.affectedRows);
 };
 
@@ -45,6 +47,8 @@ export const updateRow = async (table: string, whereField: string, param: number
   ];
 
   const queryResult = await query(format(queryString, values)) as ResultSetHeader
+
+  console.log('updateRow: queryResult', queryResult)
 
   return setResponse(200, 'Registro atualizado com sucesso.', queryResult.affectedRows);
 };

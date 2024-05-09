@@ -48,16 +48,14 @@ export const createLegalPerson = async (body: Person) => {
   return await createRow(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, ['person_category_id'])
 }
 
-export const update = async (personId: number, req: Request) => {
+export const updateLegalPerson = async (personId: number, req: Request) => {
 
-  const { query: qParams, body } = req
-  const personCategoryId = qParams['category'] as string
+  return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, req.body, ['person_id', 'person_category_id'])
+}
 
-  if (parseInt(personCategoryId) === PersonCategories.legal) { return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, body, ['person_id', 'person_category_id']) }
+export const updateNormalPerson = async (personId: number, req: Request) => {
 
-  else if (parseInt(personCategoryId) === PersonCategories.normal) { return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, body, ['person_id', 'person_category_id']) }
-
-  else { return objectResponse(400, 'Não foi possível processar sua solicitação.') }
+  return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, req.body, ['person_id', 'person_category_id'])
 }
 
 const createPerson = async (body: Person) => {

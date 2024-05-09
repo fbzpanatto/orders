@@ -1,9 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { createNormalPerson, createLegalPerson, getMultiple, update } from '../services/customers'
-import { body, validationResult } from 'express-validator'
+import { createNormalPerson, createLegalPerson, getMultiple, updateLegalPerson, updateNormalPerson } from '../services/customers'
+import { validationResult } from 'express-validator'
 import { objectResponse } from '../utils/response'
-import { validateId, validatePostNormal, validatePostLegal, validatePatchCustomer } from '../middlewares/validators'
-import { legalExistsByDoc, normalExistsByDoc, customerExistsById } from '../middlewares/customerExists'
+import { validateId, validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal } from '../middlewares/validators'
+import { legalExistsByDoc, normalExistsByDoc, legalExistsById, normalExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'
 
 const router = Router()
@@ -20,7 +20,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 router.post('/normal', validatePostNormal, normalExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
+    return res.status(400).json(objectResponse(400, 'Bad request.'))
   }
 
   try {
@@ -33,7 +33,7 @@ router.post('/normal', validatePostNormal, normalExistsByDoc, async (req: Reques
 router.post('/legal', validatePostLegal, legalExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
+    return res.status(400).json(objectResponse(400, 'Bad request.'))
   }
 
   try {
@@ -43,14 +43,29 @@ router.post('/legal', validatePostLegal, legalExistsByDoc, async (req: Request, 
   catch (error) { next(error) }
 });
 
-router.patch('/:id', validateId, validatePatchCustomer, customerExistsById, async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/legal/:id', validateId, validatePatchLegal, legalExistsById, async (req: Request, res: Response, next: NextFunction) => {
 
   if (!validationResult(req).isEmpty()) {
-    return res.status(400).json(objectResponse(400, 'Não foi possível processar sua solicitação.'))
+    return res.status(400).json(objectResponse(400, 'Bad request.'))
   }
 
   try {
-    const result = await update(parseInt(req.params.id), req)
+    const result = await updateLegalPerson(parseInt(req.params.id), req)
+    return res.status(result.status).json(result)
+  }
+  catch (error) { next(error) }
+})
+
+router.patch('/normal/:id', validateId, validatePatchNormal, normalExistsById, async (req: Request, res: Response, next: NextFunction) => {
+
+  console.log('/normal/:id')
+
+  if (!validationResult(req).isEmpty()) {
+    return res.status(400).json(objectResponse(400, 'Bad request.'))
+  }
+
+  try {
+    const result = await updateNormalPerson(parseInt(req.params.id), req)
     return res.status(result.status).json(result)
   }
   catch (error) { next(error) }
