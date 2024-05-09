@@ -145,6 +145,6 @@ const legal_schema_PATCH: Schema = {
 }
 
 export const validatePostLegal = checkSchema(legal_schema_POST);
-export const validatePostNormal = checkSchema({...normal_schema_POST});
+export const validatePostNormal = checkSchema(normal_schema_POST);
 export const validatePatchLegal = checkSchema(legal_schema_PATCH);
 export const validatePatchNormal = checkSchema(normal_schema_PATCH);
