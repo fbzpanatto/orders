@@ -29,27 +29,19 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
 };
 
 export const updateRow = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
-  try {
-    const updates = Object.entries(body)
-      .filter(([key]) => !bodyFieldsToIgnore.includes(key))
-      .map(([key]) => `${key}=?`);
 
-    const whereClause = `${whereField}=?`;
+  const updates = Object.entries(body)
+    .filter(([key]) => !bodyFieldsToIgnore.includes(key))
+    .map(([key]) => `${key}=?`);
 
-    const queryString = `UPDATE ${table} SET ${updates.join(', ')} WHERE ${whereClause}`;
+  const whereClause = `${whereField}=?`;
 
-    const values = [
-      ...Object.values(body).filter(([key]) => !bodyFieldsToIgnore.includes(key)),
-      param,
-    ];
+  const queryString = `UPDATE ${table} SET ${updates.join(', ')} WHERE ${whereClause}`;
 
-    const queryResult = await query(format(queryString, values)) as ResultSetHeader
+  const values = [
+    ...Object.values(body).filter(([key]) => !bodyFieldsToIgnore.includes(key)),
+    param,
+  ];
 
-    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) {
-
-    console.log('error', error)
-
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  return await query(format(queryString, values)) as ResultSetHeader
 };

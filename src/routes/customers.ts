@@ -14,17 +14,13 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.post('/normal', validatePostNormal, bodyValidationNormal, normalExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await createNormalPerson(req.body as Person)
-    return res.status(result.status).json(result)
-  } catch (error) { next(error) }
+  const result = await createNormalPerson(req.body as Person)
+  return res.status(result.status).json(result)
 });
 
 router.post('/legal', validatePostLegal, bodyValidationLegal, legalExistsByDoc, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await createLegalPerson(req.body as Person)
-    return res.status(result.status).json(result)
-  } catch (error) { next(error) }
+  const result = await createLegalPerson(req.body as Person)
+  return res.status(result.status).json(result)
 });
 
 router.patch('/legal/:id', validateId, validatePatchLegal, bodyValidationLegal, legalExistsById, async (req: Request, res: Response, next: NextFunction) => {
