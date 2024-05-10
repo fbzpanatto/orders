@@ -273,20 +273,22 @@ describe('/addresses', () => {
     expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
   })
 
-  it('Should not create a new address when required fields are not present in the body.', async () => {
+  it('Should not create a new address with invalid body fields values.', async () => {
 
     const response = await request(app).post('/addresses').send({
-      person_id: 1000,
+      person_id: 1,
       add_street: "Rua Jundiai",
       add_number: "210",
-      add_zipcode: "13253500",
-      add_neighborhood: "Centro"
+      add_zipcode: "123",
+      add_city: "Itatiba",
+      add_neighborhood: "Centro",
+      created_at: formatDate(new Date())
     })
 
     expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
   })
 
-  it('Should not create a new address when wrong fields are present in the body', async () => {
+  it('Should not create a new address with wrong body fields.', async () => {
 
     const response = await request(app).post('/addresses').send({
       person_id: 1000,
