@@ -4,7 +4,7 @@ import { findRegistersByOneParameter, updateRow, createRow } from '../utils/quer
 import { DatabaseTables } from '../enums/tables';
 import { Request } from 'express';
 
-export const getOneAddress = async (personId: number) => {
+export const getPersonAddresses = async (personId: number) => {
 
   const result = await findRegistersByOneParameter(DatabaseTables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
 
