@@ -7,6 +7,8 @@ import { addressesPATCH, addressesPOST } from '../schemas/addresses'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 
+export const validatePersonId = check('personId').not().isEmpty().isNumeric()
+
 export const validatePostAddresses = checkSchema(addressesPOST)
 export const validatePatchAddresses = checkSchema(addressesPATCH)
 
