@@ -21,5 +21,4 @@ export const updateAdress = async (id: number, req: Request) => {
   const { body } = req
 
   return await updateRow(DatabaseTables.person_addresses, 'id', id, body as PersonAddresses, ['person_id'])
-
 }

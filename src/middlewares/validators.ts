@@ -4,30 +4,33 @@ import { objectResponse } from '../utils/response'
 import { legalPATCH, legalPOST } from '../schemas/legalPerson'
 import { normalPATCH, normalPOST } from '../schemas/normalPerson'
 import { addressesPATCH, addressesPOST } from '../schemas/addresses'
+import { phonesPATCH, phonesPOST } from '../schemas/phones'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
-
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
-
-export const validatePostAddresses = checkSchema(addressesPOST)
-export const validatePatchAddresses = checkSchema(addressesPATCH)
-
-export const validatePostLegal = checkSchema(legalPOST);
-export const validatePostNormal = checkSchema(normalPOST);
 
 export const validatePatchLegal = checkSchema(legalPATCH);
 export const validatePatchNormal = checkSchema(normalPATCH);
-
 export const bodyValidationNormal = (req: Request, res: Response, next: NextFunction) => {
   return !validationResult(req).isEmpty() ? invalidValues(res) : unexpectedFieldsFn(req, res, next, normalPOST)
 };
 
+export const validatePostLegal = checkSchema(legalPOST);
+export const validatePostNormal = checkSchema(normalPOST);
 export const bodyValidationLegal = (req: Request, res: Response, next: NextFunction) => {
   return !validationResult(req).isEmpty() ? invalidValues(res) : unexpectedFieldsFn(req, res, next, legalPOST)
 };
 
+export const validatePostAddresses = checkSchema(addressesPOST)
+export const validatePatchAddresses = checkSchema(addressesPATCH)
 export const bodyValidationAddress = (req: Request, res: Response, next: NextFunction) => {
   return !validationResult(req).isEmpty() ? invalidValues(res) : unexpectedFieldsFn(req, res, next, addressesPOST)
+};
+
+export const validatePostPhones = checkSchema(phonesPOST)
+export const validatePatchPhones = checkSchema(phonesPATCH)
+export const bodyValidationPhone = (req: Request, res: Response, next: NextFunction) => {
+  return !validationResult(req).isEmpty() ? invalidValues(res) : unexpectedFieldsFn(req, res, next, phonesPOST)
 };
 
 const invalidValues = (res: Response) => {
