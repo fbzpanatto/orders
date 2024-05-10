@@ -14,7 +14,7 @@ async function dataBaseTestSettings() {
 }
 
 beforeAll(async () => { await dataBaseTestSettings() })
-afterAll(async () => { await dataBaseTestSettings() })
+// afterAll(async () => { await dataBaseTestSettings() })
 
 describe('/api', () => {
   it('Return Hello World', async () => {
