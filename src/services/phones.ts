@@ -12,8 +12,11 @@ export const getPersonPhones = async (personId: number) => {
 }
 
 export const createPhone = async (body: PersonPhones) => {
+  try{
+    const queryResult = await createRow(DatabaseTables.person_phones, body, [])
 
-  return await createRow(DatabaseTables.person_phones, body, [])
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const updatePhone = async (id: number, req: Request) => {

@@ -14,28 +14,18 @@ export const findRegistersByOneParameter = async (table: string, field: string, 
 };
 
 export const createRow = async (table: string, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
-  try {
-    const columns = Object.entries(body)
-      .filter(([key]) => !bodyFieldsToIgnore.includes(key))
-      .map(([key]) => key);
 
-    const placeholders = columns.map(() => '?')
+  const columns = Object.entries(body)
+    .filter(([key]) => !bodyFieldsToIgnore.includes(key))
+    .map(([key]) => key);
 
-    const queryString = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`;
+  const placeholders = columns.map(() => '?')
 
-    const values = Object.values(body).filter((_, index) => !bodyFieldsToIgnore.includes(columns[index]));
+  const queryString = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`;
 
-    const queryResult = await query(format(queryString, values)) as ResultSetHeader
+  const values = Object.values(body).filter((_, index) => !bodyFieldsToIgnore.includes(columns[index]));
 
-    console.log('queryResult', queryResult)
-
-    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) {
-
-    console.log('error', error)
-
-     return objectResponse(400, 'Não foi possível processar a sua solicitação.') 
-    }
+  return await query(format(queryString, values)) as ResultSetHeader
 };
 
 export const updateRow = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
@@ -60,6 +50,6 @@ export const updateRow = async (table: string, whereField: string, param: number
 
     console.log('error', error)
 
-     return objectResponse(400, 'Não foi possível processar a sua solicitação.') 
-    }
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
 };

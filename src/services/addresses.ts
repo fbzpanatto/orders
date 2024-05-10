@@ -13,7 +13,11 @@ export const getPersonAddresses = async (personId: number) => {
 
 export const createAddress = async (body: PersonAddresses) => {
 
-  return await createRow(DatabaseTables.person_addresses, body, [])
+  try {
+    const queryResult = await createRow(DatabaseTables.person_addresses, body, [])
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
+
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const updateAdress = async (id: number, req: Request) => {

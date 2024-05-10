@@ -51,16 +51,22 @@ export const getMultiple = async (page = 1) => {
 
 export const createNormalPerson = async (body: Person) => {
 
-  const normalPersonId = await createPerson(body)
+  try {
+    const normalPersonId = await createPerson(body)
+    const queryResult = await createRow(DatabaseTables.normal_persons, { person_id: normalPersonId, ...body }, Object.keys(optionalFields))
 
-  return await createRow(DatabaseTables.normal_persons, { person_id: normalPersonId, ...body }, Object.keys(optionalFields))
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createLegalPerson = async (body: Person) => {
 
-  const legalPersonId = await createPerson(body)
+  try {
+    const legalPersonId = await createPerson(body)
+    const queryResult = await createRow(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, Object.keys(optionalFields))
 
-  return await createRow(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, Object.keys(optionalFields))
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows })
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const updateLegalPerson = async (personId: number, req: Request) => {
