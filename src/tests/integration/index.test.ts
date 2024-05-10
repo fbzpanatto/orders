@@ -258,7 +258,7 @@ describe('/addresses', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  it('Should note create a new address for normal or legal person without previously registered ID ', async () => {
+  it('Should not create a new address for normal or legal person without previously registered ID ', async () => {
 
     const response = await request(app).post('/addresses').send({
       person_id: 1000,
@@ -271,5 +271,34 @@ describe('/addresses', () => {
     })
 
     expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
+  })
+
+  it('Should not create a new address when required fields are not present in the body.', async () => {
+
+    const response = await request(app).post('/addresses').send({
+      person_id: 1000,
+      add_street: "Rua Jundiai",
+      add_number: "210",
+      add_zipcode: "13253500",
+      add_neighborhood: "Centro"
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not create a new address when wrong fields are present in the body', async () => {
+
+    const response = await request(app).post('/addresses').send({
+      person_id: 1000,
+      add_street: "Rua Jundiai",
+      add_number: "210",
+      add_zipcode: "13253500",
+      add_city: "Itatiba",
+      add_neighborhood: "Centro",
+      created_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 })
