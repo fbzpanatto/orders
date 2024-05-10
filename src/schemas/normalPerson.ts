@@ -1,3 +1,5 @@
+import { optionalFields } from "./optionalFields"
+
 export const normalPOST = {
   cpf: {
     exists: true,
@@ -26,7 +28,8 @@ export const normalPOST = {
   updated_at: {
     optional: true,
     escape: true
-  }
+  },
+  ...optionalFields
 }
 
 export const normalPATCH = {
@@ -56,5 +59,6 @@ export const normalPATCH = {
   updated_at: {
     exists: true,
     escape: true
-  }
+  },
+  ...optionalFields
 }

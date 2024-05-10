@@ -16,6 +16,10 @@ export interface NormalPerson {
 
 export interface Person extends LegalPerson, NormalPerson {
   id?: number,
+  observation?: string,
+  first_field?: string,
+  second_field?: string,
+  third_field?: string,
   created_at?: Date,
   updated_at?: Date
 }

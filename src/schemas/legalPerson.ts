@@ -1,3 +1,5 @@
+import { optionalFields } from "./optionalFields"
+
 export const legalPOST = {
   cnpj: {
     exists: true,
@@ -26,7 +28,8 @@ export const legalPOST = {
   updated_at: {
     optional: true,
     escape: true
-  }
+  },
+  ...optionalFields,
 }
 
 export const legalPATCH = {
@@ -57,5 +60,6 @@ export const legalPATCH = {
   updated_at: {
     exists: true,
     escape: true
-  }
+  },
+  ...optionalFields,
 }
