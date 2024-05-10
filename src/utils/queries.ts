@@ -1,6 +1,5 @@
 import { ResultSetHeader, format } from 'mysql2';
 import { query } from '../services/db'
-import { objectResponse } from './response';
 
 export const findRegistersByOneParameter = async (table: string, field: string, value: string | number) => {
 
