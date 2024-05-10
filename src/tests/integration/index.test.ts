@@ -393,7 +393,7 @@ describe('/phones', () => {
 
   it('Should not create a new phone without previously registered person id', async () => {
 
-    const response = await request(app).post('/addresses').send({
+    const response = await request(app).post('/phones').send({
       person_id: 1000,
       phone_number: "11968568913",
       contact: "Fabrizio Panato",
@@ -443,7 +443,7 @@ describe('/phones', () => {
     const response = await request(app).patch('/phones/1').send({
       phone_number: "11968568913",
       contact: "Fabrizio Panato",
-      created_at: formatDate(new Date()),
+      updated_at: formatDate(new Date()),
       wrongField: "value"
     })
 
