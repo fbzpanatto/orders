@@ -1,3 +1,4 @@
+import { formatDate } from "../../utils/formatDate";
 import { describe, expect } from "@jest/globals"
 import { query } from "../../services/db";
 import request from 'supertest'
@@ -109,7 +110,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({})
   })
 
-    it('Shoud not update a normal person with invalid body fields values', async () => {
+  it('Shoud not update a normal person with invalid body fields values', async () => {
 
     const response = await request(app).patch('/persons/normal/1').send({
       first_name: "People",
@@ -238,5 +239,37 @@ describe('/persons/legal', () => {
     })
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+})
+
+describe('/addresses', () => {
+  it('Should create a new address for normal or legal person', async () => {
+
+    const response = await request(app).post('/addresses').send({
+      person_id: 1,
+      add_street: "Rua Jundiai",
+      add_number: "210",
+      add_zipcode: "13253500",
+      add_city: "Itatiba",
+      add_neighborhood: "Centro",
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should note create a new address for normal or legal person without previously registered ID ', async () => {
+
+    const response = await request(app).post('/addresses').send({
+      person_id: 1000,
+      add_street: "Rua Jundiai",
+      add_number: "210",
+      add_zipcode: "13253500",
+      add_city: "Itatiba",
+      add_neighborhood: "Centro",
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
   })
 })
