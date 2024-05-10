@@ -1,3 +1,34 @@
+export const legalPOST = {
+  cnpj: {
+    exists: true,
+    isLength: { options: { min: 14, max: 14 } },
+    escape: true
+  },
+  corporate_name: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  social_name: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  state_registration: {
+    exists: true,
+    isLength: { options: { min: 9, max: 9 } },
+    escape: true
+  },
+  created_at: {
+    exists: true,
+    escape: true
+  },
+  updated_at: {
+    optional: true,
+    escape: true
+  }
+}
+
 export const legalPATCH = {
   cnpj: {
     optional: true,
@@ -18,28 +49,13 @@ export const legalPATCH = {
     optional: true,
     isLength: { options: { min: 9, max: 9 } },
     escape: true
-  }
-}
-
-export const legalPOST = {
-  cnpj: {
-    exists: true,
-    isLength: { options: { min: 14, max: 14 } },
+  },
+  created_at: {
+    optional: true,
     escape: true
   },
-  corporate_name: {
+  updated_at: {
     exists: true,
-    isLength: { options: { min: 3 } },
-    escape: true
-  },
-  social_name: {
-    exists: true,
-    isLength: { options: { min: 3 } },
-    escape: true
-  },
-  state_registration: {
-    exists: true,
-    isLength: { options: { min: 9, max: 9 } },
     escape: true
   }
 }

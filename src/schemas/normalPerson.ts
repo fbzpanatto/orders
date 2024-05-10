@@ -18,6 +18,14 @@ export const normalPOST = {
     exists: true,
     isLength: { options: { min: 3 } },
     escape: true
+  },
+  created_at: {
+    exists: true,
+    escape: true
+  },
+  updated_at: {
+    optional: true,
+    escape: true
   }
 }
 
@@ -39,6 +47,14 @@ export const normalPATCH = {
   last_name: {
     optional: true,
     isLength: { options: { min: 3 } },
+    escape: true
+  },
+  created_at: {
+    optional: true,
+    escape: true
+  },
+  updated_at: {
+    exists: true,
     escape: true
   }
 }

@@ -1,39 +1,3 @@
-export const addressesPATCH = {
-  add_street: {
-    optional: true,
-    isLength: { options: { min: 3 } },
-    escape: true
-  },
-  add_number: {
-    optional: true,
-    isLength: { options: { min: 3 } },
-    escape: true
-  },
-  add_zipcode: {
-    optional: true,
-    isLength: { options: { min: 8, max: 8 } },
-    escape: true
-  },
-  add_city: {
-    optional: true,
-    isLength: { options: { min: 3 } },
-    escape: true
-  },
-  add_neighborhood: {
-    optional: true,
-    isLength: { options: { min: 3 } },
-    escape: true
-  },
-  created_at: {
-    optional: true,
-    escape: true
-  },
-  updated_at: {
-    exists: true,
-    escape: true
-  }
-}
-
 export const addressesPOST = {
   person_id: {
     exists: true,
@@ -71,6 +35,42 @@ export const addressesPOST = {
   },
   updated_at: {
     optional: true,
+    escape: true
+  }
+}
+
+export const addressesPATCH = {
+  add_street: {
+    optional: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_number: {
+    optional: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_zipcode: {
+    optional: true,
+    isLength: { options: { min: 8, max: 8 } },
+    escape: true
+  },
+  add_city: {
+    optional: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_neighborhood: {
+    optional: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  created_at: {
+    optional: true,
+    escape: true
+  },
+  updated_at: {
+    exists: true,
     escape: true
   }
 }

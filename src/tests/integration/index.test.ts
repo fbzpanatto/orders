@@ -9,11 +9,12 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE legal_persons')
   await query('TRUNCATE TABLE normal_persons')
   await query('TRUNCATE TABLE persons')
+  await query('TRUNCATE TABLE person_addresses')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
 beforeAll(async () => { await dataBaseTestSettings() })
-afterAll(async () => { await dataBaseTestSettings() })
+// afterAll(async () => { await dataBaseTestSettings() })
 
 describe('/api', () => {
   it('Return Hello World', async () => {

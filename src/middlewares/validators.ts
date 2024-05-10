@@ -4,7 +4,6 @@ import { objectResponse } from '../utils/response'
 import { legalPATCH, legalPOST } from '../schemas/legalPerson'
 import { normalPATCH, normalPOST } from '../schemas/normalPerson'
 import { addressesPATCH, addressesPOST } from '../schemas/addresses'
-import { formatDate } from '../utils/formatDate'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 
