@@ -366,3 +366,87 @@ describe('/addresses', () => {
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 })
+
+describe('/phones', () => {
+  it('Should create a new phone.', async () => {
+
+    const response = await request(app).post('/phones').send({
+      person_id: 1,
+      phone_number: "11968568913",
+      contact: "Fabrizio Panato",
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should update a phone.', async () => {
+
+    const response = await request(app).patch('/phones/1').send({
+      phone_number: "11968568999",
+      contact: "Fabrizio Panato Atualizado",
+      updated_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should not create a new phone without previously registered person id', async () => {
+
+    const response = await request(app).post('/addresses').send({
+      person_id: 1000,
+      phone_number: "11968568913",
+      contact: "Fabrizio Panato",
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
+  })
+
+  it('Should not create a new phone with invalid body fields values.', async () => {
+
+    const response = await request(app).post('/phones').send({
+      phone_number: "11",
+      contact: "Fabrizio Panato",
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not create a new phone with wrong body fields.', async () => {
+
+    const response = await request(app).post('/phones').send({
+      person_id: 1000,
+      phone_number: "11968568913",
+      contact: "Fabrizio Panato",
+      created_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a phone with invalid body fields values.', async () => {
+
+    const response = await request(app).patch('/phones/1').send({
+      phone_number: "11",
+      contact: "Fabrizio Panato",
+      updated_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a phone with wrong body fields.', async () => {
+
+    const response = await request(app).patch('/phones/1').send({
+      phone_number: "11968568913",
+      contact: "Fabrizio Panato",
+      created_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+})

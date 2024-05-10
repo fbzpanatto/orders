@@ -27,8 +27,15 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
 
     const queryResult = await query(format(queryString, values)) as ResultSetHeader
 
+    console.log('queryResult', queryResult)
+
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+
+    console.log('error', error)
+
+     return objectResponse(400, 'Não foi possível processar a sua solicitação.') 
+    }
 };
 
 export const updateRow = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
@@ -49,5 +56,10 @@ export const updateRow = async (table: string, whereField: string, param: number
     const queryResult = await query(format(queryString, values)) as ResultSetHeader
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+
+    console.log('error', error)
+
+     return objectResponse(400, 'Não foi possível processar a sua solicitação.') 
+    }
 };
