@@ -303,4 +303,18 @@ describe('/addresses', () => {
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
+
+  it('Shoud update an address.', async () => {
+
+    const response = await request(app).patch('/addresses/1').send({
+      add_street: "Rua Jundiai",
+      add_number: "210",
+      add_zipcode: "13253500",
+      add_city: "Itatiba",
+      add_neighborhood: "Centro",
+      updated_at: formatDate(new Date()),
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
 })

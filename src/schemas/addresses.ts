@@ -24,6 +24,10 @@ export const addressesPATCH = {
     isLength: { options: { min: 3 } },
     escape: true
   },
+  created_at: {
+    optional: true,
+    escape: true
+  },
   updated_at: {
     exists: true,
     escape: true
@@ -63,6 +67,10 @@ export const addressesPOST = {
   },
   created_at: {
     exists: true,
+    escape: true
+  },
+  updated_at: {
+    optional: true,
     escape: true
   }
 }
