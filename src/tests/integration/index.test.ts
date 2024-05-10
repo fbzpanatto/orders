@@ -39,7 +39,8 @@ describe('/persons/normal', () => {
     const response = await request(app).post('/persons/normal').send({
       first_name: "People",
       last_name: "One",
-      cpf: "36937725877"
+      cpf: "36937725877",
+      created_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -50,7 +51,8 @@ describe('/persons/normal', () => {
     const response = await request(app).post('/persons/normal').send({
       first_name: "People",
       last_name: "Two",
-      cpf: "12337725877"
+      cpf: "12337725877",
+      created_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -61,7 +63,8 @@ describe('/persons/normal', () => {
     const response = await request(app).patch('/persons/normal/1').send({
       first_name: "João",
       middle_name: "da",
-      last_name: "Silva"
+      last_name: "Silva",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -72,7 +75,8 @@ describe('/persons/normal', () => {
     const response = await request(app).post('/persons/normal').send({
       first_name: "Marcos",
       last_name: "Paulo",
-      cpf: "36937725877"
+      cpf: "36937725877",
+      created_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Dado duplicado.", "status": 409 })
@@ -85,6 +89,7 @@ describe('/persons/normal', () => {
       middle_name: "da",
       last_name: "Silva",
       cpf: "12337725877",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
@@ -97,6 +102,7 @@ describe('/persons/normal', () => {
       middle_name: "da",
       last_name: "Silva",
       cpf: "12337725877",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
@@ -106,6 +112,7 @@ describe('/persons/normal', () => {
 
     const response = await request(app).patch('/persons/normal/').send({
       corporate_name: "Marketing Company updated corporate name",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({})
@@ -116,7 +123,8 @@ describe('/persons/normal', () => {
     const response = await request(app).patch('/persons/normal/1').send({
       first_name: "People",
       last_name: "One",
-      cpf: "aa"
+      cpf: "aa",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
@@ -128,7 +136,8 @@ describe('/persons/normal', () => {
       wrong_field: "invalid field",
       first_name: "People",
       last_name: "Two",
-      cpf: "12337725877"
+      cpf: "12337725877",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
@@ -142,7 +151,8 @@ describe('/persons/legal', () => {
       corporate_name: "Marketing Company",
       social_name: "SkyLab Company",
       state_registration: "123456789",
-      cnpj: "25871712000109"
+      cnpj: "25871712000109",
+      created_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -154,7 +164,8 @@ describe('/persons/legal', () => {
       corporate_name: "Other Company",
       social_name: "Other Company",
       state_registration: "123456321",
-      cnpj: "11171712000798"
+      cnpj: "11171712000798",
+      created_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -166,7 +177,8 @@ describe('/persons/legal', () => {
       corporate_name: "Marketing Company",
       social_name: "SkyLab Company",
       state_registration: "123456789",
-      cnpj: "25871712000109"
+      cnpj: "25871712000109",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -178,7 +190,8 @@ describe('/persons/legal', () => {
       corporate_name: "Another name",
       social_name: "Other Company",
       state_registration: "123456321",
-      cnpj: "25871712000109"
+      cnpj: "25871712000109",
+      created_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Dado duplicado.", "status": 409 })
@@ -190,7 +203,8 @@ describe('/persons/legal', () => {
       corporate_name: "Marketing Company",
       social_name: "SkyLab Company",
       state_registration: "123456789",
-      cnpj: "25871712000109"
+      cnpj: "25871712000109",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
@@ -202,7 +216,8 @@ describe('/persons/legal', () => {
       corporate_name: "Marketing Company",
       social_name: "SkyLab Company",
       state_registration: "123456789",
-      cnpj: "25871712000109"
+      cnpj: "25871712000109",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
@@ -212,6 +227,7 @@ describe('/persons/legal', () => {
 
     const response = await request(app).patch('/persons/legal/').send({
       corporate_name: "Marketing Company updated corporate name",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({})
@@ -223,7 +239,8 @@ describe('/persons/legal', () => {
       corporate_name: "Marketing Company",
       social_name: "SkyLab Company",
       state_registration: "123456789",
-      cnpj: "aa"
+      // cnpj: "12113456789101",
+      // updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
@@ -236,7 +253,8 @@ describe('/persons/legal', () => {
       social_name: "SkyLab Company",
       state_registration: "123456789",
       wrong_field: "invalid field",
-      cnpj: "25871712000109"
+      cnpj: "25871712000109",
+      updated_at: formatDate(new Date()),
     })
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })

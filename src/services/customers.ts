@@ -66,8 +66,8 @@ const createPerson = async (body: Person) => {
 
   const { insertId: personId } = await query(
     `
-    INSERT INTO persons (person_category_id, created_at, updated_at)
-    VALUES (${person_category}, '${body.created_at ?? formatDate(new Date())}', '${body.updated_at ?? formatDate(new Date())}')
+    INSERT INTO persons (person_category_id, created_at)
+    VALUES (${person_category}, '${body.created_at ?? formatDate(new Date())}')
     `
   ) as ResultSetHeader
 
