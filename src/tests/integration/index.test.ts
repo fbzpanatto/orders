@@ -33,7 +33,7 @@ describe('/persons', () => {
 
 describe('/persons/normal', () => {
 
-  it('Shoud create a normal person.', async () => {
+  it('Should create a normal person.', async () => {
 
     const response = await request(app).post('/persons/normal').send({
       first_name: "People",
@@ -44,7 +44,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  it('Shoud create other person.', async () => {
+  it('Should create other person.', async () => {
 
     const response = await request(app).post('/persons/normal').send({
       first_name: "People",
@@ -55,7 +55,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  it('Shoud update a normal person.', async () => {
+  it('Should update a normal person.', async () => {
 
     const response = await request(app).patch('/persons/normal/1').send({
       first_name: "João",
@@ -66,7 +66,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  it('Shoud not create a normal person with same cpf registered in database.', async () => {
+  it('Should not create a normal person with same cpf registered in database.', async () => {
 
     const response = await request(app).post('/persons/normal').send({
       first_name: "Marcos",
@@ -77,7 +77,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({ "message": "Dado duplicado.", "status": 409 })
   })
 
-  it('Shoud not update a normal person with same cpf', async () => {
+  it('Should not update a normal person with same cpf', async () => {
 
     const response = await request(app).patch('/persons/normal/1').send({
       first_name: "João",
@@ -89,7 +89,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
   })
 
-  it('Shoud not update a normal person with inexistent id', async () => {
+  it('Should not update a normal person with inexistent id', async () => {
 
     const response = await request(app).patch('/persons/normal/109').send({
       first_name: "João",
@@ -101,7 +101,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
   })
 
-  it('Shoud not update a normal person if :id is not present.', async () => {
+  it('Should not update a normal person if :id is not present.', async () => {
 
     const response = await request(app).patch('/persons/normal/').send({
       corporate_name: "Marketing Company updated corporate name",
@@ -110,7 +110,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({})
   })
 
-  it('Shoud not update a normal person with invalid body fields values', async () => {
+  it('Should not update a normal person with invalid body fields values', async () => {
 
     const response = await request(app).patch('/persons/normal/1').send({
       first_name: "People",
@@ -121,7 +121,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
   })
 
-  it('Shoud not update a normal person with wrong body fields', async () => {
+  it('Should not update a normal person with wrong body fields', async () => {
 
     const response = await request(app).patch('/persons/normal/2').send({
       wrong_field: "invalid field",
@@ -258,6 +258,20 @@ describe('/addresses', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
+  it('Should update an address.', async () => {
+
+    const response = await request(app).patch('/addresses/1').send({
+      add_street: "Rua Jundiai",
+      add_number: "210",
+      add_zipcode: "13253500",
+      add_city: "Itatiba",
+      add_neighborhood: "Centro",
+      updated_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
   it('Should not create a new address for normal or legal person without previously registered ID ', async () => {
 
     const response = await request(app).post('/addresses').send({
@@ -304,17 +318,32 @@ describe('/addresses', () => {
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 
-  it('Shoud update an address.', async () => {
+  it('Should not update an address with invalid body fields values.', async () => {
 
     const response = await request(app).patch('/addresses/1').send({
       add_street: "Rua Jundiai",
       add_number: "210",
-      add_zipcode: "13253500",
+      add_zipcode: "132",
+      add_city: "Itatiba",
+      add_neighborhood: "Centro",
+      updated_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update an address with wrong body fields.', async () => {
+
+    const response = await request(app).patch('/addresses/1').send({
+      add_street: "Rua Jundiai",
+      add_number: "210",
+      add_zipcode: "13253600",
       add_city: "Itatiba",
       add_neighborhood: "Centro",
       updated_at: formatDate(new Date()),
+      wrongFild: 'wrongValue'
     })
 
-    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 })
