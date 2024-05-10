@@ -38,16 +38,14 @@ export const createNormalPerson = async (body: Person) => {
 
   const normalPersonId = await createPerson(body)
 
-  return await createRow(DatabaseTables.normal_persons, { person_id: normalPersonId, ...body }, ['person_category_id'])
+  return await createRow(DatabaseTables.normal_persons, { person_id: normalPersonId, ...body }, [])
 }
 
 export const createLegalPerson = async (body: Person) => {
 
-  // TODO: verify if only permited fields.
-
   const legalPersonId = await createPerson(body)
 
-  return await createRow(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, ['person_category_id'])
+  return await createRow(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, [])
 }
 
 export const updateLegalPerson = async (personId: number, req: Request) => {
