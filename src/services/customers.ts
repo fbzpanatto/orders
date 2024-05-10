@@ -9,6 +9,7 @@ import { Request } from 'express';
 import { PersonCategories } from '../enums/personCategories';
 import { DatabaseTables } from '../enums/tables'
 import { createRow, updateRow } from '../utils/queries';
+import { optionalFields } from '../schemas/optionalFields';
 
 export const getMultiple = async (page = 1) => {
   const offset = getOffset(page, config().listPerPage);
@@ -52,32 +53,32 @@ export const createNormalPerson = async (body: Person) => {
 
   const normalPersonId = await createPerson(body)
 
-  return await createRow(DatabaseTables.normal_persons, { person_id: normalPersonId, ...body }, [])
+  return await createRow(DatabaseTables.normal_persons, { person_id: normalPersonId, ...body }, Object.keys(optionalFields))
 }
 
 export const createLegalPerson = async (body: Person) => {
 
   const legalPersonId = await createPerson(body)
 
-  return await createRow(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, [])
+  return await createRow(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, Object.keys(optionalFields))
 }
 
 export const updateLegalPerson = async (personId: number, req: Request) => {
 
-  return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, req.body, [])
+  return await updateRow(DatabaseTables.legal_persons, 'person_id', personId, req.body, Object.keys(optionalFields))
 }
 
 export const updateNormalPerson = async (personId: number, req: Request) => {
 
-  return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, req.body, [])
+  return await updateRow(DatabaseTables.normal_persons, 'person_id', personId, req.body, Object.keys(optionalFields))
 }
 
 const createPerson = async (body: Person) => {
 
   const { insertId: personId } = await query(
     `
-    INSERT INTO persons (created_at)
-    VALUES ('${body.created_at}')
+    INSERT INTO persons (created_at, observation, first_field, second_field, third_field)
+    VALUES ('${body.created_at}', '${body.observation}', '${body.first_field}', '${body.second_field}', '${body.third_field}')
     `
   ) as ResultSetHeader
 
