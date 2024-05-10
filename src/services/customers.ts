@@ -12,16 +12,30 @@ import { createRow, updateRow } from '../utils/queries';
 
 export const getMultiple = async (page = 1) => {
   const offset = getOffset(page, config().listPerPage);
+  // const rows = await query(
+  //   `
+  //   SELECT p.id AS person_id,
+  //   pc.name AS person_category,
+  //   n.cpf AS cpf,
+  //   CONCAT(n.first_name, ' ', n.last_name) AS full_name,
+  //   l.cnpj AS cnpj,
+  //   l.corporate_name AS corporate_name
+  //   FROM persons AS p
+  //   LEFT JOIN person_categories AS pc ON p.person_category_id = pc.id
+  //   LEFT JOIN normal_persons AS n ON p.id = n.person_id
+  //   LEFT JOIN legal_persons AS l ON p.id = l.person_id
+  //   LIMIT ${offset},${config().listPerPage}
+  //   `
+  // );
+
   const rows = await query(
     `
     SELECT p.id AS person_id,
-    pc.name AS person_category,
     n.cpf AS cpf,
     CONCAT(n.first_name, ' ', n.last_name) AS full_name,
     l.cnpj AS cnpj,
     l.corporate_name AS corporate_name
     FROM persons AS p
-    LEFT JOIN person_categories AS pc ON p.person_category_id = pc.id
     LEFT JOIN normal_persons AS n ON p.id = n.person_id
     LEFT JOIN legal_persons AS l ON p.id = l.person_id
     LIMIT ${offset},${config().listPerPage}
@@ -60,12 +74,10 @@ export const updateNormalPerson = async (personId: number, req: Request) => {
 
 const createPerson = async (body: Person) => {
 
-  let person_category = body.cnpj ? PersonCategories.legal : PersonCategories.normal
-
   const { insertId: personId } = await query(
     `
-    INSERT INTO persons (person_category_id, created_at)
-    VALUES (${person_category}, '${body.created_at ?? formatDate(new Date())}')
+    INSERT INTO persons (created_at)
+    VALUES ('${body.created_at}')
     `
   ) as ResultSetHeader
 
