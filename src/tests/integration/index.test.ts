@@ -135,7 +135,7 @@ describe('/persons/normal', () => {
 })
 
 describe('/persons/legal', () => {
-  it('Shoud create a legal person.', async () => {
+  it('Should create a legal person.', async () => {
 
     const response = await request(app).post('/persons/legal').send({
       corporate_name: "Marketing Company",
@@ -147,7 +147,7 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  it('Shoud create other legal person.', async () => {
+  it('Should create other legal person.', async () => {
 
     const response = await request(app).post('/persons/legal').send({
       corporate_name: "Other Company",
@@ -159,7 +159,7 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  it('Shoud update a legal person.', async () => {
+  it('Should update a legal person.', async () => {
 
     const response = await request(app).patch('/persons/legal/3').send({
       corporate_name: "Marketing Company",
@@ -171,7 +171,7 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  it('Shoud not create a legal person with same cnpj registered in database.', async () => {
+  it('Should not create a legal person with same cnpj registered in database.', async () => {
 
     const response = await request(app).post('/persons/legal').send({
       corporate_name: "Another name",
@@ -183,7 +183,7 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({ "message": "Dado duplicado.", "status": 409 })
   })
 
-  it('Shoud not update a legal person with inexistent id.', async () => {
+  it('Should not update a legal person with inexistent id.', async () => {
 
     const response = await request(app).patch('/persons/legal/109').send({
       corporate_name: "Marketing Company",
@@ -195,7 +195,7 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({ "message": "Registro não encontrado.", "status": 404 })
   })
 
-  it('Shoud not update a legal person with same cnpj', async () => {
+  it('Should not update a legal person with same cnpj', async () => {
 
     const response = await request(app).patch('/persons/legal/4').send({
       corporate_name: "Marketing Company",
@@ -207,7 +207,7 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
   })
 
-  it('Shoud not update a legal person if :id is not present.', async () => {
+  it('Should not update a legal person if :id is not present.', async () => {
 
     const response = await request(app).patch('/persons/legal/').send({
       corporate_name: "Marketing Company updated corporate name",
@@ -216,7 +216,7 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({})
   })
 
-  it('Shoud not update a legal person with invalid body fields values', async () => {
+  it('Should not update a legal person with invalid body fields values', async () => {
 
     const response = await request(app).patch('/persons/legal/4').send({
       corporate_name: "Marketing Company",
@@ -228,7 +228,7 @@ describe('/persons/legal', () => {
     expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
   })
 
-  it('Shoud not update a legal person with wrong body fields', async () => {
+  it('Should not update a legal person with wrong body fields', async () => {
 
     const response = await request(app).patch('/persons/legal/4').send({
       corporate_name: "Marketing Company",
