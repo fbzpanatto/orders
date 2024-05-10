@@ -24,6 +24,10 @@ export const bodyValidationLegal = (req: Request, res: Response, next: NextFunct
   return !validationResult(req).isEmpty() ? invalidValues(res) : unexpectedFieldsFn(req, res, next, legalPOST)
 };
 
+export const bodyValidationAddress = (req: Request, res: Response, next: NextFunction) => {
+  return !validationResult(req).isEmpty() ? invalidValues(res) : unexpectedFieldsFn(req, res, next, addressesPOST)
+};
+
 const invalidValues = (res: Response) => {
   return res.status(400).json(objectResponse(400, 'Valor(es) inválido(s) no corpo da requisição.'))
 }
