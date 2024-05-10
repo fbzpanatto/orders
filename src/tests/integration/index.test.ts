@@ -10,6 +10,7 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE normal_persons')
   await query('TRUNCATE TABLE persons')
   await query('TRUNCATE TABLE person_addresses')
+  await query('TRUNCATE TABLE person_phones')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
@@ -406,6 +407,7 @@ describe('/phones', () => {
   it('Should not create a new phone with invalid body fields values.', async () => {
 
     const response = await request(app).post('/phones').send({
+      person_id: 1,
       phone_number: "11",
       contact: "Fabrizio Panato",
       created_at: formatDate(new Date())
