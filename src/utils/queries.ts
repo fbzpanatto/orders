@@ -5,13 +5,13 @@ export const selectAllFrom = async () => {
 
 }
 
-export const selectAllFromWhere = async (table: string, column: string, value: string | number) => {
+export const selectAllFromWhere = async (table: string, column: string, columnValue: string | number) => {
 
   const placeholder = '?';
 
   const queryString = `SELECT * FROM ${table} WHERE ${column}=${placeholder}`;
 
-  const values = [value];
+  const values = [columnValue];
 
   return await query(format(queryString, values)) as Array<{ [key: string]: any }>
 };
@@ -31,15 +31,15 @@ export const insertInto = async (table: string, body: { [key: string]: any }, bo
   return await query(format(queryString, values)) as ResultSetHeader
 };
 
-export const updateTableSetWhere = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
+export const updateTableSetWhere = async (table: string, column: string, columnValue: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
 
   const includedColumns = Object.entries(body)
     .filter(([key]) => !bodyFieldsToIgnore.includes(key))
     .map(([key, value]) => ({ key, value }));
 
-  const queryString = `UPDATE ${table} SET ${includedColumns.map(({ key }) => `${key}=?`).join(', ')} WHERE ${whereField}=?`;
+  const queryString = `UPDATE ${table} SET ${includedColumns.map(({ key }) => `${key}=?`).join(', ')} WHERE ${column}=?`;
 
-  const values = [...includedColumns.map(({ value }) => value), param];
+  const values = [...includedColumns.map(({ value }) => value), columnValue];
 
   return await query(format(queryString, values)) as ResultSetHeader
 };
