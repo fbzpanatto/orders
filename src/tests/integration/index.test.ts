@@ -158,6 +158,10 @@ describe('/persons/legal', () => {
       state_registration: "123456789",
       cnpj: "25871712000109",
       created_at: formatDate(new Date()),
+      observation: 'observation value',
+      first_field: 'first_field value',
+      second_field: 'second_field value',
+      third_field: 'third_field'
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
