@@ -10,45 +10,30 @@ import { createRow, updateRow } from '../utils/queries';
 import { optionalFields } from '../schemas/optionalFields';
 
 export const getMultiple = async (page = 1) => {
-  const offset = getOffset(page, config().listPerPage);
-  // const rows = await query(
-  //   `
-  //   SELECT p.id AS person_id,
-  //   pc.name AS person_category,
-  //   n.cpf AS cpf,
-  //   CONCAT(n.first_name, ' ', n.last_name) AS full_name,
-  //   l.cnpj AS cnpj,
-  //   l.corporate_name AS corporate_name
-  //   FROM persons AS p
-  //   LEFT JOIN person_categories AS pc ON p.person_category_id = pc.id
-  //   LEFT JOIN normal_persons AS n ON p.id = n.person_id
-  //   LEFT JOIN legal_persons AS l ON p.id = l.person_id
-  //   LIMIT ${offset},${config().listPerPage}
-  //   `
-  // );
+  try {
 
-  const rows = await query(
-    `
-    SELECT p.id AS person_id,
-    n.cpf AS cpf,
-    CONCAT(n.first_name, ' ', n.last_name) AS full_name,
-    l.cnpj AS cnpj,
-    l.corporate_name AS corporate_name
-    FROM persons AS p
-    LEFT JOIN normal_persons AS n ON p.id = n.person_id
-    LEFT JOIN legal_persons AS l ON p.id = l.person_id
-    LIMIT ${offset},${config().listPerPage}
-    `
-  );
-  const data = emptyOrRows(rows);
-  const meta = { page };
+    const offset = getOffset(page, config().listPerPage);
+    const rows = await query(
+      `
+      SELECT p.id AS person_id,
+      n.cpf AS cpf,
+      CONCAT(n.first_name, ' ', n.last_name) AS full_name,
+      l.cnpj AS cnpj,
+      l.corporate_name AS corporate_name
+      FROM persons AS p
+      LEFT JOIN normal_persons AS n ON p.id = n.person_id
+      LEFT JOIN legal_persons AS l ON p.id = l.person_id
+      LIMIT ${offset},${config().listPerPage}
+      `
+    );
+    const data = emptyOrRows(rows);
+    const meta = { page };
 
-  if (!rows) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
-  return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+  } catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
 }
 
 export const createNormalPerson = async (body: Person) => {
-
   try {
     const normalPersonId = await createPerson(body)
     const queryResult = await createRow(DatabaseTables.normal_persons, { person_id: normalPersonId, ...body }, Object.keys(optionalFields))
