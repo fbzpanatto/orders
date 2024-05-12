@@ -1,11 +1,11 @@
 import { ResultSetHeader, format } from 'mysql2';
 import { query } from '../services/db'
 
-export const findRegistersByOneParameter = async (table: string, field: string, value: string | number) => {
+export const selectAllFromWhere = async (table: string, column: string, value: string | number) => {
 
   const placeholder = '?';
 
-  const queryString = `SELECT * FROM ${table} WHERE ${field}=${placeholder}`;
+  const queryString = `SELECT * FROM ${table} WHERE ${column}=${placeholder}`;
 
   const values = [value];
 

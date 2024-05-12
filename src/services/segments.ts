@@ -1,26 +1,26 @@
 import { objectResponse } from '../utils/response';
-import { PersonAddresses } from '../interfaces/addresses';
+import { Segments } from '../interfaces/segments';
 import { selectAllFromWhere, updateRow, createRow } from '../utils/queries';
 import { DatabaseTables } from '../enums/tables';
 import { Request } from 'express';
 
-export const getPersonAddresses = async (personId: number) => {
+export const getSegments = async (segmentId: number) => {
   try {
-    const result = await selectAllFromWhere(DatabaseTables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
+    const result = await selectAllFromWhere(DatabaseTables.segments, 'person_id', segmentId) as Array<Segments>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const createAddress = async (body: PersonAddresses) => {
+export const createSegment = async (body: Segments) => {
   try {
-    const queryResult = await createRow(DatabaseTables.person_addresses, body, [])
+    const queryResult = await createRow(DatabaseTables.segments, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const updateAdress = async (id: number, req: Request) => {
+export const updateSegment = async (id: number, req: Request) => {
   try {
-    const queryResult = await updateRow(DatabaseTables.person_addresses, 'id', id, req.body as PersonAddresses, ['person_id'])
+    const queryResult = await updateRow(DatabaseTables.segments, 'id', id, req.body as Segments, [])
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

@@ -1,12 +1,12 @@
 import { objectResponse } from '../utils/response';
 import { PersonPhones } from '../interfaces/phones';
-import { findRegistersByOneParameter, updateRow, createRow } from '../utils/queries';
+import { selectAllFromWhere, updateRow, createRow } from '../utils/queries';
 import { DatabaseTables } from '../enums/tables';
 import { Request } from 'express';
 
 export const getPersonPhones = async (personId: number) => {
   try {
-    const result = await findRegistersByOneParameter(DatabaseTables.person_phones, 'person_id', personId) as Array<PersonPhones>
+    const result = await selectAllFromWhere(DatabaseTables.person_phones, 'person_id', personId) as Array<PersonPhones>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
