@@ -70,11 +70,16 @@ describe('/persons/normal', () => {
       middle_name: "da",
       last_name: "Silva",
       updated_at: formatDate(new Date()),
+      observation: 'observation value',
+      first_field: 'first_field value',
+      second_field: 'second_field value',
+      third_field: 'third_field'
     })
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
+  
   it('Should not create a normal person with same cpf registered in database.', async () => {
 
     const response = await request(app).post('/persons/normal').send({
@@ -146,8 +151,10 @@ describe('/persons/normal', () => {
     })
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
-  })
+  }) 
 })
+
+
 
 describe('/persons/legal', () => {
   it('Should create a legal person.', async () => {
@@ -175,6 +182,10 @@ describe('/persons/legal', () => {
       state_registration: "123456321",
       cnpj: "11171712000798",
       created_at: formatDate(new Date()),
+      observation: 'observation value',
+      first_field: 'first_field value',
+      second_field: 'second_field value',
+      third_field: 'third_field'
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -188,6 +199,10 @@ describe('/persons/legal', () => {
       state_registration: "123456789",
       cnpj: "25871712000109",
       updated_at: formatDate(new Date()),
+      observation: 'observation value',
+      first_field: 'first_field value',
+      second_field: 'second_field value',
+      third_field: 'third_field'
     })
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -460,3 +475,4 @@ describe('/phones', () => {
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 })
+

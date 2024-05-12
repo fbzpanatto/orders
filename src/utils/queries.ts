@@ -24,26 +24,18 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
 
   const values = Object.values(body).filter((_, index) => !bodyFieldsToIgnore.includes(columns[index]));
 
-  console.log(columns)
-  console.log(values)
-
   return await query(format(queryString, values)) as ResultSetHeader
 };
 
 export const updateRow = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
 
-  const updates = Object.entries(body)
+  const includedColumns = Object.entries(body)
     .filter(([key]) => !bodyFieldsToIgnore.includes(key))
-    .map(([key]) => `${key}=?`);
+    .map(([key, value]) => ({ key, value }));
 
-  const whereClause = `${whereField}=?`;
+  const queryString = `UPDATE ${table} SET ${includedColumns.map(({ key }) => `${key}=?`).join(', ')} WHERE ${whereField}=?`;
 
-  const queryString = `UPDATE ${table} SET ${updates.join(', ')} WHERE ${whereClause}`;
-
-  const values = [
-    ...Object.values(body).filter(([key]) => !bodyFieldsToIgnore.includes(key)),
-    param,
-  ];
+  const values = [...includedColumns.map(({ value }) => value), param];
 
   return await query(format(queryString, values)) as ResultSetHeader
 };
