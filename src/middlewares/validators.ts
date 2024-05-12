@@ -6,6 +6,7 @@ import { legalPATCH, legalPOST } from '../schemas/legalPerson'
 import { normalPATCH, normalPOST } from '../schemas/normalPerson'
 import { addressesPATCH, addressesPOST } from '../schemas/addresses'
 import { phonesPATCH, phonesPOST } from '../schemas/phones'
+import { segmentsPATCH, segmentsPOST } from '../schemas/segments'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
@@ -36,4 +37,11 @@ export const validatePostPhones = checkSchema(phonesPOST)
 export const validatePatchPhones = checkSchema(phonesPATCH)
 export const bodyValidationPhone = (req: Request, res: Response, next: NextFunction) => {
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, phonesPOST)
+};
+
+// Segments
+export const validatePostSegments = checkSchema(segmentsPOST)
+export const validatePatchSegments = checkSchema(segmentsPATCH)
+export const bodyValidationSegment = (req: Request, res: Response, next: NextFunction) => {
+  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, segmentsPOST)
 };
