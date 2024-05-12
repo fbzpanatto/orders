@@ -1,6 +1,6 @@
 import { objectResponse } from '../utils/response';
 import { Segments } from '../interfaces/segments';
-import { selectAllFromWhere, updateRow, createRow } from '../utils/queries';
+import { selectAllFromWhere, updateTableSetWhere, insertInto } from '../utils/queries';
 import { DatabaseTables } from '../enums/tables';
 import { Request } from 'express';
 
@@ -13,14 +13,14 @@ export const getSegments = async (segmentId: number) => {
 
 export const createSegment = async (body: Segments) => {
   try {
-    const queryResult = await createRow(DatabaseTables.segments, body, [])
+    const queryResult = await insertInto(DatabaseTables.segments, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const updateSegment = async (id: number, req: Request) => {
   try {
-    const queryResult = await updateRow(DatabaseTables.segments, 'id', id, req.body as Segments, [])
+    const queryResult = await updateTableSetWhere(DatabaseTables.segments, 'id', id, req.body as Segments, [])
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

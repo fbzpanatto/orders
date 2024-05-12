@@ -1,6 +1,10 @@
 import { ResultSetHeader, format } from 'mysql2';
 import { query } from '../services/db'
 
+export const selectAllFrom = async () => {
+
+}
+
 export const selectAllFromWhere = async (table: string, column: string, value: string | number) => {
 
   const placeholder = '?';
@@ -12,7 +16,7 @@ export const selectAllFromWhere = async (table: string, column: string, value: s
   return await query(format(queryString, values)) as Array<{ [key: string]: any }>
 };
 
-export const createRow = async (table: string, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
+export const insertInto = async (table: string, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
 
   const columns = Object.entries(body)
     .filter(([key]) => !bodyFieldsToIgnore.includes(key))
@@ -27,7 +31,7 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
   return await query(format(queryString, values)) as ResultSetHeader
 };
 
-export const updateRow = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
+export const updateTableSetWhere = async (table: string, whereField: string, param: number, body: { [key: string]: any }, bodyFieldsToIgnore: string[]) => {
 
   const includedColumns = Object.entries(body)
     .filter(([key]) => !bodyFieldsToIgnore.includes(key))
