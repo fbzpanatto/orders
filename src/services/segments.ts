@@ -13,7 +13,7 @@ export const getSegments = async () => {
 
 export const getSegment = async (segmentId: number) => {
   try {
-    const result = await selectAllFromWhere(DatabaseTables.segments, 'person_id', segmentId) as Array<Segments>
+    const result = await selectAllFromWhere(DatabaseTables.segments, 'id', segmentId) as Array<Segments>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
