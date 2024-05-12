@@ -1,11 +1,17 @@
 import { ResultSetHeader, format } from 'mysql2';
 import { query } from '../services/db'
+import { getOffset } from '../helper';
+import { config } from '../config'
 
-export async function selectAllFrom<T>(table: string) {
+export async function selectAllFrom<T>(table: string, page = 1) {
 
-  const queryString = `SELECT * FROM ${table}`
-
-  return await query(format(queryString)) as Array<T>
+  const offset = getOffset(page, config().listPerPage);
+  return await query(format(
+    `
+    SELECT * FROM ${table}
+    LIMIT ${offset},${config().listPerPage}
+    `
+  )) as Array<T>
 }
 
 export const selectAllFromWhere = async (table: string, column: string, columnValue: string | number) => {

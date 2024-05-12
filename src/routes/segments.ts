@@ -3,11 +3,12 @@ import { validateId } from '../middlewares/validators'
 import { bodyValidationSegment, validatePatchSegments, validatePostSegments } from '../middlewares/validators'
 import { getSegment, getSegments, createSegment, updateSegment } from '../services/segments'
 import { Segments } from '../interfaces/segments'
+import { emptyOrRows } from '../helper'
 
 const router = Router()
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getSegments()
+  const result = await getSegments(1)
   return res.status(result.status).json(result)
 })
 

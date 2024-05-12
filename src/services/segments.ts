@@ -3,11 +3,15 @@ import { Segments } from '../interfaces/segments';
 import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
 import { DatabaseTables } from '../enums/tables';
 import { Request } from 'express';
+import { emptyOrRows } from '../helper';
 
-export const getSegments = async () => {
+export const getSegments = async (page: number) => {
   try {
-    const rows = await selectAllFrom<Segments>(DatabaseTables.segments)
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: rows })
+    const rows = await selectAllFrom<Segments>(DatabaseTables.segments, page)
+    const data = emptyOrRows(rows);
+    const meta = { page };
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 

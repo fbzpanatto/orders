@@ -79,7 +79,7 @@ describe('/persons/normal', () => {
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
-  
+
   it('Should not create a normal person with same cpf registered in database.', async () => {
 
     const response = await request(app).post('/persons/normal').send({
@@ -151,7 +151,7 @@ describe('/persons/normal', () => {
     })
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
-  }) 
+  })
 })
 
 
@@ -476,3 +476,10 @@ describe('/phones', () => {
   })
 })
 
+describe('/segments', () => {
+  it('Should return empty array of segments.', async () => {
+    const response = await request(app).get('/segments')
+
+    expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
+  })
+})
