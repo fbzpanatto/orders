@@ -5,10 +5,10 @@ import { DatabaseTables } from '../enums/tables';
 import { Request } from 'express';
 
 export const getPersonAddresses = async (personId: number) => {
-
-  const result = await findRegistersByOneParameter(DatabaseTables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
-
-  return objectResponse(200, 'Consulta realizada com sucesso.', { result })
+  try {
+    const result = await findRegistersByOneParameter(DatabaseTables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
+    return objectResponse(200, 'Consulta realizada com sucesso.', { result })
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createAddress = async (body: PersonAddresses) => {

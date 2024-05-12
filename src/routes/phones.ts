@@ -6,24 +6,18 @@ import { bodyValidationPhone, validateId, validatePersonId, validatePostPhones, 
 const router = Router()
 
 router.get('/:personId', validatePersonId, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await getPersonPhones(parseInt(req.params.personId))
-    return res.status(result.status).json(result)
-  } catch (error) { next(error) }
+  const result = await getPersonPhones(parseInt(req.params.personId))
+  return res.status(result.status).json(result)
 })
 
 router.post('/', validatePostPhones, bodyValidationPhone, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await createPhone(req.body as PersonPhones)
-    return res.status(result.status).json(result)
-  } catch (error) { next(error) }
+  const result = await createPhone(req.body as PersonPhones)
+  return res.status(result.status).json(result)
 })
 
 router.patch('/:id', validateId, validatePatchPhones, bodyValidationPhone, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await updatePhone(parseInt(req.params.id), req)
-    return res.status(result.status).json(result)
-  } catch (error) { next(error) }
+  const result = await updatePhone(parseInt(req.params.id), req)
+  return res.status(result.status).json(result)
 })
 
 export default router
