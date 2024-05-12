@@ -3,15 +3,15 @@ import { query } from '../services/db'
 import { getOffset } from '../helper';
 import { config } from '../config'
 
-export async function selectAllFrom<T>(table: string, page = 1) {
+export async function selectAllFrom<T>(table: string, page = 1, paramQuery?: string) {
+
 
   const offset = getOffset(page, config().listPerPage);
-  return await query(format(
-    `
-    SELECT * FROM ${table}
-    LIMIT ${offset},${config().listPerPage}
-    `
-  )) as Array<T>
+  const limit = `LIMIT ${offset},${config().listPerPage}`
+
+  let queryString = paramQuery ? `${paramQuery} ${limit}` : `SELECT * FROM ${table} ${limit}`
+
+  return await query(format(queryString)) as Array<T>
 }
 
 export const selectAllFromWhere = async (table: string, column: string, columnValue: string | number) => {

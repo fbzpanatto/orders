@@ -1,4 +1,5 @@
 export enum DatabaseTables {
+  persons = 'persons',
   legal_persons = 'legal_persons',
   normal_persons = 'normal_persons',
   person_addresses = 'person_addresses',

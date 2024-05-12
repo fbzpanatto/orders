@@ -3,7 +3,6 @@ import { validateId } from '../middlewares/validators'
 import { bodyValidationSegment, validatePatchSegments, validatePostSegments } from '../middlewares/validators'
 import { getSegment, getSegments, createSegment, updateSegment } from '../services/segments'
 import { Segments } from '../interfaces/segments'
-import { emptyOrRows } from '../helper'
 
 const router = Router()
 

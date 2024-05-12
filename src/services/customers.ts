@@ -1,31 +1,28 @@
 import { ResultSetHeader } from 'mysql2';
 import { query } from './db'
-import { config } from '../config'
-import { emptyOrRows, getOffset } from '../helper'
+import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
 import { Request } from 'express';
 import { DatabaseTables } from '../enums/tables'
-import { insertInto, updateTableSetWhere } from '../utils/queries';
+import { insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { optionalFields } from '../schemas/optionalFields';
 
 export const getCustomers = async (page = 1) => {
   try {
 
-    const offset = getOffset(page, config().listPerPage);
-    const rows = await query(
-      `
-      SELECT p.id AS person_id,
-      n.cpf AS cpf,
-      CONCAT(n.first_name, ' ', n.last_name) AS full_name,
-      l.cnpj AS cnpj,
-      l.corporate_name AS corporate_name
-      FROM persons AS p
-      LEFT JOIN normal_persons AS n ON p.id = n.person_id
-      LEFT JOIN legal_persons AS l ON p.id = l.person_id
-      LIMIT ${offset},${config().listPerPage}
-      `
-    );
+    const queryString = `
+    SELECT p.id AS person_id,
+    n.cpf AS cpf,
+    CONCAT(n.first_name, ' ', n.last_name) AS full_name,
+    l.cnpj AS cnpj,
+    l.corporate_name AS corporate_name
+    FROM persons AS p
+    LEFT JOIN normal_persons AS n ON p.id = n.person_id
+    LEFT JOIN legal_persons AS l ON p.id = l.person_id
+    `
+
+    const rows = await selectAllFrom(DatabaseTables.persons, page, queryString)
     const data = emptyOrRows(rows);
     const meta = { page };
 

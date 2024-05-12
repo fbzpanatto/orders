@@ -482,4 +482,14 @@ describe('/segments', () => {
 
     expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
   })
+
+  it('Should create a new segment', async () => {
+
+    const response = await request(app).post('/segments').send({
+      name: 'Alimentício',
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
 })
