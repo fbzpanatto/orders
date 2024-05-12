@@ -9,7 +9,7 @@ import { DatabaseTables } from '../enums/tables'
 import { insertInto, updateTableSetWhere } from '../utils/queries';
 import { optionalFields } from '../schemas/optionalFields';
 
-export const getMultiple = async (page = 1) => {
+export const getCustomers = async (page = 1) => {
   try {
 
     const offset = getOffset(page, config().listPerPage);
