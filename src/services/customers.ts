@@ -48,6 +48,7 @@ export const getMultiple = async (page = 1) => {
 }
 
 export const createNormalPerson = async (body: Person) => {
+
   try {
     const normalPersonId = await createPerson(body)
     const queryResult = await createRow(DatabaseTables.normal_persons, { person_id: normalPersonId, ...body }, Object.keys(optionalFields))
@@ -80,10 +81,11 @@ export const updateNormalPerson = async (personId: number, req: Request) => {
 }
 
 const createPerson = async (body: Person) => {
-  const sql = `
+  const sql =
+    `
     INSERT INTO persons (created_at, observation, first_field, second_field, third_field)
     VALUES (?, ?, ?, ?, ?)
-  `;
+  `
 
   const { insertId: personId } = await query(sql, [
     body.created_at,

@@ -24,6 +24,9 @@ export const createRow = async (table: string, body: { [key: string]: any }, bod
 
   const values = Object.values(body).filter((_, index) => !bodyFieldsToIgnore.includes(columns[index]));
 
+  console.log(columns)
+  console.log(values)
+
   return await query(format(queryString, values)) as ResultSetHeader
 };
 
