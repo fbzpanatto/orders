@@ -3,8 +3,6 @@ export function getOffset(currentPage = 1, listPerPage: number) {
 }
 
 export function emptyOrRows(rows: any) {
-  if (!rows) {
-    return [];
-  }
+  if (!rows) { return [] }
   return rows;
 }
