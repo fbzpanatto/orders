@@ -606,4 +606,27 @@ describe('/person-segments', () => {
       }
     )
   })
+
+  it('Should not create a new person segment with invalid body fields values.', async () => {
+
+    const response = await request(app).post('/person-segments').send({
+      person_id: 'a',
+      segment_id: 2,
+      created_at: "2024-05-13 21:03:34"
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not create a new person segment with wrong body fields values.', async () => {
+
+    const response = await request(app).post('/person-segments').send({
+      person_id: 3,
+      segment_id: 3,
+      created_at: "2024-05-13 21:03:34",
+      wrong: 'value'
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
 })
