@@ -514,6 +514,17 @@ describe('/segments', () => {
     expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
   })
 
+  it('Should not create a new segment with wrong body fields.', async () => {
+
+    const response = await request(app).post('/segments').send({
+      name: 'Alimentício Atualizado',
+      created_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
   it('Should not update a segment with invalid body fields values.', async () => {
 
     const response = await request(app).patch('/segments/1').send({
