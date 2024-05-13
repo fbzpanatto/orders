@@ -11,6 +11,7 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE persons')
   await query('TRUNCATE TABLE person_addresses')
   await query('TRUNCATE TABLE person_phones')
+  await query('TRUNCATE TABLE segments')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
@@ -491,5 +492,46 @@ describe('/segments', () => {
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should update a segment.', async () => {
+
+    const response = await request(app).patch('/segments/1').send({
+      name: 'Alimentício Atualizado',
+      updated_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should not create a new segment with invalid body fields values.', async () => {
+
+    const response = await request(app).post('/segments').send({
+      name: 'A',
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a segment with invalid body fields values.', async () => {
+
+    const response = await request(app).patch('/segments/1').send({
+      name: 'A',
+      updated_at: null
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a segment with wrong body fields.', async () => {
+
+    const response = await request(app).patch('/phones/1').send({
+      name: 'Atualizado Três',
+      updated_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 })
