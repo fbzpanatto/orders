@@ -563,7 +563,7 @@ describe('/person-segments', () => {
     const response = await request(app).post('/person-segments').send({
       person_id: 3,
       segment_id: 1,
-      created_at: formatDate(new Date())
+      created_at: "2024-05-13 21:03:34"
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -574,7 +574,7 @@ describe('/person-segments', () => {
     const response = await request(app).post('/person-segments').send({
       person_id: 3,
       segment_id: 2,
-      created_at: formatDate(new Date())
+      created_at: "2024-05-13 21:03:34"
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -585,9 +585,25 @@ describe('/person-segments', () => {
     const response = await request(app).post('/person-segments').send({
       person_id: 3,
       segment_id: 3,
-      created_at: formatDate(new Date())
+      created_at: "2024-05-13 21:03:34"
     })
 
     expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
+  })
+
+  it('Should return person segments for person with id 3', async () => {
+
+    const response = await request(app).get('/person-segments/3')
+
+    expect(response.body).toEqual(
+      {
+        "message": "Consulta realizada com sucesso.",
+        "status": 200,
+        result: [
+          { created_at: "2024-05-13 21:03:34", id: 1, person_id: 3, segment_id: 1, updated_at: null },
+          { created_at: "2024-05-13 21:03:34", id: 2, person_id: 3, segment_id: 2, updated_at: null },
+        ]
+      }
+    )
   })
 })
