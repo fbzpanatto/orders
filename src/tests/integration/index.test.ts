@@ -629,4 +629,5 @@ describe('/person-segments', () => {
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
+  // TODO: Should not create a person segment with same person id and segment that already has registeres in database
 })
