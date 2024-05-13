@@ -629,5 +629,15 @@ describe('/person-segments', () => {
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
-  // TODO: Should not create a person segment with same person id and segment that already has registeres in database
+
+  it('Should not create another person segment for person id and segment id that already are in database', async () => {
+
+    const response = await request(app).post('/person-segments').send({
+      person_id: 3,
+      segment_id: 2,
+      created_at: "2024-05-13 21:03:34"
+    })
+
+    expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
+  })
 })
