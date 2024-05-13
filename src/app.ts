@@ -8,6 +8,7 @@ import customersRouter from './routes/customers';
 import addressesRouter from './routes/addresses';
 import phonesRouter from './routes/phones'
 import segmentsRouter from './routes/segments'
+import personSegmentsRouter from './routes/personSegments'
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use('/addresses', addressesRouter)
 app.use('/persons', customersRouter)
 app.use('/phones', phonesRouter)
 app.use('/segments', segmentsRouter)
+app.use('/person-segments', personSegmentsRouter)
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => { res.status(500).send({ status: 500, message: error.message }) })
 

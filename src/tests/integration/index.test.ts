@@ -12,6 +12,7 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE person_addresses')
   await query('TRUNCATE TABLE person_phones')
   await query('TRUNCATE TABLE segments')
+  await query('TRUNCATE TABLE person_segments')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
@@ -494,6 +495,16 @@ describe('/segments', () => {
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
   })
 
+  it('Should create another new segment', async () => {
+
+    const response = await request(app).post('/segments').send({
+      name: 'Higiene Pessoal',
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
   it('Should update a segment.', async () => {
 
     const response = await request(app).patch('/segments/1').send({
@@ -544,5 +555,39 @@ describe('/segments', () => {
     })
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+})
+describe('/person-segments', () => {
+  it('Should create a new person segment for person', async () => {
+
+    const response = await request(app).post('/person-segments').send({
+      person_id: 3,
+      segment_id: 1,
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should create another person segment for person', async () => {
+
+    const response = await request(app).post('/person-segments').send({
+      person_id: 3,
+      segment_id: 2,
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should not create another person segment for person with nonexistent segment id', async () => {
+
+    const response = await request(app).post('/person-segments').send({
+      person_id: 3,
+      segment_id: 3,
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
   })
 })
