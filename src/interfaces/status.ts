@@ -1,4 +1,4 @@
-export interface Segments {
+export interface Status {
   id?: number,
   name?: string,
   created_at?: Date,

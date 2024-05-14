@@ -13,6 +13,7 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE person_phones')
   await query('TRUNCATE TABLE segments')
   await query('TRUNCATE TABLE person_segments')
+  await query('TRUNCATE TABLE status')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
@@ -548,7 +549,7 @@ describe('/segments', () => {
 
   it('Should not update a segment with wrong body fields.', async () => {
 
-    const response = await request(app).patch('/phones/1').send({
+    const response = await request(app).patch('/segments/1').send({
       name: 'Atualizado Três',
       updated_at: formatDate(new Date()),
       wrongField: "value"
@@ -557,6 +558,7 @@ describe('/segments', () => {
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 })
+
 describe('/person-segments', () => {
   it('Should create a new person segment for person', async () => {
 
@@ -639,5 +641,85 @@ describe('/person-segments', () => {
     })
 
     expect(response.body).toEqual({ "message": "Não foi possível processar a sua solicitação.", "status": 400 })
+  })
+})
+
+describe('/status', () => {
+  it('Should return empty array of status.', async () => {
+    const response = await request(app).get('/status')
+
+    expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
+  })
+
+  it('Should create a new status', async () => {
+
+    const response = await request(app).post('/status').send({
+      name: 'Em Corte',
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should create another new status', async () => {
+
+    const response = await request(app).post('/status').send({
+      name: 'Modelagem',
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should update a status.', async () => {
+
+    const response = await request(app).patch('/status/1').send({
+      name: 'Em Corte atualizado',
+      updated_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should not create a new status with invalid body fields values.', async () => {
+
+    const response = await request(app).post('/status').send({
+      name: 'A',
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not create a new status with wrong body fields.', async () => {
+
+    const response = await request(app).post('/status').send({
+      name: 'Alimentício Atualizado',
+      created_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a status with invalid body fields values.', async () => {
+
+    const response = await request(app).patch('/status/1').send({
+      name: 'A',
+      updated_at: null
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a status with wrong body fields.', async () => {
+
+    const response = await request(app).patch('/status/1').send({
+      name: 'Atualizado Três',
+      updated_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 })
