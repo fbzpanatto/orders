@@ -9,16 +9,16 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE legal_persons')
   await query('TRUNCATE TABLE normal_persons')
   await query('TRUNCATE TABLE persons')
+  await query('TRUNCATE TABLE status')
   await query('TRUNCATE TABLE person_addresses')
   await query('TRUNCATE TABLE person_phones')
   await query('TRUNCATE TABLE segments')
   await query('TRUNCATE TABLE person_segments')
-  await query('TRUNCATE TABLE status')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
 beforeAll(async () => { await dataBaseTestSettings() })
-// afterAll(async () => { await dataBaseTestSettings() })
+afterAll(async () => { await dataBaseTestSettings() })
 
 describe('/api', () => {
   it('Return Hello World', async () => {
@@ -655,7 +655,7 @@ describe('/status', () => {
 
     const response = await request(app).post('/status').send({
       name: 'Em Corte',
-      created_at: formatDate(new Date())
+      created_at: "2024-05-14 22:47:11"
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -675,7 +675,7 @@ describe('/status', () => {
 
     const response = await request(app).patch('/status/1').send({
       name: 'Em Corte atualizado',
-      updated_at: formatDate(new Date())
+      updated_at: "2024-05-14 22:47:11"
     })
 
     expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -721,5 +721,23 @@ describe('/status', () => {
     })
 
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should return a segment.', async () => {
+
+    const response = await request(app).get('/status/1')
+
+    expect(response.body).toEqual({
+      status: 200,
+      message: "Consulta realizada com sucesso.",
+      result: [
+        {
+          name: 'Em Corte atualizado',
+          created_at: "2024-05-14 22:47:11",
+          id: 1,
+          updated_at: "2024-05-14 22:47:11"
+        }
+      ]
+    })
   })
 })
