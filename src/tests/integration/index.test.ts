@@ -765,7 +765,7 @@ describe('/products', () => {
 
     const response = await request(app).post('/products').send({
       name: 'Frango',
-      created_at: formatDate(new Date())
+      created_at: "2024-05-16 21:38:43"
     })
 
     expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
@@ -838,6 +838,31 @@ describe('/products', () => {
           updated_at: "2024-05-14 22:47:11"
         }
       ]
+    })
+  })
+
+  it('Should return an array of products.', async () => {
+
+    const response = await request(app).get('/products')
+
+    expect(response.body).toEqual({
+      status: 200,
+      message: "Consulta realizada com sucesso.",
+      data: [
+        {
+          name: 'Batata atualizado',
+          created_at: "2024-05-14 22:47:11",
+          id: 1,
+          updated_at: "2024-05-14 22:47:11"
+        },
+        {
+          name: 'Frango',
+          created_at: "2024-05-16 21:38:43",
+          id: 2,
+          updated_at: null
+        }
+      ],
+      meta: { page: 1 }
     })
   })
 })
