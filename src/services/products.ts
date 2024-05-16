@@ -17,8 +17,8 @@ export const getProducts = async (page: number) => {
 
 export const getProduct = async (statusId: number) => {
   try {
-    const result = await selectAllFromWhere(DatabaseTables.products, 'id', statusId) as Array<Products>
-    return objectResponse(200, 'Consulta realizada com sucesso.', { result })
+    const queryResult = await selectAllFromWhere(DatabaseTables.products, 'id', statusId) as Array<Products>
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 

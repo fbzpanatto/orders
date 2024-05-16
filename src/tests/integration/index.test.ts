@@ -830,7 +830,7 @@ describe('/products', () => {
     expect(response.body).toEqual({
       status: 200,
       message: "Consulta realizada com sucesso.",
-      result: [
+      data: [
         {
           name: 'Batata atualizado',
           created_at: "2024-05-14 22:47:11",
