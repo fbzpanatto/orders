@@ -14,11 +14,12 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE person_phones')
   await query('TRUNCATE TABLE segments')
   await query('TRUNCATE TABLE person_segments')
+  await query('TRUNCATE TABLE products')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
 beforeAll(async () => { await dataBaseTestSettings() })
-afterAll(async () => { await dataBaseTestSettings() })
+// afterAll(async () => { await dataBaseTestSettings() })
 
 describe('/api', () => {
   it('Return Hello World', async () => {
@@ -723,7 +724,7 @@ describe('/status', () => {
     expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
   })
 
-  it('Should return a segment.', async () => {
+  it('Should return a status.', async () => {
 
     const response = await request(app).get('/status/1')
 
@@ -733,6 +734,105 @@ describe('/status', () => {
       result: [
         {
           name: 'Em Corte atualizado',
+          created_at: "2024-05-14 22:47:11",
+          id: 1,
+          updated_at: "2024-05-14 22:47:11"
+        }
+      ]
+    })
+  })
+})
+
+
+describe('/products', () => {
+  it('Should return empty array of products.', async () => {
+    const response = await request(app).get('/products')
+
+    expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
+  })
+
+  it('Should create a new products', async () => {
+
+    const response = await request(app).post('/products').send({
+      name: 'Batata',
+      created_at: "2024-05-14 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should create another new products', async () => {
+
+    const response = await request(app).post('/products').send({
+      name: 'Frango',
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should update a products.', async () => {
+
+    const response = await request(app).patch('/products/1').send({
+      name: 'Batata atualizado',
+      updated_at: "2024-05-14 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should not create a new product with invalid body fields values.', async () => {
+
+    const response = await request(app).post('/products').send({
+      name: 'A',
+      created_at: formatDate(new Date())
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not create a new product with wrong body fields.', async () => {
+
+    const response = await request(app).post('/products').send({
+      name: 'Novo Produto',
+      created_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a products with invalid body fields values.', async () => {
+
+    const response = await request(app).patch('/products/1').send({
+      name: 'A',
+      updated_at: null
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a product with wrong body fields.', async () => {
+
+    const response = await request(app).patch('/products/1').send({
+      name: 'Batata Três',
+      updated_at: formatDate(new Date()),
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should return a product.', async () => {
+
+    const response = await request(app).get('/products/1')
+
+    expect(response.body).toEqual({
+      status: 200,
+      message: "Consulta realizada com sucesso.",
+      result: [
+        {
+          name: 'Batata atualizado',
           created_at: "2024-05-14 22:47:11",
           id: 1,
           updated_at: "2024-05-14 22:47:11"

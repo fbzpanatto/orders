@@ -9,6 +9,7 @@ import { phonesPATCH, phonesPOST } from '../schemas/phones'
 import { segmentsPATCH, segmentsPOST } from '../schemas/segments'
 import { personSegmentsPATCH, personSegmentsPOST } from '../schemas/personSegments'
 import { statusPATCH, statusPOST } from '../schemas/status'
+import { productsPOST, productsPATCH } from '../schemas/products'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
@@ -60,4 +61,11 @@ export const validatePostStatus = checkSchema(statusPOST)
 export const validatePatchStatus = checkSchema(statusPATCH)
 export const bodyValidationStatus = (req: Request, res: Response, next: NextFunction) => {
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, statusPOST)
+};
+
+// Products
+export const validatePostProducts = checkSchema(productsPOST)
+export const validatePatchProducts = checkSchema(productsPATCH)
+export const bodyValidationProducts = (req: Request, res: Response, next: NextFunction) => {
+  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, productsPOST)
 };
