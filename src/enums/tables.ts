@@ -7,5 +7,6 @@ export enum DatabaseTables {
   segments = 'segments',
   person_segments = 'person_segments',
   status = 'status',
-  products = 'products'
+  products = 'products',
+  orders = 'orders'
 }

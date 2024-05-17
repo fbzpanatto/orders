@@ -16,13 +16,9 @@ export async function selectAllFrom<T>(table: string, page = 1, paramQuery?: str
 
 export const selectAllFromWhere = async (table: string, column: string, columnValue: string | number) => {
 
-  const placeholder = '?';
+  const queryString = `SELECT * FROM ${table} WHERE ${column}=?`;
 
-  const queryString = `SELECT * FROM ${table} WHERE ${column}=${placeholder}`;
-
-  const values = [columnValue];
-
-  return await query(format(queryString, values)) as Array<{ [key: string]: any }>
+  return await query(format(queryString, [columnValue])) as Array<{ [key: string]: any }>
 };
 
 export const insertInto = async (table: string, body: { [key: string]: any }, fieldsToIgnore: string[]) => {
