@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { validateId } from '../middlewares/validators'
-import { bodyValidationSegment, validatePatchSegments, validatePostSegments } from '../middlewares/validators'
+import { bodyValidationSegment, validatePatchSegments, validatePostSegments, validateId } from '../middlewares/validators'
 import { getSegment, getSegments, createSegment, updateSegment } from '../services/segments'
 import { Segments } from '../interfaces/segments'
 

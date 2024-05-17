@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { validateId } from '../middlewares/validators'
-import { validatePostProducts, validatePatchProducts, bodyValidationProducts } from '../middlewares/validators'
+import { validatePostProducts, validatePatchProducts, bodyValidationProducts, validateId } from '../middlewares/validators'
 import { createProduct, getProduct, getProducts, updateProduct } from '../services/products'
 import { Status } from '../interfaces/status'
 
