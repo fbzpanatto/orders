@@ -1,12 +1,22 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { getAllOrders, getOrder, getPersonOrders, createOrder, updateOrder } from '../services/orders'
 import { Orders } from '../interfaces/orders'
-import { validateId, validatePersonId, validatePostOrders, validatePatchOrders, bodyValidationOrders } from '../middlewares/validators'
+import { validateId, validatePostOrders, validatePatchOrders, bodyValidationOrders } from '../middlewares/validators'
 
 const router = Router()
 
-router.get('/:personId', validatePersonId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getPersonOrders(parseInt(req.params.personId))
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+  const result = await getAllOrders(1)
+  return res.status(result.status).json(result)
+})
+
+router.get('/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
+  const result = await getOrder(parseInt(req.params.id))
+  return res.status(result.status).json(result)
+})
+
+router.get('/person/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
+  const result = await getPersonOrders(parseInt(req.params.id))
   return res.status(result.status).json(result)
 })
 
