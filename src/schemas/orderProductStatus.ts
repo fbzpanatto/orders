@@ -34,7 +34,7 @@ export const ordersProductStatusPOST = {
 
 export const ordersProductStatusPATCH = {
   status_id: {
-    exists: true,
+    optional: true,
     isNumeric: true,
     escape: true
   },

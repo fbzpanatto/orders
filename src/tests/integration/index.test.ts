@@ -16,6 +16,7 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE person_segments')
   await query('TRUNCATE TABLE products')
   await query('TRUNCATE TABLE orders')
+  await query('TRUNCATE TABLE order_products_status')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
@@ -983,6 +984,140 @@ describe('/orders', () => {
           started_at: "2024-05-14 22:47:11",
           id: 2,
           ended_at: null,
+        }
+      ],
+      meta: { page: 1 }
+    })
+  })
+})
+
+describe('/order-products-status', () => {
+  it('Should return empty array of order-products-status.', async () => {
+    const response = await request(app).get('/order-products-status')
+
+    expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
+  })
+
+  it('Should create a new order-products-status', async () => {
+
+    const response = await request(app).post('/order-products-status').send({
+      order_id: 1,
+      product_id: 1,
+      status_id: 1,
+      started_at: "2024-05-14 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should create another new order-products-status', async () => {
+
+    const response = await request(app).post('/order-products-status').send({
+      order_id: 2,
+      product_id: 2,
+      status_id: 1,
+      started_at: "2024-05-14 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should update an order-products-status.', async () => {
+
+    const response = await request(app).patch('/order-products-status/1').send({
+      ended_at: "2024-05-20 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should not create a new order-products-status with invalid body fields values.', async () => {
+
+    const response = await request(app).post('/order-products-status').send({
+      order_id: 1,
+      product_id: 1,
+      status_id: 2,
+      started_at: "2024-05-14"
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not create a new order with wrong body fields.', async () => {
+
+    const response = await request(app).post('/order-products-status').send({
+      order_id: 1,
+      product_id: 1,
+      status_id: 2,
+      started_at: "2024-05-20 22:47:11",
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update an order-products-status with invalid body fields values.', async () => {
+
+    const response = await request(app).patch('/order-products-status/1').send({
+      ended_at: "2024-05-20",
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update an order-products-status with wrong body fields.', async () => {
+
+    const response = await request(app).patch('/order-products-status/1').send({
+      ended_at: "2024-05-14 22:47:11",
+      wrongField: 'value'
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should return a order.', async () => {
+
+    const response = await request(app).get('/order-products-status/1')
+
+    expect(response.body).toEqual({
+      status: 200,
+      message: "Consulta realizada com sucesso.",
+      data: [
+        {
+          id: 1,
+          order_id: 1,
+          product_id: 1,
+          status_id: 1,
+          started_at: "2024-05-14 22:47:11",
+          ended_at: "2024-05-20 22:47:11"
+        }
+      ]
+    })
+  })
+
+  it('Should return an array of order-products-status.', async () => {
+
+    const response = await request(app).get('/order-products-status')
+
+    expect(response.body).toEqual({
+      status: 200,
+      message: "Consulta realizada com sucesso.",
+      data: [
+        {
+          id: 1,
+          order_id: 1,
+          product_id: 1,
+          status_id: 1,
+          started_at: "2024-05-14 22:47:11",
+          ended_at: "2024-05-20 22:47:11"
+        },
+        {
+          id: 2,
+          order_id: 2,
+          product_id: 2,
+          status_id: 1,
+          started_at: "2024-05-14 22:47:11",
+          ended_at: null
         }
       ],
       meta: { page: 1 }
