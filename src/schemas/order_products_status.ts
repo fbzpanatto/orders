@@ -1,6 +1,6 @@
 import { validateCustomFieldDate } from "../utils/customValidators"
 
-export const orders_products_status_POST = {
+export const ordersProductStatusPOST = {
   order_id: {
     exists: true,
     isNumeric: true,
@@ -32,7 +32,7 @@ export const orders_products_status_POST = {
   }
 }
 
-export const orders_products_status_PATCH = {
+export const ordersProductStatusPATCH = {
   status_id: {
     exists: true,
     isNumeric: true,
