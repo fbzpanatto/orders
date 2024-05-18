@@ -79,7 +79,7 @@ export const bodyValidationOrders = (req: Request, res: Response, next: NextFunc
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, ordersPOST)
 };
 
-// Orders
+// OrderProductStatus
 export const validatePostOrderProductStatus = checkSchema(ordersProductStatusPOST)
 export const validatePatchProductStatus = checkSchema(ordersProductStatusPATCH)
 export const bodyValidationProductStatus = (req: Request, res: Response, next: NextFunction) => {
