@@ -11,7 +11,7 @@ import { personSegmentsPATCH, personSegmentsPOST } from '../schemas/personSegmen
 import { statusPATCH, statusPOST } from '../schemas/status'
 import { productsPOST, productsPATCH } from '../schemas/products'
 import { ordersPOST, ordersPATCH } from '../schemas/orders'
-import { ordersProductStatusPOST, ordersProductStatusPATCH } from '../schemas/order_products_status'
+import { ordersProductStatusPOST, ordersProductStatusPATCH } from '../schemas/orderProductStatus'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
