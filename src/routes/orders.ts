@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { getAllOrders, getOrder, getPersonOrders, createOrder, updateOrder } from '../services/orders'
 import { Orders } from '../interfaces/orders'
-import { validateId, validatePostOrders, validatePatchOrders, bodyValidationOrders } from '../middlewares/validators'
+import { validateId, checkPostSchemaOrders, checkPatchSchemaOrders, bodyValidationOrders } from '../middlewares/validators'
 
 const router = Router()
 
@@ -20,12 +20,12 @@ router.get('/person/:id', validateId, async (req: Request, res: Response, next: 
   return res.status(result.status).json(result)
 })
 
-router.post('/', validatePostOrders, bodyValidationOrders, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', checkPostSchemaOrders, bodyValidationOrders, async (req: Request, res: Response, next: NextFunction) => {
   const result = await createOrder(req.body as Orders)
   return res.status(result.status).json(result)
 })
 
-router.patch('/:id', validateId, validatePatchOrders, bodyValidationOrders, async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/:id', validateId, checkPatchSchemaOrders, bodyValidationOrders, async (req: Request, res: Response, next: NextFunction) => {
   const result = await updateOrder(parseInt(req.params.id), req)
   return res.status(result.status).json(result)
 })
