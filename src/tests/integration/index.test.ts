@@ -15,6 +15,7 @@ async function dataBaseTestSettings() {
   await query('TRUNCATE TABLE segments')
   await query('TRUNCATE TABLE person_segments')
   await query('TRUNCATE TABLE products')
+  await query('TRUNCATE TABLE orders')
   await query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
@@ -865,4 +866,126 @@ describe('/products', () => {
       meta: { page: 1 }
     })
   })
+})
+
+describe('/orders', () => {
+  it('Should return empty array of orders.', async () => {
+    const response = await request(app).get('/orders')
+
+    expect(response.body).toEqual({ "data": [], "message": "Consulta realizada com sucesso.", "meta": { "page": 1 }, "status": 200 })
+  })
+
+  it('Should create a new order', async () => {
+
+    const response = await request(app).post('/orders').send({
+      person_id: 3,
+      started_at: "2024-05-14 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should create another new order', async () => {
+
+    const response = await request(app).post('/orders').send({
+      person_id: 4,
+      started_at: "2024-05-14 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro criado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should update a order.', async () => {
+
+    const response = await request(app).patch('/orders/1').send({
+      ended_at: "2024-05-20 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Registro atualizado com sucesso.", "status": 200, "affectedRows": 1 })
+  })
+
+  it('Should not create a new order with invalid body fields values.', async () => {
+
+    const response = await request(app).post('/orders').send({
+      person_id: '4a',
+      started_at: "2024-05-14 22:47:11"
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not create a new order with wrong body fields.', async () => {
+
+    const response = await request(app).post('/orders').send({
+      person_id: '4',
+      started_at: "2024-05-14 22:47:11",
+      wrongField: "value"
+    })
+
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
+
+  it('Should not update a orders with invalid body fields values.', async () => {
+
+    const response = await request(app).patch('/orders/1').send({
+      person_id: '5a',
+      ended_at: '2024-05-14 22:47:11'
+    })
+
+    expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
+  })
+
+  // it('Should not update a product with wrong body fields.', async () => {
+
+  //   const response = await request(app).patch('/orders/1').send({
+  //     name: 'Batata Três',
+  //     updated_at: formatDate(new Date()),
+  //     wrongField: "value"
+  //   })
+
+  //   expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  // })
+
+  // it('Should return a product.', async () => {
+
+  //   const response = await request(app).get('/orders/1')
+
+  //   expect(response.body).toEqual({
+  //     status: 200,
+  //     message: "Consulta realizada com sucesso.",
+  //     data: [
+  //       {
+  //         name: 'Batata atualizado',
+  //         created_at: "2024-05-14 22:47:11",
+  //         id: 1,
+  //         updated_at: "2024-05-14 22:47:11"
+  //       }
+  //     ]
+  //   })
+  // })
+
+  // it('Should return an array of orders.', async () => {
+
+  //   const response = await request(app).get('/orders')
+
+  //   expect(response.body).toEqual({
+  //     status: 200,
+  //     message: "Consulta realizada com sucesso.",
+  //     data: [
+  //       {
+  //         name: 'Batata atualizado',
+  //         created_at: "2024-05-14 22:47:11",
+  //         id: 1,
+  //         updated_at: "2024-05-14 22:47:11"
+  //       },
+  //       {
+  //         name: 'Frango',
+  //         created_at: "2024-05-16 21:38:43",
+  //         id: 2,
+  //         updated_at: null
+  //       }
+  //     ],
+  //     meta: { page: 1 }
+  //   })
+  // })
 })
