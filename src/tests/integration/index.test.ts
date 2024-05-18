@@ -935,16 +935,16 @@ describe('/orders', () => {
     expect(response.body).toEqual({ "message": "Valor(es) inválido(s) no corpo da requisição.", "status": 400 })
   })
 
-  // it('Should not update a product with wrong body fields.', async () => {
+  it('Should not update a order with wrong body fields.', async () => {
 
-  //   const response = await request(app).patch('/orders/1').send({
-  //     name: 'Batata Três',
-  //     updated_at: formatDate(new Date()),
-  //     wrongField: "value"
-  //   })
+    const response = await request(app).patch('/orders/1').send({
+      person_id: '4',
+      ended_at: "2024-05-14 22:47:11",
+      wrongField: 'value'
+    })
 
-  //   expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
-  // })
+    expect(response.body).toEqual({ "message": "Campo(s) inesperado(s) no corpo da requisição.", "status": 400 })
+  })
 
   // it('Should return a product.', async () => {
 
