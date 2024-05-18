@@ -1,3 +1,5 @@
+import { validateCustomFieldDate } from "../utils/customValidators"
+
 export const productsPOST = {
   name: {
     exists: true,
@@ -6,11 +8,17 @@ export const productsPOST = {
   },
   created_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   }
 }
 
@@ -22,11 +30,17 @@ export const productsPATCH = {
   },
   created_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   }
 }
 

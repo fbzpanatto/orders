@@ -1,3 +1,5 @@
+import { validateCustomFieldDate } from "../utils/customValidators"
+
 export const orders_products_status_POST = {
   order_id: {
     exists: true,
@@ -16,11 +18,17 @@ export const orders_products_status_POST = {
   },
   started_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   ended_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   }
 }
 
@@ -32,10 +40,16 @@ export const orders_products_status_PATCH = {
   },
   started_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   ended_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   }
 }

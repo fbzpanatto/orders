@@ -1,3 +1,5 @@
+import { validateCustomFieldDate } from "../utils/customValidators"
+
 export const personSegmentsPOST = {
   person_id: {
     exists: true,
@@ -11,11 +13,17 @@ export const personSegmentsPOST = {
   },
   created_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   }
 }
 
@@ -32,10 +40,16 @@ export const personSegmentsPATCH = {
   },
   created_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   }
 }

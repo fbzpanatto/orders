@@ -1,3 +1,4 @@
+import { validateCustomFieldDate } from "../utils/customValidators"
 import { optionalFields } from "./optionalFields"
 
 export const normalPOST = {
@@ -23,11 +24,17 @@ export const normalPOST = {
   },
   created_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   ...optionalFields
 }
@@ -54,11 +61,17 @@ export const normalPATCH = {
   },
   created_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   ...optionalFields
 }

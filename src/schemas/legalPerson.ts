@@ -1,3 +1,4 @@
+import { validateCustomFieldDate } from "../utils/customValidators"
 import { optionalFields } from "./optionalFields"
 
 export const legalPOST = {
@@ -23,11 +24,17 @@ export const legalPOST = {
   },
   created_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   ...optionalFields,
 }
@@ -55,11 +62,17 @@ export const legalPATCH = {
   },
   created_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   ...optionalFields,
 }

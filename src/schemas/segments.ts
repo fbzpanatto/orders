@@ -1,3 +1,5 @@
+import { validateCustomFieldDate } from "../utils/customValidators"
+
 export const segmentsPOST = {
   name: {
     exists: true,
@@ -6,11 +8,17 @@ export const segmentsPOST = {
   },
   created_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   }
 }
 
@@ -22,10 +30,16 @@ export const segmentsPATCH = {
   },
   created_at: {
     optional: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   },
   updated_at: {
     exists: true,
-    escape: true
+    escape: true,
+    custom: {
+      options: validateCustomFieldDate
+    }
   }
 }
