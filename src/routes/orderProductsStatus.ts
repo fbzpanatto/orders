@@ -1,24 +1,7 @@
-import {
-  Router,
-  Request,
-  Response,
-  NextFunction
-} from 'express'
-import {
-  OrderProductsStatus
-} from '../interfaces/order_products_status'
-import {
-  getOrderProductsStatus,
-  getAllOrderProductsStatus,
-  createOrderProductsStatus,
-  updateOrderProductsStatus
-} from '../services/orderProductStatus'
-import {
-  validateId,
-  validatePostOrderProductStatus,
-  validatePatchOrderProductStatus,
-  bodyValidationOrderProductStatus
-} from '../middlewares/validators'
+import { Router, Request, Response, NextFunction } from 'express'
+import { OrderProductsStatus } from '../interfaces/order_products_status'
+import { getOrderProductsStatus, getAllOrderProductsStatus, createOrderProductsStatus, updateOrderProductsStatus } from '../services/orderProductStatus'
+import { validateId, validatePostOrderProductStatus, validatePatchOrderProductStatus, bodyValidationOrderProductStatus } from '../middlewares/validators'
 
 const router = Router()
 
