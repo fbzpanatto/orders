@@ -964,28 +964,28 @@ describe('/orders', () => {
     })
   })
 
-  // it('Should return an array of orders.', async () => {
+  it('Should return an array of orders.', async () => {
 
-  //   const response = await request(app).get('/orders')
+    const response = await request(app).get('/orders')
 
-  //   expect(response.body).toEqual({
-  //     status: 200,
-  //     message: "Consulta realizada com sucesso.",
-  //     data: [
-  //       {
-  //         name: 'Batata atualizado',
-  //         created_at: "2024-05-14 22:47:11",
-  //         id: 1,
-  //         updated_at: "2024-05-14 22:47:11"
-  //       },
-  //       {
-  //         name: 'Frango',
-  //         created_at: "2024-05-16 21:38:43",
-  //         id: 2,
-  //         updated_at: null
-  //       }
-  //     ],
-  //     meta: { page: 1 }
-  //   })
-  // })
+    expect(response.body).toEqual({
+      status: 200,
+      message: "Consulta realizada com sucesso.",
+      data: [
+        {
+          person_id: 3,
+          started_at: "2024-05-14 22:47:11",
+          id: 1,
+          ended_at: "2024-05-20 22:47:11",
+        },
+        {
+          person_id: 4,
+          started_at: "2024-05-14 22:47:11",
+          id: 2,
+          ended_at: null,
+        }
+      ],
+      meta: { page: 1 }
+    })
+  })
 })
