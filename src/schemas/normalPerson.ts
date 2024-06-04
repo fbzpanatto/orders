@@ -41,6 +41,9 @@ export const normalPOST = {
     isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
+  contacts: {
+    optional: true
+  },
   ...addressesPOST,
   ...optionalFields,
 }
@@ -65,6 +68,9 @@ export const normalPATCH = {
     optional: true,
     isLength: { options: { min: 3, max: 60 } },
     escape: true
+  },
+  contacts: {
+    optional: true
   },
   ...addressesPATCH,
   ...optionalFields,
