@@ -49,7 +49,12 @@ export const createNormalPerson = async (body: Person) => {
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+
+    console.log('------------------------------------------------', error)
+
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
 }
 
 export const createLegalPerson = async (body: Person) => {
@@ -118,6 +123,7 @@ const legalPerson = (body: Person) => {
 
 const normalPerson = (body: Person) => {
   return {
+    cpf: body.cpf,
     first_name: body.first_name,
     middle_name: body.middle_name,
     last_name: body.last_name,
