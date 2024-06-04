@@ -1,4 +1,4 @@
-export enum DatabaseTables {
+export enum Tables {
   persons = 'persons',
   legal_persons = 'legal_persons',
   normal_persons = 'normal_persons',
