@@ -1,5 +1,23 @@
 import { validateCustomFieldDate } from "../utils/customValidators"
 import { optionalFields } from "./optionalFields"
+import { addressesPOST, addressesPATCH } from "./addresses"
+
+// const createdAtUpdatedAt: Schema = {
+//   created_at: {
+//     optional: true,
+//     escape: true,
+//     custom: {
+//       options: validateCustomFieldDate
+//     }
+//   },
+//   updated_at: {
+//     optional: true,
+//     escape: true,
+//     custom: {
+//       options: validateCustomFieldDate
+//     }
+//   },
+// }
 
 export const normalPOST = {
   cpf: {
@@ -15,7 +33,7 @@ export const normalPOST = {
   },
   middle_name: {
     optional: true,
-    isLength: { options: { min: 2, max: 60 } },
+    isLength: { options: { max: 60 } },
     escape: true
   },
   last_name: {
@@ -23,21 +41,8 @@ export const normalPOST = {
     isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
-  created_at: {
-    exists: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  updated_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  ...optionalFields
+  ...addressesPOST,
+  ...optionalFields,
 }
 
 export const normalPATCH = {
@@ -53,7 +58,7 @@ export const normalPATCH = {
   },
   middle_name: {
     optional: true,
-    isLength: { options: { min: 2, max: 60 } },
+    isLength: { options: { max: 60 } },
     escape: true
   },
   last_name: {
@@ -61,19 +66,6 @@ export const normalPATCH = {
     isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
-  created_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  updated_at: {
-    exists: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  ...optionalFields
+  ...addressesPATCH,
+  ...optionalFields,
 }

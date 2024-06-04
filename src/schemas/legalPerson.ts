@@ -1,6 +1,24 @@
 import { validateCustomFieldDate } from "../utils/customValidators"
 import { optionalFields } from "./optionalFields"
 import { Schema } from 'express-validator'
+import { addressesPOST, addressesPATCH } from "./addresses"
+
+// const createdAtUpdatedAt: Schema = {
+//   created_at: {
+//     optional: true,
+//     escape: true,
+//     custom: {
+//       options: validateCustomFieldDate
+//     }
+//   },
+//   updated_at: {
+//     optional: true,
+//     escape: true,
+//     custom: {
+//       options: validateCustomFieldDate
+//     }
+//   },
+// }
 
 export const legalPOST: Schema = {
   cnpj: {
@@ -23,48 +41,10 @@ export const legalPOST: Schema = {
     isLength: { options: { min: 9, max: 9 } },
     escape: true
   },
-  add_street: {
-    exists: true,
-    isLength: { options: { min: 3, max: 100 } },
-    escape: true
-  },
-  add_number: {
-    exists: true,
-    isLength: { options: { max: 10 } },
-    escape: true
-  },
-  add_zipcode: {
-    exists: true,
-    isLength: { options: { min: 8, max: 8 } },
-    escape: true
-  },
-  add_city: {
-    exists: true,
-    isLength: { options: { min: 3, max: 60 } },
-    escape: true
-  },
-  add_neighborhood: {
-    exists: true,
-    isLength: { options: { min: 3, max: 60 } },
-    escape: true
-  },
   contacts: {
     optional: true
   },
-  created_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  updated_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
+  ...addressesPOST,
   ...optionalFields,
 }
 
@@ -89,47 +69,9 @@ export const legalPATCH: Schema = {
     isLength: { options: { min: 9, max: 9 } },
     escape: true
   },
-  add_street: {
-    optional: true,
-    isLength: { options: { min: 3, max: 100 } },
-    escape: true
-  },
-  add_number: {
-    optional: true,
-    isLength: { options: { max: 10 } },
-    escape: true
-  },
-  add_zipcode: {
-    optional: true,
-    isLength: { options: { min: 8, max: 8 } },
-    escape: true
-  },
-  add_city: {
-    optional: true,
-    isLength: { options: { min: 3, max: 60 } },
-    escape: true
-  },
-  add_neighborhood: {
-    optional: true,
-    isLength: { options: { min: 3, max: 60 } },
-    escape: true
-  },
   contacts: {
     optional: true
   },
-  created_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  updated_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
+  ...addressesPATCH,
   ...optionalFields,
 }

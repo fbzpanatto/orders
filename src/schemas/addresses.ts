@@ -1,5 +1,3 @@
-import { validateCustomFieldDate } from "../utils/customValidators"
-
 export const addressesPOST = {
   person_id: {
     exists: true,
@@ -30,21 +28,7 @@ export const addressesPOST = {
     exists: true,
     isLength: { options: { min: 3, max: 60 } },
     escape: true
-  },
-  created_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  updated_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
+  }
 }
 
 export const addressesPATCH = {
@@ -72,19 +56,5 @@ export const addressesPATCH = {
     optional: true,
     isLength: { options: { min: 3, max: 60 } },
     escape: true
-  },
-  created_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  updated_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
+  }
 }
