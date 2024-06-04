@@ -32,7 +32,7 @@ export const addressesPOST = {
     escape: true
   },
   created_at: {
-    exists: true,
+    optional: true,
     escape: true,
     custom: {
       options: validateCustomFieldDate
@@ -44,7 +44,7 @@ export const addressesPOST = {
     custom: {
       options: validateCustomFieldDate
     }
-  }
+  },
 }
 
 export const addressesPATCH = {
@@ -81,10 +81,10 @@ export const addressesPATCH = {
     }
   },
   updated_at: {
-    exists: true,
+    optional: true,
     escape: true,
     custom: {
       options: validateCustomFieldDate
     }
-  }
+  },
 }

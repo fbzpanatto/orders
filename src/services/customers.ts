@@ -42,8 +42,6 @@ export const createNormalPerson = async (body: Person) => {
 
 export const createLegalPerson = async (body: Person) => {
 
-  console.log('----------------------------------------------------------', body)
-
   try {
     const legalPersonId = await createPerson(body)
 
@@ -70,15 +68,17 @@ export const createLegalPerson = async (body: Person) => {
 
     if (body.contacts && body.contacts.length) {
       for (let item of body.contacts) {
+        if (legalPersonId && item.name && item.phone) {
 
-        const contact = {
-          person_id: legalPersonId,
-          phone_number: item.phone,
-          contact: item.name,
-          created_at: formatDate(new Date())
+          const contact = {
+            person_id: legalPersonId,
+            phone_number: item.phone,
+            contact: item.name,
+            created_at: formatDate(new Date())
+          }
+
+          await insertInto(DatabaseTables.person_phones, contact, [])
         }
-
-        await insertInto(DatabaseTables.person_phones, contact, [])
       }
     }
 
