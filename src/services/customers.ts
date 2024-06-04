@@ -41,6 +41,9 @@ export const createNormalPerson = async (body: Person) => {
 }
 
 export const createLegalPerson = async (body: Person) => {
+
+  console.log('----------------------------------------------------------', body)
+
   try {
     const legalPersonId = await createPerson(body)
 
@@ -64,20 +67,28 @@ export const createLegalPerson = async (body: Person) => {
 
     const queryLegalResult = await insertInto(DatabaseTables.legal_persons, { person_id: legalPersonId, ...legalPerson }, Object.keys(optionalFields))
     await insertInto(DatabaseTables.person_addresses, address, [])
+
     if (body.contacts && body.contacts.length) {
       for (let item of body.contacts) {
+
         const contact = {
           person_id: legalPersonId,
           phone_number: item.phone,
           contact: item.name,
           created_at: formatDate(new Date())
         }
+
         await insertInto(DatabaseTables.person_phones, contact, [])
       }
     }
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryLegalResult.affectedRows })
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+
+    console.log('createLegalPerson ERROR', error)
+
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
 }
 
 export const updateLegalPerson = async (personId: number, req: Request) => {
@@ -95,6 +106,7 @@ export const updateNormalPerson = async (personId: number, req: Request) => {
 }
 
 const createPerson = async (body: Person) => {
+
   const sql =
     `
     INSERT INTO persons (created_at, observation, first_field, second_field, third_field)
@@ -102,7 +114,7 @@ const createPerson = async (body: Person) => {
   `
 
   const { insertId: personId } = await query(sql, [
-    body.created_at,
+    formatDate(new Date()),
     body.observation,
     body.first_field,
     body.second_field,

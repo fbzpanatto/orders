@@ -10,16 +10,17 @@ export const normalPOST = {
   },
   first_name: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   middle_name: {
     optional: true,
+    isLength: { options: { min: 2, max: 60 } },
     escape: true
   },
   last_name: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   created_at: {
@@ -47,16 +48,17 @@ export const normalPATCH = {
   },
   first_name: {
     optional: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   middle_name: {
     optional: true,
+    isLength: { options: { min: 2, max: 60 } },
     escape: true
   },
   last_name: {
     optional: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   created_at: {

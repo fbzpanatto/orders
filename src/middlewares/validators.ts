@@ -17,17 +17,18 @@ export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
 
 // Legal
+export const validatePostLegal = checkSchema(legalPOST);
 export const validatePatchLegal = checkSchema(legalPATCH);
-export const validatePatchNormal = checkSchema(normalPATCH);
-export const bodyValidationNormal = (req: Request, res: Response, next: NextFunction) => {
-  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, normalPOST)
+export const bodyValidationLegal = (req: Request, res: Response, next: NextFunction) => {
+  console.log('validationResult(req)', validationResult(req))
+  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, legalPOST)
 };
 
 // Normal
-export const validatePostLegal = checkSchema(legalPOST);
 export const validatePostNormal = checkSchema(normalPOST);
-export const bodyValidationLegal = (req: Request, res: Response, next: NextFunction) => {
-  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, legalPOST)
+export const validatePatchNormal = checkSchema(normalPATCH);
+export const bodyValidationNormal = (req: Request, res: Response, next: NextFunction) => {
+  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, normalPOST)
 };
 
 // Address

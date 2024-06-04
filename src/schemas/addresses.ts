@@ -8,12 +8,12 @@ export const addressesPOST = {
   },
   add_street: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
   add_number: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { max: 10 } },
     escape: true
   },
   add_zipcode: {
@@ -23,12 +23,12 @@ export const addressesPOST = {
   },
   add_city: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   add_neighborhood: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   created_at: {
@@ -50,12 +50,12 @@ export const addressesPOST = {
 export const addressesPATCH = {
   add_street: {
     optional: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
   add_number: {
     optional: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { max: 10 } },
     escape: true
   },
   add_zipcode: {
@@ -65,12 +65,12 @@ export const addressesPATCH = {
   },
   add_city: {
     optional: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   add_neighborhood: {
     optional: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   created_at: {

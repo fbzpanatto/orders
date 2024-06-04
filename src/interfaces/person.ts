@@ -26,6 +26,6 @@ export interface Person extends LegalPerson, NormalPerson {
   add_city?: string,
   add_neighborhood?: string,
   contacts?: { id: number, name: string, phone: string }[],
-  created_at?: Date,
-  updated_at?: Date
+  created_at?: string,
+  updated_at?: string
 }

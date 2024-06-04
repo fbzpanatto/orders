@@ -10,12 +10,12 @@ export const legalPOST: Schema = {
   },
   corporate_name: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
   social_name: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
   state_registration: {
@@ -25,12 +25,12 @@ export const legalPOST: Schema = {
   },
   add_street: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
   add_number: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { max: 10 } },
     escape: true
   },
   add_zipcode: {
@@ -40,21 +40,19 @@ export const legalPOST: Schema = {
   },
   add_city: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   add_neighborhood: {
     exists: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   contacts: {
-    optional: true,
-    escape: true,
-    isArray: true
+    optional: true
   },
   created_at: {
-    exists: true,
+    optional: true,
     escape: true,
     custom: {
       options: validateCustomFieldDate
@@ -78,12 +76,12 @@ export const legalPATCH: Schema = {
   },
   corporate_name: {
     optional: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
   social_name: {
     optional: true,
-    isLength: { options: { min: 3 } },
+    isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
   state_registration: {
@@ -92,34 +90,32 @@ export const legalPATCH: Schema = {
     escape: true
   },
   add_street: {
-    exists: true,
-    isLength: { options: { min: 3 } },
+    optional: true,
+    isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
   add_number: {
-    exists: true,
-    isLength: { options: { min: 3 } },
+    optional: true,
+    isLength: { options: { max: 10 } },
     escape: true
   },
   add_zipcode: {
-    exists: true,
+    optional: true,
     isLength: { options: { min: 8, max: 8 } },
     escape: true
   },
   add_city: {
-    exists: true,
-    isLength: { options: { min: 3 } },
+    optional: true,
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   add_neighborhood: {
-    exists: true,
-    isLength: { options: { min: 3 } },
+    optional: true,
+    isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
   contacts: {
-    optional: true,
-    escape: true,
-    isArray: true
+    optional: true
   },
   created_at: {
     optional: true,
@@ -129,7 +125,7 @@ export const legalPATCH: Schema = {
     }
   },
   updated_at: {
-    exists: true,
+    optional: true,
     escape: true,
     custom: {
       options: validateCustomFieldDate
