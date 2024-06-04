@@ -9,21 +9,31 @@ import { insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries
 import { optionalFields } from '../schemas/optionalFields';
 import { formatDate } from '../utils/formatDate';
 
-export const getCustomers = async (page = 1) => {
+export const getLegalCustomers = async (page = 1) => {
   try {
 
-    const queryString = `
-    SELECT p.id AS person_id,
-    n.cpf AS cpf,
-    CONCAT(n.first_name, ' ', n.last_name) AS full_name,
-    l.cnpj AS cnpj,
-    l.corporate_name AS corporate_name
-    FROM persons AS p
-    LEFT JOIN normal_persons AS n ON p.id = n.person_id
-    LEFT JOIN legal_persons AS l ON p.id = l.person_id
-    `
+    // const queryString = `
+    // SELECT p.id AS person_id,
+    // n.cpf AS cpf,
+    // CONCAT(n.first_name, ' ', n.last_name) AS full_name,
+    // l.cnpj AS cnpj,
+    // l.corporate_name AS corporate_name
+    // FROM persons AS p
+    // LEFT JOIN normal_persons AS n ON p.id = n.person_id
+    // LEFT JOIN legal_persons AS l ON p.id = l.person_id
+    // `
 
-    const rows = await selectAllFrom(DatabaseTables.persons, page, queryString)
+    const rows = await selectAllFrom(DatabaseTables.legal_persons, page)
+    const data = emptyOrRows(rows);
+    const meta = { page };
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+  } catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
+}
+
+export const getNormalCustomers = async (page = 1) => {
+  try {
+    const rows = await selectAllFrom(DatabaseTables.normal_persons, page)
     const data = emptyOrRows(rows);
     const meta = { page };
 

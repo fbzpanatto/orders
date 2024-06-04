@@ -1,13 +1,18 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { createNormalPerson, createLegalPerson, getCustomers, updateLegalPerson, updateNormalPerson } from '../services/customers'
+import { createNormalPerson, createLegalPerson, updateLegalPerson, updateNormalPerson, getNormalCustomers, getLegalCustomers } from '../services/customers'
 import { validateId, validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal, bodyValidationNormal, bodyValidationLegal } from '../middlewares/validators'
 import { legalExistsByDoc, normalExistsByDoc, legalExistsById, normalExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'
 
 const router = Router()
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getCustomers() as any
+router.get('/normal', async (req: Request, res: Response, next: NextFunction) => {
+  const result = await getNormalCustomers() as any
+  return res.status(result.status).json(result)
+})
+
+router.get('/legal', async (req: Request, res: Response, next: NextFunction) => {
+  const result = await getLegalCustomers() as any
   return res.status(result.status).json(result)
 })
 
