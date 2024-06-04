@@ -7,6 +7,7 @@ import { Request } from 'express';
 import { DatabaseTables } from '../enums/tables'
 import { insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { optionalFields } from '../schemas/optionalFields';
+import { formatDate } from '../utils/formatDate';
 
 export const getCustomers = async (page = 1) => {
   try {
@@ -42,9 +43,40 @@ export const createNormalPerson = async (body: Person) => {
 export const createLegalPerson = async (body: Person) => {
   try {
     const legalPersonId = await createPerson(body)
-    const queryResult = await insertInto(DatabaseTables.legal_persons, { person_id: legalPersonId, ...body }, Object.keys(optionalFields))
 
-    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows })
+    const legalPerson = {
+      cnpj: body.cnpj,
+      state_registration: body.state_registration,
+      corporate_name: body.corporate_name,
+      social_name: body.social_name,
+      created_at: formatDate(new Date())
+    }
+
+    const address = {
+      person_id: legalPersonId,
+      add_street: body.add_street,
+      add_number: body.add_number,
+      add_zipcode: body.add_zipcode,
+      add_city: body.add_city,
+      add_neighborhood: body.add_neighborhood,
+      created_at: formatDate(new Date())
+    }
+
+    const queryLegalResult = await insertInto(DatabaseTables.legal_persons, { person_id: legalPersonId, ...legalPerson }, Object.keys(optionalFields))
+    await insertInto(DatabaseTables.person_addresses, address, [])
+    if (body.contacts && body.contacts.length) {
+      for (let item of body.contacts) {
+        const contact = {
+          person_id: legalPersonId,
+          phone_number: item.phone,
+          contact: item.name,
+          created_at: formatDate(new Date())
+        }
+        await insertInto(DatabaseTables.person_phones, contact, [])
+      }
+    }
+
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryLegalResult.affectedRows })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 

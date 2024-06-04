@@ -1,7 +1,8 @@
 import { validateCustomFieldDate } from "../utils/customValidators"
 import { optionalFields } from "./optionalFields"
+import { Schema } from 'express-validator'
 
-export const legalPOST = {
+export const legalPOST: Schema = {
   cnpj: {
     exists: true,
     isLength: { options: { min: 14, max: 14 } },
@@ -21,6 +22,36 @@ export const legalPOST = {
     exists: true,
     isLength: { options: { min: 9, max: 9 } },
     escape: true
+  },
+  add_street: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_number: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_zipcode: {
+    exists: true,
+    isLength: { options: { min: 8, max: 8 } },
+    escape: true
+  },
+  add_city: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_neighborhood: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  contacts: {
+    optional: true,
+    escape: true,
+    isArray: true
   },
   created_at: {
     exists: true,
@@ -39,7 +70,7 @@ export const legalPOST = {
   ...optionalFields,
 }
 
-export const legalPATCH = {
+export const legalPATCH: Schema = {
   cnpj: {
     optional: true,
     isLength: { options: { min: 14, max: 14 } },
@@ -59,6 +90,36 @@ export const legalPATCH = {
     optional: true,
     isLength: { options: { min: 9, max: 9 } },
     escape: true
+  },
+  add_street: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_number: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_zipcode: {
+    exists: true,
+    isLength: { options: { min: 8, max: 8 } },
+    escape: true
+  },
+  add_city: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  add_neighborhood: {
+    exists: true,
+    isLength: { options: { min: 3 } },
+    escape: true
+  },
+  contacts: {
+    optional: true,
+    escape: true,
+    isArray: true
   },
   created_at: {
     optional: true,

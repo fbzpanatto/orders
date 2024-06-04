@@ -20,6 +20,12 @@ export interface Person extends LegalPerson, NormalPerson {
   first_field?: string,
   second_field?: string,
   third_field?: string,
+  add_street?: string
+  add_number?: string,
+  add_zipcode?: string,
+  add_city?: string,
+  add_neighborhood?: string,
+  contacts?: { id: number, name: string, phone: string }[],
   created_at?: Date,
   updated_at?: Date
 }
