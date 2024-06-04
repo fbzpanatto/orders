@@ -1,9 +1,4 @@
 export const addressesPOST = {
-  person_id: {
-    exists: true,
-    isNumeric: true,
-    escape: true
-  },
   add_street: {
     exists: true,
     isLength: { options: { min: 3, max: 100 } },
