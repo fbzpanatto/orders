@@ -220,26 +220,16 @@ const address = (personId: number, body: Person, post: boolean) => {
   let key = post ? 'created_at' : 'updated_at'
   let date = { [key]: formatDate(new Date()) }
 
-  if (post) {
-    return {
-      person_id: personId,
-      add_street: body.address?.add_street,
-      add_number: body.address?.add_number,
-      add_zipcode: body.address?.add_zipcode,
-      add_city: body.address?.add_city,
-      add_neighborhood: body.address?.add_neighborhood,
-      ...date
-    }
-  } else {
-    return {
-      add_street: body.address?.add_street,
-      add_number: body.address?.add_number,
-      add_zipcode: body.address?.add_zipcode,
-      add_city: body.address?.add_city,
-      add_neighborhood: body.address?.add_neighborhood,
-      ...date
-    }
+  const addressFields = {
+    add_street: body.address?.add_street,
+    add_number: body.address?.add_number,
+    add_zipcode: body.address?.add_zipcode,
+    add_city: body.address?.add_city,
+    add_neighborhood: body.address?.add_neighborhood,
+    ...date
   }
+
+  return post ? { person_id: personId, ...addressFields } : { ...addressFields, ...date }
 }
 
 const contact = (personId: number, item: { id: number, contact: string, phone_number: string }, post: boolean) => {
