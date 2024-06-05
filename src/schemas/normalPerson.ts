@@ -46,8 +46,7 @@ export const normalPOST: Schema = {
     escape: true
   },
   contacts: {
-    optional: true,
-    isArray: { options: { min: 1 } },
+    optional: true
   },
   address: {
     exists: true,
@@ -81,8 +80,7 @@ export const normalPATCH: Schema = {
     escape: true
   },
   contacts: {
-    optional: true,
-    isArray: { options: { min: 1 } }
+    optional: true
   },
   address: {
     optional: true,
