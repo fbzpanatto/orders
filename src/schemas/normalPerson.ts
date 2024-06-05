@@ -1,6 +1,7 @@
 import { validateCustomFieldDate } from "../utils/customValidators"
 import { optionalFields } from "./optionalFields"
 import { addressesPOST, addressesPATCH } from "./addresses"
+import { Schema } from "express-validator"
 
 // const createdAtUpdatedAt: Schema = {
 //   created_at: {
@@ -19,7 +20,7 @@ import { addressesPOST, addressesPATCH } from "./addresses"
 //   },
 // }
 
-export const normalPOST = {
+export const normalPOST: Schema = {
   cpf: {
     exists: true,
     optional: false,
@@ -42,13 +43,14 @@ export const normalPOST = {
     escape: true
   },
   contacts: {
-    optional: true
+    optional: true,
+    isArray: { options: { min: 1 } },
   },
   ...addressesPOST,
   ...optionalFields,
 }
 
-export const normalPATCH = {
+export const normalPATCH: Schema = {
   cpf: {
     optional: true,
     isLength: { options: { min: 11, max: 11 } },
@@ -70,7 +72,8 @@ export const normalPATCH = {
     escape: true
   },
   contacts: {
-    optional: true
+    optional: true,
+    isArray: { options: { min: 1 } }
   },
   ...addressesPATCH,
   ...optionalFields,

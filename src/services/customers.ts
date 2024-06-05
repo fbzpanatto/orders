@@ -1,4 +1,4 @@
-import { ResultSetHeader } from 'mysql2';
+import { ResultSetHeader, format } from 'mysql2';
 import { query } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
@@ -11,17 +11,6 @@ import { formatDate } from '../utils/formatDate';
 
 export const getLegalCustomers = async (page = 1) => {
   try {
-
-    // const queryString = `
-    // SELECT p.id AS person_id,
-    // n.cpf AS cpf,
-    // CONCAT(n.first_name, ' ', n.last_name) AS full_name,
-    // l.cnpj AS cnpj,
-    // l.corporate_name AS corporate_name
-    // FROM persons AS p
-    // LEFT JOIN normal_persons AS n ON p.id = n.person_id
-    // LEFT JOIN legal_persons AS l ON p.id = l.person_id
-    // `
 
     const rows = await selectAllFrom(Tables.legal_persons, page)
     const data = emptyOrRows(rows);
@@ -41,6 +30,73 @@ export const getNormalCustomers = async (page = 1) => {
   } catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
 }
 
+export const getNormalById = async (personId: number) => {
+
+  try {
+    const person_id = 'person_id'
+
+    const queryString = `
+    SELECT p.*, a.id AS add_id, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact
+    FROM ${Tables.normal_persons} AS p
+    LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
+    LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
+    WHERE p.${person_id}=?
+  `;
+
+    const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
+
+    console.log('result', result)
+
+    const aggregatedResult = result.reduce((acc, curr) => {
+      if (!acc.person_id) {
+        acc = {
+          person_id: curr.person_id,
+          cpf: curr.cpf,
+          first_name: curr.first_name,
+          middle_name: curr.middle_name,
+          last_name: curr.last_name,
+          created_at: curr.created_at,
+          updated_at: curr.updated_at,
+          address: {
+            person_id: curr.person_id,
+            id: curr.add_id,
+            add_street: curr.add_street,
+            add_number: curr.add_number,
+            add_zipcode: curr.add_zipcode,
+            add_city: curr.add_city,
+            add_neighborhood: curr.add_neighborhood
+          },
+          contacts: []
+        };
+      }
+      if (!acc.contacts.some((obj: any) => obj.pc_id === curr.pc_id)) {
+        acc.contacts = [...acc.contacts, { person_id: curr.person_id, id: curr.pc_id, phone_number: curr.phone_number, contact: curr.contact }]
+      }
+      return acc;
+    }, {});
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { result: aggregatedResult })
+  } catch (error) {
+    console.log('-------------------------', error)
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
+}
+
+export const getLegalById = async (personId: number) => {
+  try {
+    const table = Tables.legal_persons
+    const person_id = 'person_id'
+
+    const queryString = `
+      SELECT * FROM ${table}
+      WHERE ${person_id}=?
+    `
+
+    const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
+    return objectResponse(200, 'Consulta realizada com sucesso.', { result })
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+}
+
 export const createNormalPerson = async (body: Person) => {
   try {
     const personId = await createPerson(body)
@@ -49,12 +105,7 @@ export const createNormalPerson = async (body: Person) => {
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) {
-
-    console.log('------------------------------------------------', error)
-
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createLegalPerson = async (body: Person) => {

@@ -42,7 +42,8 @@ export const legalPOST: Schema = {
     escape: true
   },
   contacts: {
-    optional: true
+    optional: true,
+    isArray: { options: { min: 1 } }
   },
   ...addressesPOST,
   ...optionalFields,
@@ -70,7 +71,8 @@ export const legalPATCH: Schema = {
     escape: true
   },
   contacts: {
-    optional: true
+    optional: true,
+    isArray: { options: { min: 1 } }
   },
   ...addressesPATCH,
   ...optionalFields,
