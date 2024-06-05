@@ -3,7 +3,6 @@ import { query } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
-import { Request } from 'express';
 import { Tables } from '../enums/tables'
 import { insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { optionalFields } from '../schemas/optionalFields';
@@ -125,8 +124,8 @@ export const getLegalById = async (personId: number) => {
 export const createNormalPerson = async (body: Person) => {
   try {
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.normal_persons, { person_id: personId, ...normalPerson(body) }, Object.keys(optionalFields))
-    await insertInto(Tables.person_addresses, address(personId, body), [])
+    const queryResult = await insertInto(Tables.normal_persons, { person_id: personId, ...normalPerson(body, true) }, Object.keys(optionalFields))
+    await insertInto(Tables.person_addresses, address(personId, body, true), [])
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
@@ -136,24 +135,25 @@ export const createNormalPerson = async (body: Person) => {
 export const createLegalPerson = async (body: Person) => {
   try {
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.legal_persons, { person_id: personId, ...legalPerson(body) }, Object.keys(optionalFields))
-    await insertInto(Tables.person_addresses, address(personId, body), [])
+    const queryResult = await insertInto(Tables.legal_persons, { person_id: personId, ...legalPerson(body, true) }, Object.keys(optionalFields))
+    await insertInto(Tables.person_addresses, address(personId, body, true), [])
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const updateLegalPerson = async (personId: number, req: Request) => {
+export const updateLegalPerson = async (personId: number, body: Person) => {
   try {
-    const queryResult = await updateTableSetWhere(Tables.legal_persons, 'person_id', personId, req.body, Object.keys(optionalFields))
+    const queryResult = await updateTableSetWhere(Tables.legal_persons, 'person_id', personId, body, Object.keys(optionalFields))
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const updateNormalPerson = async (personId: number, req: Request) => {
+export const updateNormalPerson = async (personId: number, body: Person) => {
   try {
-    const queryResult = await updateTableSetWhere(Tables.normal_persons, 'person_id', personId, req.body, Object.keys(optionalFields))
+    const queryResult = await updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), [])
+    await updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), [])
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
@@ -181,49 +181,76 @@ const createContacts = async (personId: number, body: Person) => {
   if (body.contacts && body.contacts.length) {
     for (let item of body.contacts) {
       if (personId && item.contact && item.phone_number) {
-        await insertInto(Tables.person_phones, contact(personId, item), [])
+        await insertInto(Tables.person_phones, contact(personId, item, true), [])
       }
     }
   }
 }
 
-const legalPerson = (body: Person) => {
+const legalPerson = (body: Person, post: boolean) => {
+
+  let key = post ? 'created_at' : 'updated_at'
+  let date = { [key]: formatDate(new Date()) }
+
   return {
     cnpj: body.cnpj,
     state_registration: body.state_registration,
     corporate_name: body.corporate_name,
     social_name: body.social_name,
-    created_at: formatDate(new Date())
+    ...date
   }
 }
 
-const normalPerson = (body: Person) => {
+const normalPerson = (body: Person, post: boolean) => {
+
+  let key = post ? 'created_at' : 'updated_at'
+  let date = { [key]: formatDate(new Date()) }
+
   return {
     cpf: body.cpf,
     first_name: body.first_name,
     middle_name: body.middle_name,
     last_name: body.last_name,
-    created_at: formatDate(new Date())
+    ...date
   }
 }
 
-const address = (personId: number, body: Person) => {
-  return {
-    person_id: personId,
-    add_street: body.address?.add_street,
-    add_number: body.address?.add_number,
-    add_zipcode: body.address?.add_zipcode,
-    add_city: body.address?.add_city,
-    add_neighborhood: body.address?.add_neighborhood,
-    created_at: formatDate(new Date())
+const address = (personId: number, body: Person, post: boolean) => {
+
+  let key = post ? 'created_at' : 'updated_at'
+  let date = { [key]: formatDate(new Date()) }
+
+  if (post) {
+    return {
+      person_id: personId,
+      add_street: body.address?.add_street,
+      add_number: body.address?.add_number,
+      add_zipcode: body.address?.add_zipcode,
+      add_city: body.address?.add_city,
+      add_neighborhood: body.address?.add_neighborhood,
+      ...date
+    }
+  } else {
+    return {
+      add_street: body.address?.add_street,
+      add_number: body.address?.add_number,
+      add_zipcode: body.address?.add_zipcode,
+      add_city: body.address?.add_city,
+      add_neighborhood: body.address?.add_neighborhood,
+      ...date
+    }
   }
 }
 
-const contact = (personId: number, item: { id: number, contact: string, phone_number: string }) => {
+const contact = (personId: number, item: { id: number, contact: string, phone_number: string }, post: boolean) => {
+
+  let key = post ? 'created_at' : 'updated_at'
+  let date = { [key]: formatDate(new Date()) }
+
   return {
     person_id: personId,
     phone_number: item.phone_number,
     contact: item.contact,
-    created_at: formatDate(new Date())
+    ...date
   }
 }

@@ -28,10 +28,6 @@ export const bodyValidationLegal = (req: Request, res: Response, next: NextFunct
 export const validatePostNormal = checkSchema(normalPOST);
 export const validatePatchNormal = checkSchema(normalPATCH);
 export const bodyValidationNormal = (req: Request, res: Response, next: NextFunction) => {
-  console.log('validationResult(req)', validationResult(req))
-
-  console.log('req.body', req.body)
-
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, normalPOST)
 };
 
