@@ -8,6 +8,7 @@ import { Tables } from '../enums/tables'
 import { insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { optionalFields } from '../schemas/optionalFields';
 import { formatDate } from '../utils/formatDate';
+import { Console } from 'console';
 
 export const getLegalCustomers = async (page = 1) => {
   try {
@@ -45,8 +46,6 @@ export const getNormalById = async (personId: number) => {
 
     const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
 
-    console.log('result', result)
-
     const aggregatedResult = result.reduce((acc, curr) => {
       if (!acc.person_id) {
         acc = {
@@ -69,17 +68,14 @@ export const getNormalById = async (personId: number) => {
           contacts: []
         };
       }
-      if (!acc.contacts.some((obj: any) => obj.pc_id === curr.pc_id)) {
+      if (!(curr.pc_id === null) && !acc.contacts.some((obj: any) => obj.pc_id === curr.pc_id)) {
         acc.contacts = [...acc.contacts, { person_id: curr.person_id, id: curr.pc_id, phone_number: curr.phone_number, contact: curr.contact }]
       }
       return acc;
     }, {});
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { result: aggregatedResult })
-  } catch (error) {
-    console.log('-------------------------', error)
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const getLegalById = async (personId: number) => {
