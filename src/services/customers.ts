@@ -53,27 +53,25 @@ export const getNormalById = async (personId: number) => {
           first_name: curr.first_name,
           middle_name: curr.middle_name,
           last_name: curr.last_name,
-          created_at: curr.created_at,
-          updated_at: curr.updated_at,
           address: {
-            person_id: curr.person_id,
             id: curr.add_id,
+            person_id: curr.person_id,
             add_street: curr.add_street,
             add_number: curr.add_number,
             add_zipcode: curr.add_zipcode,
             add_city: curr.add_city,
-            add_neighborhood: curr.add_neighborhood
+            add_neighborhood: curr.add_neighborhood,
           },
           contacts: []
         };
       }
       if (!(curr.pc_id === null) && !acc.contacts.some((obj: any) => obj.pc_id === curr.pc_id)) {
-        acc.contacts = [...acc.contacts, { person_id: curr.person_id, id: curr.pc_id, phone_number: curr.phone_number, contact: curr.contact }]
+        acc.contacts = [...acc.contacts, { id: curr.pc_id, person_id: curr.person_id, phone_number: curr.phone_number, contact: curr.contact }]
       }
       return acc;
     }, {});
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { result: aggregatedResult })
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
@@ -87,8 +85,8 @@ export const getLegalById = async (personId: number) => {
       WHERE ${person_id}=?
     `
 
-    const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
-    return objectResponse(200, 'Consulta realizada com sucesso.', { result })
+    const data = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
