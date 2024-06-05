@@ -8,7 +8,6 @@ import { Tables } from '../enums/tables'
 import { insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { optionalFields } from '../schemas/optionalFields';
 import { formatDate } from '../utils/formatDate';
-import { Console } from 'console';
 
 export const getLegalCustomers = async (page = 1) => {
   try {
