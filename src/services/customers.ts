@@ -67,11 +67,11 @@ export const getNormalById = async (personId: number) => {
           contacts: []
         };
       }
-      if (!(curr.pc_id === null) && !acc.contacts.some((obj: any) => obj.pc_id === curr.pc_id)) {
+      if (!(curr.pc_id === null) && acc.contacts?.some((obj: any) => obj.pc_id === curr.pc_id)) {
         acc.contacts = [...acc.contacts, { person_id: curr.person_id, id: curr.pc_id, phone_number: curr.phone_number, contact: curr.contact }]
       }
       return acc;
-    }, {});
+    }, {})
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { result: aggregatedResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
