@@ -72,21 +72,53 @@ export const getNormalById = async (personId: number) => {
     }, {});
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+    console.log('error', error)
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
 }
 
 export const getLegalById = async (personId: number) => {
   try {
-    const table = Tables.legal_persons
     const person_id = 'person_id'
 
     const queryString = `
-      SELECT * FROM ${table}
-      WHERE ${person_id}=?
-    `
+    SELECT p.*, a.id AS add_id, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact
+    FROM ${Tables.legal_persons} AS p
+    LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
+    LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
+    WHERE p.${person_id}=?
+  `;
 
-    const data = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+    const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
+
+    const aggregatedResult = result.reduce((acc, curr) => {
+      if (!acc.person_id) {
+        acc = {
+          person_id: curr.person_id,
+          cnpj: curr.cnpj,
+          corporate_name: curr.corporate_name,
+          social_name: curr.social_name,
+          state_registration: curr.state_registration,
+          address: {
+            id: curr.add_id,
+            person_id: curr.person_id,
+            add_street: curr.add_street,
+            add_number: curr.add_number,
+            add_zipcode: curr.add_zipcode,
+            add_city: curr.add_city,
+            add_neighborhood: curr.add_neighborhood,
+          },
+          contacts: []
+        };
+      }
+      if (!(curr.pc_id === null) && !acc.contacts.some((obj: any) => obj.pc_id === curr.pc_id)) {
+        acc.contacts = [...acc.contacts, { id: curr.pc_id, person_id: curr.person_id, phone_number: curr.phone_number, contact: curr.contact }]
+      }
+      return acc;
+    }, {});
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
@@ -148,7 +180,7 @@ const createPerson = async (body: Person) => {
 const createContacts = async (personId: number, body: Person) => {
   if (body.contacts && body.contacts.length) {
     for (let item of body.contacts) {
-      if (personId && item.name && item.phone) {
+      if (personId && item.contact && item.phone_number) {
         await insertInto(Tables.person_phones, contact(personId, item), [])
       }
     }
@@ -178,20 +210,20 @@ const normalPerson = (body: Person) => {
 const address = (personId: number, body: Person) => {
   return {
     person_id: personId,
-    add_street: body.add_street,
-    add_number: body.add_number,
-    add_zipcode: body.add_zipcode,
-    add_city: body.add_city,
-    add_neighborhood: body.add_neighborhood,
+    add_street: body.address?.add_street,
+    add_number: body.address?.add_number,
+    add_zipcode: body.address?.add_zipcode,
+    add_city: body.address?.add_city,
+    add_neighborhood: body.address?.add_neighborhood,
     created_at: formatDate(new Date())
   }
 }
 
-const contact = (personId: number, item: { id: number, name: string, phone: string }) => {
+const contact = (personId: number, item: { id: number, contact: string, phone_number: string }) => {
   return {
     person_id: personId,
-    phone_number: item.phone,
-    contact: item.name,
+    phone_number: item.phone_number,
+    contact: item.contact,
     created_at: formatDate(new Date())
   }
 }

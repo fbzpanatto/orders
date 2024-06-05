@@ -21,6 +21,9 @@ import { Schema } from "express-validator"
 // }
 
 export const normalPOST: Schema = {
+  person_id: {
+    optional: true
+  },
   cpf: {
     exists: true,
     optional: false,
@@ -46,11 +49,17 @@ export const normalPOST: Schema = {
     optional: true,
     isArray: { options: { min: 1 } },
   },
+  address: {
+    exists: true,
+  },
   ...addressesPOST,
   ...optionalFields,
 }
 
 export const normalPATCH: Schema = {
+  person_id: {
+    optional: true
+  },
   cpf: {
     optional: true,
     isLength: { options: { min: 11, max: 11 } },
@@ -74,6 +83,9 @@ export const normalPATCH: Schema = {
   contacts: {
     optional: true,
     isArray: { options: { min: 1 } }
+  },
+  address: {
+    optional: true,
   },
   ...addressesPATCH,
   ...optionalFields,
