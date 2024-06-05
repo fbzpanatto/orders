@@ -153,9 +153,14 @@ export const updateLegalPerson = async (personId: number, body: Person) => {
 
 export const updateNormalPerson = async (personId: number, body: Person) => {
   try {
-    const queryResult = await updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), [])
-    await updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), [])
-    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
+    const [qPerson, qAddress] = await Promise.all([
+      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), []),
+      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), [])
+    ])
+
+    const affectedRows = qPerson.affectedRows + qAddress.affectedRows
+
+    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
