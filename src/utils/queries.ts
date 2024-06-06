@@ -53,23 +53,27 @@ export const contactsDuplicateKeyUpdate = async (table: string, arrayOfObjects: 
 
   if (!arrayOfObjects?.length) { return }
 
-  const mappedArray = arrayOfObjects
-    .map((el: any) => { return { ...el, person_id: personId, created_at: formatDate(new Date()) } })
+  const mappedArray = arrayOfObjects.map((el: any) => {
+    return { ...el, person_id: personId, created_at: formatDate(new Date()), updated_at: formatDate(new Date()) }
+  });
 
   const columns = extractKeysFromFirstObject(mappedArray);
   const placeholders = columns.map(() => '?').join(', ');
-  const updateClause = columns.map(column => `${column} = VALUES(${column})`).join(', ');
+  const updateClause = columns
+    .filter(column => column !== 'created_at')
+    .map(column => `${column} = VALUES(${column})`).join(', ');
+
+  const finalUpdateClause = `${updateClause}, updated_at = VALUES(updated_at)`;
 
   const valuesArray = mappedArray.flatMap(item => columns.map(column => item[column]));
 
   const queryString = `
-    INSERT INTO ${table} (${columns.join(', ')}) 
-    VALUES ${mappedArray.map(() => `(${placeholders})`).join(', ')}
-    ON DUPLICATE KEY UPDATE ${updateClause};
+  INSERT INTO ${table} (${columns.join(', ')}) 
+  VALUES ${mappedArray.map(() => `(${placeholders})`).join(', ')}
+  ON DUPLICATE KEY UPDATE ${finalUpdateClause};
 `;
 
   return await query(format(queryString, valuesArray)) as ResultSetHeader
 }
 
-// TODO: create a validation that check if each object have the minimum necessary keys and values
 const extractKeysFromFirstObject = (array: { [key: string]: any }[]) => { return Object.keys(array[0]) }

@@ -162,6 +162,7 @@ export const updateNormalPerson = async (personId: number, body: Person) => {
     const [qPerson, qAddress] = await Promise.all([
       updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), []),
       updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), []),
+      // TODO: create a validation that check if each object have the minimum necessary keys and values
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
 
