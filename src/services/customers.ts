@@ -4,7 +4,7 @@ import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
 import { Tables } from '../enums/tables'
-import { insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
+import { contactsDuplicateKeyUpdate, insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { optionalFields } from '../schemas/optionalFields';
 import { formatDate } from '../utils/formatDate';
 
@@ -157,10 +157,12 @@ export const updateLegalPerson = async (personId: number, body: Person) => {
 }
 
 export const updateNormalPerson = async (personId: number, body: Person) => {
+
   try {
     const [qPerson, qAddress] = await Promise.all([
       updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), []),
-      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), [])
+      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), []),
+      contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
 
     const affectedRows = qPerson.affectedRows + qAddress.affectedRows

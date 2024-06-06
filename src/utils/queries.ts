@@ -2,6 +2,7 @@ import { ResultSetHeader, format } from 'mysql2';
 import { query } from '../services/db'
 import { getOffset } from '../helper';
 import { config } from '../config'
+import { formatDate } from './formatDate';
 
 export async function selectAllFrom<T>(table: string, page = 1, paramQuery?: string) {
 
@@ -47,3 +48,43 @@ export const updateTableSetWhere = async (table: string, column: string, columnV
 
   return await query(format(queryString, values)) as ResultSetHeader
 };
+
+export const contactsDuplicateKeyUpdate = async (table: string, arrayOfObjects: any[] | undefined, personId: number) => {
+
+  if (!arrayOfObjects?.length) { return }
+
+  const mappedArray = arrayOfObjects.map((el: any) => { return { ...el, person_id: personId, created_at: formatDate(new Date()) } })
+
+  const columns = extractKeysFromFirstObject(mappedArray);
+  const placeholders = columns.map(() => '?').join(', ');
+  const updateClause = columns.filter(col => col === 'contact' || col === 'phone_number').map(column => `${column} = VALUES(${column})`).join(', ');
+
+  for (let item of mappedArray) {
+
+    const asdasd =       `
+    INSERT INTO person_phones (id, person_id, phone_number, contact, created_at) 
+    VALUES (${item.id}, ${item.person_id}, '${item.phone_number}', '${item.contact}', '${item.created_at}')
+    ON DUPLICATE KEY UPDATE contact = VALUES(contact), phone_number = VALUES(phone_number)
+  `
+
+  console.log(asdasd)
+
+    // const queryString = `
+    // INSERT INTO ${table} (${columns.join(', ')}) 
+    // VALUES (${placeholders})
+    // ON DUPLICATE KEY UPDATE phone_number = VALUES(${item.phone_number}), contact = VALUES(contact)`
+
+    const queryResult = await query(
+      `
+        INSERT INTO person_phones (id, person_id, phone_number, contact, created_at) 
+        VALUES (${item.id}, ${item.person_id}, '${item.phone_number}', '${item.contact}', '${item.created_at}')
+        ON DUPLICATE KEY UPDATE contact = VALUES(contact), phone_number = VALUES(phone_number)
+      `
+    ) as ResultSetHeader
+
+    console.log('queryResult', queryResult)
+  }
+}
+
+// TODO: create a validation that check if each object have the minimum necessary keys and values
+const extractKeysFromFirstObject = (array: { [key: string]: any }[]) => { return Object.keys(array[0]) }
