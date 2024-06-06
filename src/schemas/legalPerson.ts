@@ -42,8 +42,7 @@ export const legalPOST: Schema = {
     escape: true
   },
   contacts: {
-    optional: true,
-    isArray: { options: { min: 1 } }
+    optional: true
   },
   address: {
     exists: true,
@@ -74,8 +73,7 @@ export const legalPATCH: Schema = {
     escape: true
   },
   contacts: {
-    optional: true,
-    isArray: { options: { min: 1 } }
+    optional: true
   },
   address: {
     optional: true,
