@@ -53,9 +53,8 @@ export const contactsDuplicateKeyUpdate = async (table: string, arrayOfObjects: 
 
   if (!arrayOfObjects?.length) { return }
 
-  const mappedArray = arrayOfObjects.map((el: any) => {
-    return { ...el, person_id: personId, created_at: formatDate(new Date()), updated_at: formatDate(new Date()) }
-  });
+  const mappedArray = arrayOfObjects
+    .map((el: any) => { return { ...el, person_id: personId, created_at: formatDate(new Date()), updated_at: formatDate(new Date()) } })
 
   const columns = extractKeysFromFirstObject(mappedArray);
   const placeholders = columns.map(() => '?').join(', ');
@@ -65,7 +64,9 @@ export const contactsDuplicateKeyUpdate = async (table: string, arrayOfObjects: 
 
   const finalUpdateClause = `${updateClause}, updated_at = VALUES(updated_at)`;
 
-  const valuesArray = mappedArray.flatMap(item => columns.map(column => item[column]));
+  const valuesArray = mappedArray
+    .flatMap(item => columns
+      .map(column => item[column]));
 
   const queryString = `
   INSERT INTO ${table} (${columns.join(', ')}) 
