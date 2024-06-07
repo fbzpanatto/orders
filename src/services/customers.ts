@@ -129,10 +129,7 @@ export const createNormalPerson = async (body: Person) => {
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) {
-    console.log(error)
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createLegalPerson = async (body: Person) => {
@@ -149,8 +146,9 @@ export const createLegalPerson = async (body: Person) => {
 export const updateLegalPerson = async (personId: number, body: Person) => {
   try {
     const [qPerson, qAddress] = await Promise.all([
-      updateTableSetWhere(Tables.legal_persons, 'person_id', personId, normalPerson(body, false), []),
-      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(body, false), [])
+      updateTableSetWhere(Tables.legal_persons, 'person_id', personId, legalPerson(body, false), ['contacts', 'address', ...Object.keys(optionalFields)]),
+      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(body, false), []),
+      contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
 
     const affectedRows = qPerson.affectedRows + qAddress.affectedRows
@@ -160,12 +158,10 @@ export const updateLegalPerson = async (personId: number, body: Person) => {
 }
 
 export const updateNormalPerson = async (personId: number, body: Person) => {
-
   try {
     const [qPerson, qAddress] = await Promise.all([
-      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), ['address', 'contacts']),
+      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), ['contacts', 'address', ...Object.keys(optionalFields)]),
       updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(body, false), []),
-      // TODO: create a validation that check if each object have the minimum necessary keys and values
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
 
@@ -213,10 +209,11 @@ const legalPerson = (body: Person, post: boolean) => {
   let date = { [key]: formatDate(new Date()) }
 
   return {
-    cnpj: body.cnpj,
-    state_registration: body.state_registration,
-    corporate_name: body.corporate_name,
-    social_name: body.social_name,
+    ...body,
+    // cnpj: body.cnpj,
+    // state_registration: body.state_registration,
+    // corporate_name: body.corporate_name,
+    // social_name: body.social_name,
     ...date
   }
 }
@@ -227,10 +224,11 @@ const normalPerson = (body: Person, post: boolean) => {
   let date = { [key]: formatDate(new Date()) }
 
   return {
-    cpf: body.cpf,
-    first_name: body.first_name,
-    middle_name: body.middle_name,
-    last_name: body.last_name,
+    ...body,
+    // cpf: body.cpf,
+    // first_name: body.first_name,
+    // middle_name: body.middle_name,
+    // last_name: body.last_name,
     ...date
   }
 }
