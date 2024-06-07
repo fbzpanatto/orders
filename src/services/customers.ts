@@ -1,5 +1,5 @@
 import { ResultSetHeader, format } from 'mysql2';
-import { query } from './db'
+import { connectionPool, query } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';

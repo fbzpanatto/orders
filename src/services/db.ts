@@ -6,7 +6,7 @@ dotenv.config();
 
 console.log('process.env.NODE', process.env.NODE_ENV)
 
-const pool = mysql.createPool({
+export const connectionPool = mysql.createPool({
   host: 'localhost',
   user: 'fbzpanatto',
   database: process.env.NODE_ENV === 'development' ? 'mydb' : 'mydbTest',
@@ -22,6 +22,6 @@ const pool = mysql.createPool({
 });
 
 export async function query(sql: string, params?: any) {
-  const [results,] = await pool.query(sql, params)
+  const [results,] = await connectionPool.query(sql, params)
   return results
 }
