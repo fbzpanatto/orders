@@ -51,8 +51,7 @@ export const normalPOST: Schema = {
   address: {
     exists: true,
   },
-  ...addressesPOST,
-  ...optionalFields,
+  ...addressesPOST
 }
 
 export const normalPATCH: Schema = {
@@ -85,6 +84,5 @@ export const normalPATCH: Schema = {
   address: {
     optional: true,
   },
-  ...addressesPATCH,
-  ...optionalFields,
+  ...addressesPATCH
 }
