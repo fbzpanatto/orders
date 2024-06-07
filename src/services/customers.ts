@@ -138,8 +138,8 @@ export const createNormalPerson = async (body: Person) => {
 export const createLegalPerson = async (body: Person) => {
   try {
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.legal_persons, { person_id: personId, ...legalPerson(body, true) }, Object.keys(optionalFields))
-    await insertInto(Tables.person_addresses, address(body, true), [])
+    const queryResult = await insertInto(Tables.legal_persons, { ...legalPerson(body, true), person_id: personId }, ['contacts', 'address', ...Object.keys(optionalFields)])
+    await insertInto(Tables.person_addresses, { ...address(body, true), person_id: personId, id: null }, [])
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows })
