@@ -169,7 +169,10 @@ export const updateNormalPerson = async (personId: number, body: Person) => {
     const affectedRows = qPerson.affectedRows + qAddress.affectedRows
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+    console.log('error', error)
+     return objectResponse(400, 'Não foi possível processar a sua solicitação.') 
+    }
 }
 
 const createPerson = async (body: Person) => {
