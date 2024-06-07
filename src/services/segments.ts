@@ -32,6 +32,6 @@ export const createSegment = async (body: Segments) => {
 export const updateSegment = async (id: number, req: Request) => {
   try {
     const queryResult = await updateTableSetWhere(Tables.segments, 'id', id, req.body as Segments, [])
-    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
+    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult?.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

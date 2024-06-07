@@ -36,7 +36,9 @@ export const insertInto = async (table: string, body: { [key: string]: any }, fi
   return await query(format(queryString, values)) as ResultSetHeader
 };
 
-export const updateTableSetWhere = async (table: string, column: string, columnValue: number, body: { [key: string]: any }, fieldsToIgnore: string[]) => {
+export const updateTableSetWhere = async (table: string, column: string, columnValue: number, body: any, fieldsToIgnore: string[]) => {
+
+  if (body === undefined) { return }
 
   const columns = Object.entries(body)
     .filter(([key]) => !fieldsToIgnore.includes(key))
@@ -51,7 +53,7 @@ export const updateTableSetWhere = async (table: string, column: string, columnV
 
 export const contactsDuplicateKeyUpdate = async (table: string, arrayOfObjects: any[] | undefined, personId: number) => {
 
-  if (!arrayOfObjects?.length) { return }
+  if (!arrayOfObjects?.length || arrayOfObjects === undefined) { return }
 
   const mappedArray = arrayOfObjects
     .map((el: any) => { return { ...el, person_id: personId, created_at: formatDate(new Date()), updated_at: formatDate(new Date()) } })

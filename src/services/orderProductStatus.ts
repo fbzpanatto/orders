@@ -32,6 +32,6 @@ export const createOrderProductsStatus = async (body: OrderProductsStatus) => {
 export const updateOrderProductsStatus = async (id: number, req: Request) => {
   try {
     const queryResult = await updateTableSetWhere(Tables.order_products_status, 'id', id, req.body as OrderProductsStatus, ['person_id'])
-    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult.affectedRows });
+    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult?.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

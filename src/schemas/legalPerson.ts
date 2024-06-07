@@ -1,83 +1,70 @@
-import { validateCustomFieldDate } from "../utils/customValidators"
-import { optionalFields } from "./optionalFields"
 import { Schema } from 'express-validator'
 import { addressesPOST, addressesPATCH } from "./addresses"
 
-// const createdAtUpdatedAt: Schema = {
-//   created_at: {
-//     optional: true,
-//     escape: true,
-//     custom: {
-//       options: validateCustomFieldDate
-//     }
-//   },
-//   updated_at: {
-//     optional: true,
-//     escape: true,
-//     custom: {
-//       options: validateCustomFieldDate
-//     }
-//   },
-// }
-
-export const legalPOST: Schema = {
-  cnpj: {
+const legalCustomerPOST: Schema = {
+  'customer.person_id': {
+    optional: true
+  },
+  'customer.cnpj': {
     exists: true,
     isLength: { options: { min: 14, max: 14 } },
     escape: true
   },
-  corporate_name: {
+  'customer.corporate_name': {
     exists: true,
     isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
-  social_name: {
+  'customer.social_name': {
     exists: true,
     isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
-  state_registration: {
+  'customer.state_registration': {
     exists: true,
     isLength: { options: { min: 9, max: 9 } },
     escape: true
   },
-  contacts: {
+}
+
+const legalCustomerPATCH: Schema = {
+  'customer.person_id': {
     optional: true
   },
-  address: {
-    exists: true,
+  'customer.cnpj': {
+    optional: true,
+    isLength: { options: { min: 14, max: 14 } },
+    escape: true
   },
-  ...addressesPOST,
-  ...optionalFields,
+  'customer.corporate_name': {
+    optional: true,
+    isLength: { options: { min: 3, max: 100 } },
+    escape: true
+  },
+  'customer.social_name': {
+    optional: true,
+    isLength: { options: { min: 3, max: 100 } },
+    escape: true
+  },
+  'customer.state_registration': {
+    optional: true,
+    isLength: { options: { min: 9, max: 9 } },
+    escape: true
+  },
+}
+
+export const legalPOST: Schema = {
+  customer: { exists: true },
+  address: { exists: true },
+  contacts: { optional: true },
+  ...legalCustomerPOST,
+  ...addressesPOST
 }
 
 export const legalPATCH: Schema = {
-  cnpj: {
-    optional: true,
-    isLength: { options: { min: 14, max: 14 } },
-    escape: true
-  },
-  corporate_name: {
-    optional: true,
-    isLength: { options: { min: 3, max: 100 } },
-    escape: true
-  },
-  social_name: {
-    optional: true,
-    isLength: { options: { min: 3, max: 100 } },
-    escape: true
-  },
-  state_registration: {
-    optional: true,
-    isLength: { options: { min: 9, max: 9 } },
-    escape: true
-  },
-  contacts: {
-    optional: true
-  },
-  address: {
-    optional: true,
-  },
-  ...addressesPATCH,
-  ...optionalFields,
+  customer: { optional: true },
+  contacts: { optional: true },
+  address: { optional: true },
+  ...legalCustomerPATCH,
+  ...addressesPATCH
 }

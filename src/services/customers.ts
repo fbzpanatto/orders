@@ -45,13 +45,15 @@ export const getNormalById = async (personId: number) => {
     const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
 
     const aggregatedResult = result.reduce((acc, curr) => {
-      if (!acc.person_id) {
+      if (!acc.customer) {
         acc = {
-          person_id: curr.person_id,
-          cpf: curr.cpf,
-          first_name: curr.first_name,
-          middle_name: curr.middle_name,
-          last_name: curr.last_name,
+          customer: {
+            person_id: curr.person_id,
+            cpf: curr.cpf,
+            first_name: curr.first_name,
+            middle_name: curr.middle_name,
+            last_name: curr.last_name,
+          },
           address: {
             id: curr.add_id,
             person_id: curr.person_id,
@@ -92,13 +94,15 @@ export const getLegalById = async (personId: number) => {
     const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
 
     const aggregatedResult = result.reduce((acc, curr) => {
-      if (!acc.person_id) {
+      if (!acc.customer) {
         acc = {
-          person_id: curr.person_id,
-          cnpj: curr.cnpj,
-          corporate_name: curr.corporate_name,
-          social_name: curr.social_name,
-          state_registration: curr.state_registration,
+          customer: {
+            person_id: curr.person_id,
+            cnpj: curr.cnpj,
+            corporate_name: curr.corporate_name,
+            social_name: curr.social_name,
+            state_registration: curr.state_registration,
+          },
           address: {
             id: curr.add_id,
             person_id: curr.person_id,
@@ -121,73 +125,102 @@ export const getLegalById = async (personId: number) => {
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const createNormalPerson = async (body: Person) => {
+export const createNormalPerson = async (body: any) => {
+
+  const date = formatDate(new Date())
+  body.customer.created_at = date
+  body.address.created_at = date
+
   try {
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.normal_persons, { ...normalPerson(body, true), person_id: personId }, ['contacts', 'address', ...Object.keys(optionalFields)])
-    await insertInto(Tables.person_addresses, { ...address(body, true), person_id: personId, id: null }, [])
+    const queryResult = await insertInto(Tables.normal_persons, { ...body.customer, person_id: personId }, [])
+    await insertInto(Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const createLegalPerson = async (body: Person) => {
+export const createLegalPerson = async (body: any) => {
+
+  const date = formatDate(new Date())
+  body.customer.created_at = date
+  body.address.created_at = date
+
   try {
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.legal_persons, { ...legalPerson(body, true), person_id: personId }, ['contacts', 'address', ...Object.keys(optionalFields)])
-    await insertInto(Tables.person_addresses, { ...address(body, true), person_id: personId, id: null }, [])
+    const queryResult = await insertInto(Tables.legal_persons, { ...body.customer, person_id: personId }, [])
+    await insertInto(Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
     await createContacts(personId, body)
 
-    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows })
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const updateLegalPerson = async (personId: number, body: Person) => {
+export const updateLegalPerson = async (personId: number, body: any) => {
   try {
-    const [qPerson, qAddress] = await Promise.all([
-      updateTableSetWhere(Tables.legal_persons, 'person_id', personId, legalPerson(body, false), ['contacts', 'address', ...Object.keys(optionalFields)]),
-      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(body, false), []),
+
+    const [qPerson, qAddress, qContact] = await Promise.all([
+      updateTableSetWhere(Tables.legal_persons, 'person_id', personId, body.customer, []),
+      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, body.address, []),
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
 
-    const affectedRows = qPerson.affectedRows + qAddress.affectedRows
+    const qPersonRows = qPerson?.affectedRows ?? 0
+    const qAddressRows = qAddress?.affectedRows ?? 0
+    const QcontactRows = qContact?.affectedRows ?? 0
+
+    const affectedRows = qPersonRows + qAddressRows + QcontactRows
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const updateNormalPerson = async (personId: number, body: Person) => {
+export const updateNormalPerson = async (personId: number, body: any) => {
   try {
-    const [qPerson, qAddress] = await Promise.all([
-      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), ['contacts', 'address', ...Object.keys(optionalFields)]),
-      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(body, false), []),
+
+    const [qPerson, qAddress, qContact] = await Promise.all([
+      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, body.customer, []),
+      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, body.address, []),
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
 
-    const affectedRows = qPerson.affectedRows + qAddress.affectedRows
+    const qPersonRows = qPerson?.affectedRows ?? 0
+    const qAddressRows = qAddress?.affectedRows ?? 0
+    const QcontactRows = qContact?.affectedRows ?? 0
+
+    const affectedRows = qPersonRows + qAddressRows + QcontactRows
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
-  } catch (error) {
-    console.log('error', error)
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-const createPerson = async (body: Person) => {
+const createPerson = async (body: any) => {
+
+  // const sql =
+  //   `
+  //   INSERT INTO persons (created_at, observation, first_field, second_field, third_field)
+  //   VALUES (?, ?, ?, ?, ?)
+  // `
+
+  // const { insertId: personId } = await query(sql, [
+  //   formatDate(new Date()),
+  //   body.observation,
+  //   body.first_field,
+  //   body.second_field,
+  //   body.third_field
+  // ]) as ResultSetHeader;
+
+  // return personId;
 
   const sql =
     `
-    INSERT INTO persons (created_at, observation, first_field, second_field, third_field)
-    VALUES (?, ?, ?, ?, ?)
-  `
+  INSERT INTO persons (created_at)
+  VALUES (?)
+`
 
   const { insertId: personId } = await query(sql, [
-    formatDate(new Date()),
-    body.observation,
-    body.first_field,
-    body.second_field,
-    body.third_field
+    body.customer.created_at,
   ]) as ResultSetHeader;
 
   return personId;
@@ -200,47 +233,6 @@ const createContacts = async (personId: number, body: Person) => {
         await insertInto(Tables.person_phones, contact(personId, item, true), [])
       }
     }
-  }
-}
-
-const legalPerson = (body: Person, post: boolean) => {
-
-  let key = post ? 'created_at' : 'updated_at'
-  let date = { [key]: formatDate(new Date()) }
-
-  return {
-    ...body,
-    // cnpj: body.cnpj,
-    // state_registration: body.state_registration,
-    // corporate_name: body.corporate_name,
-    // social_name: body.social_name,
-    ...date
-  }
-}
-
-const normalPerson = (body: Person, post: boolean) => {
-
-  let key = post ? 'created_at' : 'updated_at'
-  let date = { [key]: formatDate(new Date()) }
-
-  return {
-    ...body,
-    // cpf: body.cpf,
-    // first_name: body.first_name,
-    // middle_name: body.middle_name,
-    // last_name: body.last_name,
-    ...date
-  }
-}
-
-const address = (body: Person, post: boolean) => {
-
-  let key = post ? 'created_at' : 'updated_at'
-  let date = { [key]: formatDate(new Date()) }
-
-  return {
-    ...body.address,
-    ...date
   }
 }
 
