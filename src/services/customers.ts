@@ -124,19 +124,22 @@ export const getLegalById = async (personId: number) => {
 export const createNormalPerson = async (body: Person) => {
   try {
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.normal_persons, { person_id: personId, ...normalPerson(body, true) }, Object.keys(optionalFields))
-    await insertInto(Tables.person_addresses, address(personId, body, true), [])
+    const queryResult = await insertInto(Tables.normal_persons, { ...normalPerson(body, true), person_id: personId }, ['contacts', 'address', ...Object.keys(optionalFields)])
+    await insertInto(Tables.person_addresses, { ...address(body, true), person_id: personId, id: null }, [])
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+    console.log(error)
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
 }
 
 export const createLegalPerson = async (body: Person) => {
   try {
     const personId = await createPerson(body)
     const queryResult = await insertInto(Tables.legal_persons, { person_id: personId, ...legalPerson(body, true) }, Object.keys(optionalFields))
-    await insertInto(Tables.person_addresses, address(personId, body, true), [])
+    await insertInto(Tables.person_addresses, address(body, true), [])
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows })
@@ -147,7 +150,7 @@ export const updateLegalPerson = async (personId: number, body: Person) => {
   try {
     const [qPerson, qAddress] = await Promise.all([
       updateTableSetWhere(Tables.legal_persons, 'person_id', personId, normalPerson(body, false), []),
-      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), [])
+      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(body, false), [])
     ])
 
     const affectedRows = qPerson.affectedRows + qAddress.affectedRows
@@ -160,8 +163,8 @@ export const updateNormalPerson = async (personId: number, body: Person) => {
 
   try {
     const [qPerson, qAddress] = await Promise.all([
-      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), []),
-      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), []),
+      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), ['address', 'contacts']),
+      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(body, false), []),
       // TODO: create a validation that check if each object have the minimum necessary keys and values
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
@@ -171,8 +174,8 @@ export const updateNormalPerson = async (personId: number, body: Person) => {
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
   } catch (error) {
     console.log('error', error)
-     return objectResponse(400, 'Não foi possível processar a sua solicitação.') 
-    }
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
 }
 
 const createPerson = async (body: Person) => {
@@ -232,21 +235,15 @@ const normalPerson = (body: Person, post: boolean) => {
   }
 }
 
-const address = (personId: number, body: Person, post: boolean) => {
+const address = (body: Person, post: boolean) => {
 
   let key = post ? 'created_at' : 'updated_at'
   let date = { [key]: formatDate(new Date()) }
 
-  const addressFields = {
-    add_street: body.address?.add_street,
-    add_number: body.address?.add_number,
-    add_zipcode: body.address?.add_zipcode,
-    add_city: body.address?.add_city,
-    add_neighborhood: body.address?.add_neighborhood,
+  return {
+    ...body.address,
     ...date
   }
-
-  return post ? { person_id: personId, ...addressFields } : { ...addressFields, ...date }
 }
 
 const contact = (personId: number, item: { id: number, contact: string, phone_number: string }, post: boolean) => {
