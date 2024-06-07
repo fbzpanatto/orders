@@ -124,7 +124,7 @@ export const getLegalById = async (personId: number) => {
 export const createNormalPerson = async (body: Person) => {
   try {
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.normal_persons, { person_id: personId, ...customer(body, true) }, Object.keys(optionalFields))
+    const queryResult = await insertInto(Tables.normal_persons, { person_id: personId, ...normalPerson(body, true) }, Object.keys(optionalFields))
     await insertInto(Tables.person_addresses, address(personId, body, true), [])
     await createContacts(personId, body)
 
@@ -146,7 +146,7 @@ export const createLegalPerson = async (body: Person) => {
 export const updateLegalPerson = async (personId: number, body: Person) => {
   try {
     const [qPerson, qAddress] = await Promise.all([
-      updateTableSetWhere(Tables.legal_persons, 'person_id', personId, customer(body, false), []),
+      updateTableSetWhere(Tables.legal_persons, 'person_id', personId, normalPerson(body, false), []),
       updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), [])
     ])
 
@@ -157,9 +157,10 @@ export const updateLegalPerson = async (personId: number, body: Person) => {
 }
 
 export const updateNormalPerson = async (personId: number, body: Person) => {
+
   try {
     const [qPerson, qAddress] = await Promise.all([
-      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, customer(body, false), ['contacts', 'address']),
+      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, normalPerson(body, false), []),
       updateTableSetWhere(Tables.person_addresses, 'person_id', personId, address(personId, body, false), []),
       // TODO: create a validation that check if each object have the minimum necessary keys and values
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
@@ -168,10 +169,7 @@ export const updateNormalPerson = async (personId: number, body: Person) => {
     const affectedRows = qPerson.affectedRows + qAddress.affectedRows
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
-  } catch (error) {
-    console.log('ERROR', error)
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 const createPerson = async (body: Person) => {
@@ -217,12 +215,18 @@ const legalPerson = (body: Person, post: boolean) => {
   }
 }
 
-const customer = (body: Person, post: boolean) => {
+const normalPerson = (body: Person, post: boolean) => {
 
   let key = post ? 'created_at' : 'updated_at'
   let date = { [key]: formatDate(new Date()) }
 
-  return { ...body, ...date }
+  return {
+    cpf: body.cpf,
+    first_name: body.first_name,
+    middle_name: body.middle_name,
+    last_name: body.last_name,
+    ...date
+  }
 }
 
 const address = (personId: number, body: Person, post: boolean) => {
@@ -230,7 +234,14 @@ const address = (personId: number, body: Person, post: boolean) => {
   let key = post ? 'created_at' : 'updated_at'
   let date = { [key]: formatDate(new Date()) }
 
-  const addressFields = { ...body.address, ...date }
+  const addressFields = {
+    add_street: body.address?.add_street,
+    add_number: body.address?.add_number,
+    add_zipcode: body.address?.add_zipcode,
+    add_city: body.address?.add_city,
+    add_neighborhood: body.address?.add_neighborhood,
+    ...date
+  }
 
   return post ? { person_id: personId, ...addressFields } : { ...addressFields, ...date }
 }
