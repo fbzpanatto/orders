@@ -169,7 +169,7 @@ export const updateLegalPerson = async (personId: number, body: any) => {
     await Promise.all([
       updateTableSetWhere(connection, Tables.legal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
-      contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
+      contactsDuplicateKeyUpdate(connection, Tables.person_phones, body.contacts, personId)
     ])
 
     await connection.commit()
@@ -195,7 +195,7 @@ export const updateNormalPerson = async (personId: number, body: any) => {
     await Promise.all([
       updateTableSetWhere(connection, Tables.normal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
-      contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
+      contactsDuplicateKeyUpdate(connection, Tables.person_phones, body.contacts, personId)
     ])
 
     await connection.commit()

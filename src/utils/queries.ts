@@ -52,7 +52,7 @@ export const updateTableSetWhere = async (connection: PoolConnection, table: str
   return await connection?.query(format(queryString, values)) as unknown as ResultSetHeader
 };
 
-export const contactsDuplicateKeyUpdate = async (table: string, arrayOfObjects: any[] | undefined, personId: number) => {
+export const contactsDuplicateKeyUpdate = async (connection: PoolConnection, table: string, arrayOfObjects: any[] | undefined, personId: number) => {
 
   if (!arrayOfObjects?.length || arrayOfObjects === undefined) { return }
 
@@ -77,7 +77,7 @@ export const contactsDuplicateKeyUpdate = async (table: string, arrayOfObjects: 
   ON DUPLICATE KEY UPDATE ${finalUpdateClause};
 `;
 
-  return await query(format(queryString, valuesArray)) as ResultSetHeader
+  return await connection?.query(format(queryString, valuesArray)) as unknown as ResultSetHeader
 }
 
 const extractKeysFromFirstObject = (array: { [key: string]: any }[]) => { return Object.keys(array[0]) }
