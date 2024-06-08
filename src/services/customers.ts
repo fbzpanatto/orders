@@ -166,19 +166,15 @@ export const updateLegalPerson = async (personId: number, body: any) => {
     connection = await myDbConnection()
     await connection.beginTransaction()
 
-    const [qPerson, qAddress, qContact] = await Promise.all([
+    await Promise.all([
       updateTableSetWhere(connection, Tables.legal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
-    
+
     await connection.commit()
 
-    const qPersonRows = qPerson?.affectedRows ?? 0
-    const qAddressRows = qAddress?.affectedRows ?? 0
-    const QcontactRows = qContact?.affectedRows ?? 0
-
-    const affectedRows = qPersonRows + qAddressRows + QcontactRows
+    const affectedRows = 1
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
   } catch (error) {
@@ -196,7 +192,7 @@ export const updateNormalPerson = async (personId: number, body: any) => {
     connection = await myDbConnection()
     await connection.beginTransaction()
 
-    const [qPerson, qAddress, qContact] = await Promise.all([
+    await Promise.all([
       updateTableSetWhere(connection, Tables.normal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
@@ -204,11 +200,7 @@ export const updateNormalPerson = async (personId: number, body: any) => {
 
     await connection.commit()
 
-    const qPersonRows = qPerson?.affectedRows ?? 0
-    const qAddressRows = qAddress?.affectedRows ?? 0
-    const QcontactRows = qContact?.affectedRows ?? 0
-
-    const affectedRows = qPersonRows + qAddressRows + QcontactRows
+    const affectedRows = 1
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
   } catch (error) {
