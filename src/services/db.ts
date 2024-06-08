@@ -21,7 +21,10 @@ export const connectionPool = mysql.createPool({
   dateStrings: true
 });
 
+export async function myDbConnection() { return await connectionPool.getConnection() }
+
 export async function query(sql: string, params?: any) {
-  const [results,] = await connectionPool.query(sql, params)
+  const connection = await myDbConnection()
+  const [results,] = await connection.query(sql, params)
   return results
 }

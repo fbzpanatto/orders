@@ -3,6 +3,7 @@ import { PersonAddresses } from '../interfaces/addresses';
 import { selectAllFromWhere, updateTableSetWhere, insertInto } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
+import { myDbConnection } from './db';
 
 export const getPersonAddresses = async (personId: number) => {
   try {
@@ -19,8 +20,21 @@ export const createAddress = async (body: PersonAddresses) => {
 }
 
 export const updateAdress = async (id: number, req: Request) => {
+
+  let connection = null;
+
   try {
-    const queryResult = await updateTableSetWhere(Tables.person_addresses, 'id', id, req.body as PersonAddresses, ['person_id'])
+
+    connection = await myDbConnection()
+    await connection.beginTransaction()
+
+    const queryResult = await updateTableSetWhere(connection, Tables.person_addresses, 'id', id, req.body as PersonAddresses, ['person_id'])
+
+    await connection.commit()
+
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult?.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+    if (connection) await connection.rollback()
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  } finally { if (connection) connection.release() }
 }

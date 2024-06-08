@@ -1,5 +1,5 @@
 import { ResultSetHeader, format } from 'mysql2';
-import { connectionPool, query } from './db'
+import { connectionPool, myDbConnection, query } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
@@ -158,13 +158,21 @@ export const createLegalPerson = async (body: any) => {
 }
 
 export const updateLegalPerson = async (personId: number, body: any) => {
+
+  let connection = null;
+
   try {
 
+    connection = await myDbConnection()
+    await connection.beginTransaction()
+
     const [qPerson, qAddress, qContact] = await Promise.all([
-      updateTableSetWhere(Tables.legal_persons, 'person_id', personId, body.customer, []),
-      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, body.address, []),
+      updateTableSetWhere(connection, Tables.legal_persons, 'person_id', personId, body.customer, []),
+      updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
+    
+    await connection.commit()
 
     const qPersonRows = qPerson?.affectedRows ?? 0
     const qAddressRows = qAddress?.affectedRows ?? 0
@@ -173,17 +181,28 @@ export const updateLegalPerson = async (personId: number, body: any) => {
     const affectedRows = qPersonRows + qAddressRows + QcontactRows
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+    if (connection) await connection.rollback()
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  } finally { if (connection) connection.release() }
 }
 
 export const updateNormalPerson = async (personId: number, body: any) => {
+
+  let connection = null;
+
   try {
 
+    connection = await myDbConnection()
+    await connection.beginTransaction()
+
     const [qPerson, qAddress, qContact] = await Promise.all([
-      updateTableSetWhere(Tables.normal_persons, 'person_id', personId, body.customer, []),
-      updateTableSetWhere(Tables.person_addresses, 'person_id', personId, body.address, []),
+      updateTableSetWhere(connection, Tables.normal_persons, 'person_id', personId, body.customer, []),
+      updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       contactsDuplicateKeyUpdate(Tables.person_phones, body.contacts, personId)
     ])
+
+    await connection.commit()
 
     const qPersonRows = qPerson?.affectedRows ?? 0
     const qAddressRows = qAddress?.affectedRows ?? 0
@@ -192,7 +211,10 @@ export const updateNormalPerson = async (personId: number, body: any) => {
     const affectedRows = qPersonRows + qAddressRows + QcontactRows
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+    if (connection) await connection.rollback()
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  } finally { if (connection) connection.release() }
 }
 
 const createPerson = async (body: any) => {

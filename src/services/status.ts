@@ -4,6 +4,7 @@ import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } fr
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
+import { myDbConnection } from './db';
 
 export const getStatus = async (page: number) => {
   try {
@@ -30,8 +31,21 @@ export const createStatus = async (body: Status) => {
 }
 
 export const updateStatus = async (id: number, req: Request) => {
+
+  let connection = null;
+
   try {
-    const queryResult = await updateTableSetWhere(Tables.status, 'id', id, req.body as Status, [])
+
+    connection = await myDbConnection()
+    await connection.beginTransaction()
+
+    const queryResult = await updateTableSetWhere(connection, Tables.status, 'id', id, req.body as Status, [])
+
+    await connection.commit()
+
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult?.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+    if (connection) await connection.rollback()
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  } finally { if (connection) connection.release() }
 }

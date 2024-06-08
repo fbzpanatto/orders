@@ -4,6 +4,7 @@ import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } fr
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
+import { myDbConnection } from './db';
 
 export const getAllOrderProductsStatus = async (page: number) => {
   try {
@@ -30,8 +31,21 @@ export const createOrderProductsStatus = async (body: OrderProductsStatus) => {
 }
 
 export const updateOrderProductsStatus = async (id: number, req: Request) => {
+
+  let connection = null;
+
   try {
-    const queryResult = await updateTableSetWhere(Tables.order_products_status, 'id', id, req.body as OrderProductsStatus, ['person_id'])
+
+    connection = await myDbConnection()
+    await connection.beginTransaction()
+
+    const queryResult = await updateTableSetWhere(connection, Tables.order_products_status, 'id', id, req.body as OrderProductsStatus, ['person_id'])
+
+    await connection.commit()
+
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult?.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  } catch (error) {
+    if (connection) await connection.rollback()
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  } finally { if (connection) connection.release() }
 }

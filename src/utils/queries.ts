@@ -3,6 +3,7 @@ import { query } from '../services/db'
 import { getOffset } from '../helper';
 import { config } from '../config'
 import { formatDate } from './formatDate';
+import { PoolConnection } from 'mysql2/promise';
 
 export async function selectAllFrom<T>(table: string, page = 1, paramQuery?: string) {
 
@@ -36,7 +37,7 @@ export const insertInto = async (table: string, body: { [key: string]: any }, fi
   return await query(format(queryString, values)) as ResultSetHeader
 };
 
-export const updateTableSetWhere = async (table: string, column: string, columnValue: number, body: any, fieldsToIgnore: string[]) => {
+export const updateTableSetWhere = async (connection: PoolConnection, table: string, column: string, columnValue: number, body: any, fieldsToIgnore: string[]) => {
 
   if (body === undefined) { return }
 
@@ -48,7 +49,7 @@ export const updateTableSetWhere = async (table: string, column: string, columnV
 
   const values = [...columns.map(({ value }) => value), columnValue];
 
-  return await query(format(queryString, values)) as ResultSetHeader
+  return await connection?.query(format(queryString, values)) as unknown as ResultSetHeader
 };
 
 export const contactsDuplicateKeyUpdate = async (table: string, arrayOfObjects: any[] | undefined, personId: number) => {
