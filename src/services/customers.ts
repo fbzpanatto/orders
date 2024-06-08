@@ -155,14 +155,20 @@ export const createNormalPerson = async (body: any) => {
   try {
 
     connection = await myDbConnection()
+    await connection.beginTransaction()
 
     const personId = await createPerson(body)
-    const queryResult = await insertInto(connection, Tables.normal_persons, { ...body.customer, person_id: personId }, [])
+    await insertInto(connection, Tables.normal_persons, { ...body.customer, person_id: personId }, [])
     await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
     await createContacts(personId, body)
 
-    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+    await connection.commit()
+
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
+  } catch (error) {
+    if (connection) await connection.rollback()
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
 }
 
 export const createLegalPerson = async (body: any) => {
@@ -176,14 +182,20 @@ export const createLegalPerson = async (body: any) => {
   try {
 
     connection = await myDbConnection()
+    await connection.beginTransaction()
 
     const personId = await createPerson(body)
-    const queryResult = await insertInto(connection, Tables.legal_persons, { ...body.customer, person_id: personId }, [])
+    await insertInto(connection, Tables.legal_persons, { ...body.customer, person_id: personId }, [])
     await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
     await createContacts(personId, body)
 
-    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+    await connection.commit()
+
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
+  } catch (error) {
+    if (connection) await connection.rollback()
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
 }
 
 export const updateLegalPerson = async (personId: number, body: any) => {
@@ -256,15 +268,11 @@ const createPerson = async (body: any) => {
 
   // return personId;
 
-  const sql =
-    `
-  INSERT INTO persons (created_at)
-  VALUES (?)
-`
+  const sql = `INSERT INTO persons (created_at) VALUES (?)`
 
-  const { insertId: personId } = await connection.query(sql, [
-    body.customer.created_at,
-  ]) as unknown as ResultSetHeader;
+  const [result,] = await connection.query(sql, [body.customer.created_at])
+
+  const { insertId: personId } = result as ResultSetHeader
 
   return personId;
 }
