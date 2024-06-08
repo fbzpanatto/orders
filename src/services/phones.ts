@@ -6,15 +6,23 @@ import { Request } from 'express';
 import { myDbConnection } from './db';
 
 export const getPersonPhones = async (personId: number) => {
+  let connection = null;
+
   try {
-    const result = await selectAllFromWhere(Tables.person_phones, 'person_id', personId) as Array<PersonPhones>
+
+    connection = await myDbConnection()
+    const result = await selectAllFromWhere(connection, Tables.person_phones, 'person_id', personId) as Array<PersonPhones>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createPhone = async (body: PersonPhones) => {
+  let connection = null;
+
   try {
-    const queryResult = await insertInto(Tables.person_phones, body, [])
+
+    connection = await myDbConnection()
+    const queryResult = await insertInto(connection, Tables.person_phones, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
@@ -36,5 +44,5 @@ export const updatePhone = async (id: number, req: Request) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }

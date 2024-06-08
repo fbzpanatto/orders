@@ -7,8 +7,12 @@ import { emptyOrRows } from '../helper';
 import { myDbConnection } from './db';
 
 export const getAllOrders = async (page: number) => {
+  let connection = null;
+
   try {
-    const rows = await selectAllFrom<Orders>(Tables.orders, page)
+
+    connection = await myDbConnection()
+    const rows = await selectAllFrom<Orders>(connection, Tables.orders, page)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -17,22 +21,34 @@ export const getAllOrders = async (page: number) => {
 }
 
 export const getPersonOrders = async (personId: number) => {
+  let connection = null;
+
   try {
-    const queryResult = await selectAllFromWhere(Tables.orders, 'person_id', personId) as Array<Orders>
+
+    connection = await myDbConnection()
+    const queryResult = await selectAllFromWhere(connection, Tables.orders, 'person_id', personId) as Array<Orders>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const getOrder = async (orderId: number) => {
+  let connection = null;
+
   try {
-    const queryResult = await selectAllFromWhere(Tables.orders, 'id', orderId) as Array<Orders>
+
+    connection = await myDbConnection()
+    const queryResult = await selectAllFromWhere(connection, Tables.orders, 'id', orderId) as Array<Orders>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createOrder = async (body: Orders) => {
+  let connection = null;
+
   try {
-    const queryResult = await insertInto(Tables.orders, body, [])
+
+    connection = await myDbConnection()
+    const queryResult = await insertInto(connection, Tables.orders, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
@@ -54,5 +70,5 @@ export const updateOrder = async (id: number, req: Request) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }

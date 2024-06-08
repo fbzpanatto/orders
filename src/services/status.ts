@@ -7,8 +7,12 @@ import { emptyOrRows } from '../helper';
 import { myDbConnection } from './db';
 
 export const getStatus = async (page: number) => {
+  let connection = null;
+
   try {
-    const rows = await selectAllFrom<Status>(Tables.status, page)
+
+    connection = await myDbConnection()
+    const rows = await selectAllFrom<Status>(connection, Tables.status, page)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -17,15 +21,23 @@ export const getStatus = async (page: number) => {
 }
 
 export const getOneStatus = async (statusId: number) => {
+  let connection = null;
+
   try {
-    const result = await selectAllFromWhere(Tables.status, 'id', statusId) as Array<Status>
+
+    connection = await myDbConnection()
+    const result = await selectAllFromWhere(connection, Tables.status, 'id', statusId) as Array<Status>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createStatus = async (body: Status) => {
+  let connection = null;
+
   try {
-    const queryResult = await insertInto(Tables.status, body, [])
+
+    connection = await myDbConnection()
+    const queryResult = await insertInto(connection, Tables.status, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
@@ -47,5 +59,5 @@ export const updateStatus = async (id: number, req: Request) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }

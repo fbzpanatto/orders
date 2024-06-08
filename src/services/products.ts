@@ -7,8 +7,12 @@ import { emptyOrRows } from '../helper';
 import { myDbConnection } from './db';
 
 export const getProducts = async (page: number) => {
+  let connection = null;
+
   try {
-    const rows = await selectAllFrom<Products>(Tables.products, page)
+
+    connection = await myDbConnection()
+    const rows = await selectAllFrom<Products>(connection, Tables.products, page)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -17,15 +21,23 @@ export const getProducts = async (page: number) => {
 }
 
 export const getProduct = async (statusId: number) => {
+  let connection = null;
+
   try {
-    const queryResult = await selectAllFromWhere(Tables.products, 'id', statusId) as Array<Products>
+
+    connection = await myDbConnection()
+    const queryResult = await selectAllFromWhere(connection, Tables.products, 'id', statusId) as Array<Products>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createProduct = async (body: Products) => {
+  let connection = null;
+
   try {
-    const queryResult = await insertInto(Tables.products, body, [])
+
+    connection = await myDbConnection()
+    const queryResult = await insertInto(connection, Tables.products, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
@@ -47,5 +59,5 @@ export const updateProduct = async (id: number, req: Request) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }

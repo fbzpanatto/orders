@@ -6,15 +6,25 @@ import { Request } from 'express';
 import { myDbConnection } from './db';
 
 export const getPersonAddresses = async (personId: number) => {
+
+  let connection = null;
+
   try {
-    const result = await selectAllFromWhere(Tables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
+
+    connection = await myDbConnection()
+
+    const result = await selectAllFromWhere(connection, Tables.person_addresses, 'person_id', personId) as Array<PersonAddresses>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createAddress = async (body: PersonAddresses) => {
+  let connection = null;
+
   try {
-    const queryResult = await insertInto(Tables.person_addresses, body, [])
+
+    connection = await myDbConnection()
+    const queryResult = await insertInto(connection, Tables.person_addresses, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
@@ -36,5 +46,5 @@ export const updateAdress = async (id: number, req: Request) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }

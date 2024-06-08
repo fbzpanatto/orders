@@ -6,15 +6,23 @@ import { PersonSegments } from '../interfaces/personSegments';
 import { myDbConnection } from './db';
 
 export const getPersonSegments = async (personId: number) => {
+  let connection = null;
+
   try {
-    const result = await selectAllFromWhere(Tables.person_segments, 'person_id', personId) as Array<PersonSegments>
+
+    connection = await myDbConnection()
+    const result = await selectAllFromWhere(connection, Tables.person_segments, 'person_id', personId) as Array<PersonSegments>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createPersonSegment = async (body: PersonSegments) => {
+  let connection = null;
+
   try {
-    const queryResult = await insertInto(Tables.person_segments, body, [])
+
+    connection = await myDbConnection()
+    const queryResult = await insertInto(connection, Tables.person_segments, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
@@ -36,5 +44,5 @@ export const updatePersonSegment = async (id: number, req: Request) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }

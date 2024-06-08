@@ -1,28 +1,31 @@
 import { ResultSetHeader, format } from 'mysql2';
-import { query } from '../services/db'
 import { getOffset } from '../helper';
 import { config } from '../config'
 import { formatDate } from './formatDate';
 import { PoolConnection } from 'mysql2/promise';
 
-export async function selectAllFrom<T>(table: string, page = 1, paramQuery?: string) {
+export async function selectAllFrom<T>(connection: PoolConnection, table: string, page = 1, paramQuery?: string) {
 
   const offset = getOffset(page, config().listPerPage);
   const limit = `LIMIT ${offset},${config().listPerPage}`
 
   let queryString = paramQuery ? `${paramQuery} ${limit}` : `SELECT * FROM ${table} ${limit}`
 
-  return await query(format(queryString)) as Array<T>
+  const [results,] = await connection.query(format(queryString))
+
+  return results as Array<T>
 }
 
-export const selectAllFromWhere = async (table: string, column: string, columnValue: string | number) => {
+export const selectAllFromWhere = async (connection: PoolConnection, table: string, column: string, columnValue: string | number) => {
 
   const queryString = `SELECT * FROM ${table} WHERE ${column}=?`;
 
-  return await query(format(queryString, [columnValue])) as Array<{ [key: string]: any }>
+  const [results,] = await connection.query(format(queryString, [columnValue]))
+
+  return results
 };
 
-export const insertInto = async (table: string, body: { [key: string]: any }, fieldsToIgnore: string[]) => {
+export const insertInto = async (connection: PoolConnection, table: string, body: { [key: string]: any }, fieldsToIgnore: string[]) => {
 
   const columns = Object.entries(body)
     .filter(([key]) => !fieldsToIgnore.includes(key))
@@ -34,7 +37,7 @@ export const insertInto = async (table: string, body: { [key: string]: any }, fi
 
   const values = Object.values(body).filter((_, index) => !fieldsToIgnore.includes(columns[index]));
 
-  return await query(format(queryString, values)) as ResultSetHeader
+  return await connection.query(format(queryString, values)) as unknown as ResultSetHeader
 };
 
 export const updateTableSetWhere = async (connection: PoolConnection, table: string, column: string, columnValue: number, body: any, fieldsToIgnore: string[]) => {
@@ -49,7 +52,9 @@ export const updateTableSetWhere = async (connection: PoolConnection, table: str
 
   const values = [...columns.map(({ value }) => value), columnValue];
 
-  return await connection?.query(format(queryString, values)) as unknown as ResultSetHeader
+  const [result,] = await connection.query(format(queryString, values))
+
+  return result as ResultSetHeader
 };
 
 export const contactsDuplicateKeyUpdate = async (connection: PoolConnection, table: string, arrayOfObjects: any[] | undefined, personId: number) => {
@@ -77,7 +82,9 @@ export const contactsDuplicateKeyUpdate = async (connection: PoolConnection, tab
   ON DUPLICATE KEY UPDATE ${finalUpdateClause};
 `;
 
-  return await connection?.query(format(queryString, valuesArray)) as unknown as ResultSetHeader
+  const [result,] = await connection.query(format(queryString, valuesArray))
+
+  return result as ResultSetHeader
 }
 
 const extractKeysFromFirstObject = (array: { [key: string]: any }[]) => { return Object.keys(array[0]) }

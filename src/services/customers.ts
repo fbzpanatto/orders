@@ -1,5 +1,5 @@
 import { ResultSetHeader, format } from 'mysql2';
-import { connectionPool, myDbConnection, query } from './db'
+import { myDbConnection } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
@@ -9,9 +9,14 @@ import { optionalFields } from '../schemas/optionalFields';
 import { formatDate } from '../utils/formatDate';
 
 export const getLegalCustomers = async (page = 1) => {
+
+  let connection = null;
+
   try {
 
-    const rows = await selectAllFrom(Tables.legal_persons, page)
+    connection = await myDbConnection()
+
+    const rows = await selectAllFrom(connection, Tables.legal_persons, page)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -20,8 +25,14 @@ export const getLegalCustomers = async (page = 1) => {
 }
 
 export const getNormalCustomers = async (page = 1) => {
+
+  let connection = null;
+
   try {
-    const rows = await selectAllFrom(Tables.normal_persons, page)
+
+    connection = await myDbConnection()
+
+    const rows = await selectAllFrom(connection, Tables.normal_persons, page)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -31,7 +42,12 @@ export const getNormalCustomers = async (page = 1) => {
 
 export const getNormalById = async (personId: number) => {
 
+  let connection = null;
+
   try {
+
+    connection = await myDbConnection()
+
     const person_id = 'person_id'
 
     const queryString = `
@@ -42,9 +58,9 @@ export const getNormalById = async (personId: number) => {
     WHERE p.${person_id}=?
   `;
 
-    const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
+    const [result,] = await connection.query(format(queryString, [personId])) as Array<{ [key: string]: any }>
 
-    const aggregatedResult = result.reduce((acc, curr) => {
+    const aggregatedResult = result.reduce((acc: any, curr: any) => {
       if (!acc.customer) {
         acc = {
           customer: {
@@ -73,14 +89,17 @@ export const getNormalById = async (personId: number) => {
     }, {});
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
-  } catch (error) {
-    console.log('error', error)
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const getLegalById = async (personId: number) => {
+
+  let connection = null;
+
   try {
+
+    connection = await myDbConnection()
+
     const person_id = 'person_id'
 
     const queryString = `
@@ -91,9 +110,9 @@ export const getLegalById = async (personId: number) => {
     WHERE p.${person_id}=?
   `;
 
-    const result = await query(format(queryString, [personId])) as Array<{ [key: string]: any }>
+    const [result,] = await connection.query(format(queryString, [personId])) as Array<{ [key: string]: any }>
 
-    const aggregatedResult = result.reduce((acc, curr) => {
+    const aggregatedResult = result.reduce((acc: any, curr: any) => {
       if (!acc.customer) {
         acc = {
           customer: {
@@ -127,14 +146,19 @@ export const getLegalById = async (personId: number) => {
 
 export const createNormalPerson = async (body: any) => {
 
+  let connection = null;
+
   const date = formatDate(new Date())
   body.customer.created_at = date
   body.address.created_at = date
 
   try {
+
+    connection = await myDbConnection()
+
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.normal_persons, { ...body.customer, person_id: personId }, [])
-    await insertInto(Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
+    const queryResult = await insertInto(connection, Tables.normal_persons, { ...body.customer, person_id: personId }, [])
+    await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
@@ -143,14 +167,19 @@ export const createNormalPerson = async (body: any) => {
 
 export const createLegalPerson = async (body: any) => {
 
+  let connection = null;
+
   const date = formatDate(new Date())
   body.customer.created_at = date
   body.address.created_at = date
 
   try {
+
+    connection = await myDbConnection()
+
     const personId = await createPerson(body)
-    const queryResult = await insertInto(Tables.legal_persons, { ...body.customer, person_id: personId }, [])
-    await insertInto(Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
+    const queryResult = await insertInto(connection, Tables.legal_persons, { ...body.customer, person_id: personId }, [])
+    await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
     await createContacts(personId, body)
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
@@ -166,11 +195,13 @@ export const updateLegalPerson = async (personId: number, body: any) => {
     connection = await myDbConnection()
     await connection.beginTransaction()
 
-    await Promise.all([
+    const [qPerson, qAddress, qContact] = await Promise.all([
       updateTableSetWhere(connection, Tables.legal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       contactsDuplicateKeyUpdate(connection, Tables.person_phones, body.contacts, personId)
     ])
+
+    console.log(qPerson?.affectedRows, qAddress?.affectedRows, qContact?.affectedRows)
 
     await connection.commit()
 
@@ -180,7 +211,7 @@ export const updateLegalPerson = async (personId: number, body: any) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }
 
 export const updateNormalPerson = async (personId: number, body: any) => {
@@ -206,10 +237,14 @@ export const updateNormalPerson = async (personId: number, body: any) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }
 
 const createPerson = async (body: any) => {
+
+  let connection = null;
+
+  connection = await myDbConnection()
 
   // const sql =
   //   `
@@ -233,18 +268,22 @@ const createPerson = async (body: any) => {
   VALUES (?)
 `
 
-  const { insertId: personId } = await query(sql, [
+  const { insertId: personId } = await connection.query(sql, [
     body.customer.created_at,
-  ]) as ResultSetHeader;
+  ]) as unknown as ResultSetHeader;
 
   return personId;
 }
 
 const createContacts = async (personId: number, body: Person) => {
+
+  let connection = null;
+  connection = await myDbConnection()
+
   if (body.contacts && body.contacts.length) {
     for (let item of body.contacts) {
       if (personId && item.contact && item.phone_number) {
-        await insertInto(Tables.person_phones, contact(personId, item, true), [])
+        await insertInto(connection, Tables.person_phones, contact(personId, item, true), [])
       }
     }
   }

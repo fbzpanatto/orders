@@ -7,8 +7,13 @@ import { emptyOrRows } from '../helper';
 import { myDbConnection } from './db';
 
 export const getSegments = async (page: number) => {
+
+  let connection = null;
+
   try {
-    const rows = await selectAllFrom<Segments>(Tables.segments, page)
+
+    connection = await myDbConnection()
+    const rows = await selectAllFrom<Segments>(connection, Tables.segments, page)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -17,15 +22,24 @@ export const getSegments = async (page: number) => {
 }
 
 export const getSegment = async (segmentId: number) => {
+
+  let connection = null;
+
   try {
-    const result = await selectAllFromWhere(Tables.segments, 'id', segmentId) as Array<Segments>
+
+    connection = await myDbConnection()
+    const result = await selectAllFromWhere(connection, Tables.segments, 'id', segmentId) as Array<Segments>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createSegment = async (body: Segments) => {
+  let connection = null;
+
   try {
-    const queryResult = await insertInto(Tables.segments, body, [])
+
+    connection = await myDbConnection()
+    const queryResult = await insertInto(connection, Tables.segments, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
@@ -33,7 +47,7 @@ export const createSegment = async (body: Segments) => {
 export const updateSegment = async (id: number, req: Request) => {
 
   let connection = null;
-  
+
   try {
 
     connection = await myDbConnection()
@@ -47,5 +61,5 @@ export const updateSegment = async (id: number, req: Request) => {
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  } finally { if (connection) connection.release() }
+  }
 }
