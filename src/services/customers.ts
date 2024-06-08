@@ -21,7 +21,9 @@ export const getLegalCustomers = async (page = 1) => {
     const meta = { page };
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
-  } catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
+  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
+  finally { if (connection) { connection.release() } }
 }
 
 export const getNormalCustomers = async (page = 1) => {
@@ -37,7 +39,9 @@ export const getNormalCustomers = async (page = 1) => {
     const meta = { page };
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
-  } catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
+  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
+  finally { if (connection) { connection.release() } }
 }
 
 export const getNormalById = async (personId: number) => {
@@ -89,7 +93,9 @@ export const getNormalById = async (personId: number) => {
     }, {});
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  finally { if (connection) { connection.release() } }
 }
 
 export const getLegalById = async (personId: number) => {
@@ -141,7 +147,9 @@ export const getLegalById = async (personId: number) => {
     }, {});
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  finally { if (connection) { connection.release() } }
 }
 
 export const createNormalPerson = async (body: any) => {
@@ -165,10 +173,12 @@ export const createNormalPerson = async (body: any) => {
     await connection.commit()
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
-  } catch (error) {
+  }
+  catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
+  finally { if (connection) { connection.release() } }
 }
 
 export const createLegalPerson = async (body: any) => {
@@ -192,10 +202,12 @@ export const createLegalPerson = async (body: any) => {
     await connection.commit()
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
-  } catch (error) {
+  }
+  catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
+  finally { if (connection) { connection.release() } }
 }
 
 export const updateLegalPerson = async (personId: number, body: any) => {
@@ -216,10 +228,12 @@ export const updateLegalPerson = async (personId: number, body: any) => {
     await connection.commit()
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
-  } catch (error) {
+  }
+  catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
+  finally { if (connection) { connection.release() } }
 }
 
 export const updateNormalPerson = async (personId: number, body: any) => {
@@ -240,10 +254,12 @@ export const updateNormalPerson = async (personId: number, body: any) => {
     await connection.commit()
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
-  } catch (error) {
+  }
+  catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
+  finally { if (connection) { connection.release() } }
 }
 
 const createPerson = async (body: any) => {
