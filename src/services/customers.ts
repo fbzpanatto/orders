@@ -195,19 +195,15 @@ export const updateLegalPerson = async (personId: number, body: any) => {
     connection = await myDbConnection()
     await connection.beginTransaction()
 
-    const [qPerson, qAddress, qContact] = await Promise.all([
+    await Promise.all([
       updateTableSetWhere(connection, Tables.legal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       contactsDuplicateKeyUpdate(connection, Tables.person_phones, body.contacts, personId)
     ])
 
-    console.log(qPerson?.affectedRows, qAddress?.affectedRows, qContact?.affectedRows)
-
     await connection.commit()
 
-    const affectedRows = 1
-
-    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows });
+    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
   } catch (error) {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
