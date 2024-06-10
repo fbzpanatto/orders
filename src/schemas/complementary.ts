@@ -1,20 +1,20 @@
-export const optionalFields = {
-  observation: {
+export const person = {
+  'person.observation': {
+    optional: true,
+    isLength: { options: { min: 3, max: 45 } },
+    escape: true
+  },
+  'person.first_field': {
     optional: true,
     isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
-  first_field: {
+  'person.second_field': {
     optional: true,
     isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
-  second_field: {
-    optional: true,
-    isLength: { options: { min: 3, max: 100 } },
-    escape: true
-  },
-  third_field: {
+  'person.third_field': {
     optional: true,
     isLength: { options: { min: 3, max: 100 } },
     escape: true

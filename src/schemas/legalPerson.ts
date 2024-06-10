@@ -1,4 +1,5 @@
 import { Schema } from 'express-validator'
+import { person } from './complementary'
 import { addressesPOST, addressesPATCH } from "./addresses"
 
 const legalCustomerPOST: Schema = {
@@ -56,15 +57,19 @@ const legalCustomerPATCH: Schema = {
 export const legalPOST: Schema = {
   customer: { exists: true },
   address: { exists: true },
+  person: { optional: true },
   contacts: { optional: true },
   ...legalCustomerPOST,
-  ...addressesPOST
+  ...addressesPOST,
+  ...person
 }
 
 export const legalPATCH: Schema = {
   customer: { optional: true },
-  contacts: { optional: true },
   address: { optional: true },
+  person: { optional: true },
+  contacts: { optional: true },
   ...legalCustomerPATCH,
-  ...addressesPATCH
+  ...addressesPATCH,
+  ...person
 }

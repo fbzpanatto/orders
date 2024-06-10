@@ -5,8 +5,8 @@ import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
 import { Tables } from '../enums/tables'
 import { contactsDuplicateKeyUpdate, insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
-import { optionalFields } from '../schemas/optionalFields';
 import { formatDate } from '../utils/formatDate';
+import { PoolConnection } from 'mysql2/promise';
 
 export const getLegalCustomers = async (page = 1) => {
 
@@ -55,10 +55,11 @@ export const getNormalById = async (personId: number) => {
     const person_id = 'person_id'
 
     const queryString = `
-    SELECT p.*, a.id AS add_id, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact
+    SELECT p.*, a.id AS add_id, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field
     FROM ${Tables.normal_persons} AS p
     LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
     LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
+    LEFT JOIN ${Tables.persons} AS per ON p.${person_id} = per.id
     WHERE p.${person_id}=?
   `;
 
@@ -82,6 +83,13 @@ export const getNormalById = async (personId: number) => {
             add_zipcode: curr.add_zipcode,
             add_city: curr.add_city,
             add_neighborhood: curr.add_neighborhood,
+          },
+          person: {
+            id: curr.id,
+            observation: curr.observation,
+            first_field: curr.first_field,
+            second_field: curr.second_field,
+            third_field: curr.third_field
           },
           contacts: []
         };
@@ -109,10 +117,11 @@ export const getLegalById = async (personId: number) => {
     const person_id = 'person_id'
 
     const queryString = `
-    SELECT p.*, a.id AS add_id, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact
+    SELECT p.*, a.id AS add_id, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field
     FROM ${Tables.legal_persons} AS p
     LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
     LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
+    LEFT JOIN ${Tables.persons} AS per ON p.${person_id} = per.id
     WHERE p.${person_id}=?
   `;
 
@@ -136,6 +145,13 @@ export const getLegalById = async (personId: number) => {
             add_zipcode: curr.add_zipcode,
             add_city: curr.add_city,
             add_neighborhood: curr.add_neighborhood,
+          },
+          person: {
+            id: curr.id,
+            observation: curr.observation,
+            first_field: curr.first_field,
+            second_field: curr.second_field,
+            third_field: curr.third_field
           },
           contacts: []
         };
@@ -165,10 +181,10 @@ export const createNormalPerson = async (body: any) => {
     connection = await myDbConnection()
     await connection.beginTransaction()
 
-    const personId = await createPerson(body)
+    const personId = await createPerson(connection, body, date)
     await insertInto(connection, Tables.normal_persons, { ...body.customer, person_id: personId }, [])
     await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
-    await createContacts(personId, body)
+    await createContacts(connection, personId, body)
 
     await connection.commit()
 
@@ -176,6 +192,9 @@ export const createNormalPerson = async (body: any) => {
   }
   catch (error) {
     if (connection) await connection.rollback()
+
+    console.log('error', error)
+
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
   finally { if (connection) { connection.release() } }
@@ -194,10 +213,10 @@ export const createLegalPerson = async (body: any) => {
     connection = await myDbConnection()
     await connection.beginTransaction()
 
-    const personId = await createPerson(body)
+    const personId = await createPerson(connection, body, date)
     await insertInto(connection, Tables.legal_persons, { ...body.customer, person_id: personId }, [])
     await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
-    await createContacts(personId, body)
+    await createContacts(connection, personId, body)
 
     await connection.commit()
 
@@ -222,6 +241,7 @@ export const updateLegalPerson = async (personId: number, body: any) => {
     await Promise.all([
       updateTableSetWhere(connection, Tables.legal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
+      updateTableSetWhere(connection, Tables.persons, 'id', personId, body.person, []),
       contactsDuplicateKeyUpdate(connection, Tables.person_phones, body.contacts, personId)
     ])
 
@@ -248,6 +268,7 @@ export const updateNormalPerson = async (personId: number, body: any) => {
     await Promise.all([
       updateTableSetWhere(connection, Tables.normal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
+      updateTableSetWhere(connection, Tables.persons, 'id', personId, body.person, []),
       contactsDuplicateKeyUpdate(connection, Tables.person_phones, body.contacts, personId)
     ])
 
@@ -262,41 +283,26 @@ export const updateNormalPerson = async (personId: number, body: any) => {
   finally { if (connection) { connection.release() } }
 }
 
-const createPerson = async (body: any) => {
+const createPerson = async (connection: PoolConnection, body: Person, created_at: string) => {
 
-  let connection = null;
+  body.person.created_at = created_at
 
-  connection = await myDbConnection()
+  const sql =
+    `
+    INSERT INTO persons (created_at, observation, first_field, second_field, third_field)
+    VALUES (?, ?, ?, ?, ?)
+  `
 
-  // const sql =
-  //   `
-  //   INSERT INTO persons (created_at, observation, first_field, second_field, third_field)
-  //   VALUES (?, ?, ?, ?, ?)
-  // `
+  const values = [body.person.created_at, body.person.observation, body.person.first_field, body.person.second_field, body.person.third_field]
 
-  // const { insertId: personId } = await query(sql, [
-  //   formatDate(new Date()),
-  //   body.observation,
-  //   body.first_field,
-  //   body.second_field,
-  //   body.third_field
-  // ]) as ResultSetHeader;
-
-  // return personId;
-
-  const sql = `INSERT INTO persons (created_at) VALUES (?)`
-
-  const [result,] = await connection.query(sql, [body.customer.created_at])
+  const [result,] = await connection.query(sql, values)
 
   const { insertId: personId } = result as ResultSetHeader
 
   return personId;
 }
 
-const createContacts = async (personId: number, body: Person) => {
-
-  let connection = null;
-  connection = await myDbConnection()
+const createContacts = async (connection: PoolConnection, personId: number, body: Person) => {
 
   if (body.contacts && body.contacts.length) {
     for (let item of body.contacts) {
