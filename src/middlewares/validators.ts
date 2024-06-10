@@ -15,6 +15,7 @@ import { ordersProductStatusPOST, ordersProductStatusPATCH } from '../schemas/or
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
+export const validateContactId = check('contactId').not().isEmpty().isNumeric()
 
 // Legal
 export const validatePostLegal = checkSchema(legalPOST);

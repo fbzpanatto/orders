@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { createNormalPerson, createLegalPerson, updateLegalPerson, updateNormalPerson, getNormalCustomers, getLegalCustomers, getLegalById, getNormalById } from '../services/customers'
-import { validateId, validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal, bodyValidationNormal, bodyValidationLegal } from '../middlewares/validators'
+import { createNormalPerson, createLegalPerson, updateLegalPerson, updateNormalPerson, getNormalCustomers, getLegalCustomers, getLegalById, getNormalById, deleteNormalPersonContact, deleteLegalPersonContact } from '../services/customers'
+import { validateId, validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal, bodyValidationNormal, bodyValidationLegal, validatePersonId, validateContactId } from '../middlewares/validators'
 import { legalExistsByDoc, normalExistsByDoc, legalExistsById, normalExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'
 
@@ -43,6 +43,16 @@ router.patch('/legal/:id', validateId, validatePatchLegal, bodyValidationLegal, 
 
 router.patch('/normal/:id', validateId, validatePatchNormal, bodyValidationNormal, normalExistsById, async (req: Request, res: Response, next: NextFunction) => {
   const result = await updateNormalPerson(parseInt(req.params.id), req.body as Person)
+  return res.status(result.status).json(result)
+})
+
+router.delete('/normal/:personId/contact/:contactId', validatePersonId, validateContactId, async (req: Request, res: Response, next: NextFunction) => {
+  const result = await deleteNormalPersonContact(parseInt(req.params.personId), parseInt(req.params.contactId))
+  return res.status(result.status).json(result)
+})
+
+router.delete('/legal/:personId/contact/:contactId', validatePersonId, validateContactId, async (req: Request, res: Response, next: NextFunction) => {
+  const result = await deleteLegalPersonContact(parseInt(req.params.personId), parseInt(req.params.contactId))
   return res.status(result.status).json(result)
 })
 

@@ -59,6 +59,18 @@ export const updateTableSetWhere = async (connection: PoolConnection, table: str
   return result as ResultSetHeader
 };
 
+export const deleteFromWhere = async (connection: PoolConnection, table: string, whereObject: { column: string, value: number | string }[]) => {
+
+  const whereClause = whereObject.map(({ column, value }) => `${column} = ?`).join(' AND ');
+  const values = whereObject.map(({ value }) => value);
+
+  const queryString = `DELETE FROM ${table} WHERE ${whereClause}`;
+
+  const [result,] = await connection.query(format(queryString, values));
+
+  return result as ResultSetHeader
+}
+
 export const contactsDuplicateKeyUpdate = async (connection: PoolConnection, table: string, arrayOfObjects: any[] | undefined, personId: number) => {
 
   if (!arrayOfObjects?.length || arrayOfObjects === undefined) { return }

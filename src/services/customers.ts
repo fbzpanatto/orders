@@ -4,9 +4,10 @@ import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
 import { Tables } from '../enums/tables'
-import { contactsDuplicateKeyUpdate, insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
+import { contactsDuplicateKeyUpdate, deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { formatDate } from '../utils/formatDate';
 import { PoolConnection } from 'mysql2/promise';
+import { person } from '../schemas/complementary';
 
 export const getLegalCustomers = async (page = 1) => {
 
@@ -280,6 +281,40 @@ export const updateNormalPerson = async (personId: number, body: any) => {
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
+  finally { if (connection) { connection.release() } }
+}
+
+export const deleteNormalPersonContact = async (personId: number, contactId: number) => {
+
+  let connection = null;
+
+  try {
+    
+    connection = await myDbConnection()
+
+    deleteFromWhere(connection, Tables.person_phones, [{ column: 'id', value: contactId }, { column: 'person_id', value: personId }])
+
+    return objectResponse(200, '')
+
+  }
+  catch { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  finally { if (connection) { connection.release() } }
+}
+
+export const deleteLegalPersonContact = async (personId: number, contactId: number) => {
+
+  let connection = null;
+
+  try {
+
+    console.log(personId, contactId)
+
+    connection = await myDbConnection()
+
+    return objectResponse(200, '')
+
+  }
+  catch { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (connection) { connection.release() } }
 }
 
