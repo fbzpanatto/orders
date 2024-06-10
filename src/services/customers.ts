@@ -7,7 +7,6 @@ import { Tables } from '../enums/tables'
 import { contactsDuplicateKeyUpdate, deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { formatDate } from '../utils/formatDate';
 import { PoolConnection } from 'mysql2/promise';
-import { person } from '../schemas/complementary';
 
 export const getLegalCustomers = async (page = 1) => {
 
@@ -289,12 +288,12 @@ export const deleteNormalPersonContact = async (personId: number, contactId: num
   let connection = null;
 
   try {
-    
+
     connection = await myDbConnection()
 
-    deleteFromWhere(connection, Tables.person_phones, [{ column: 'id', value: contactId }, { column: 'person_id', value: personId }])
+    const result = await deleteFromWhere(connection, Tables.person_phones, [{ column: 'id', value: contactId }, { column: 'person_id', value: personId }])
 
-    return objectResponse(200, '')
+    return objectResponse(200, 'Registro Deletado com sucesso', { affectedRows: result.affectedRows })
 
   }
   catch { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
