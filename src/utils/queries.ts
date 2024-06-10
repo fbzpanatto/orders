@@ -44,6 +44,8 @@ export const updateTableSetWhere = async (connection: PoolConnection, table: str
 
   if (body === undefined) { return }
 
+  body.updated_at = formatDate(new Date())
+
   const columns = Object.entries(body)
     .filter(([key]) => !fieldsToIgnore.includes(key))
     .map(([key, value]) => ({ key, value }));
