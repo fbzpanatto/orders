@@ -4,18 +4,24 @@ import { unexpectedFieldsFn, invalidValues } from '../utils/bodyValidations'
 
 import { legalPATCH, legalPOST } from '../schemas/legalPerson'
 import { normalPATCH, normalPOST } from '../schemas/normalPerson'
-import { addressesPATCH, addressesPOST } from '../schemas/addresses'
-import { phonesPATCH, phonesPOST } from '../schemas/phones'
 import { segmentsPATCH, segmentsPOST } from '../schemas/segments'
 import { personSegmentsPATCH, personSegmentsPOST } from '../schemas/personSegments'
 import { statusPATCH, statusPOST } from '../schemas/status'
 import { productsPOST, productsPATCH } from '../schemas/products'
 import { ordersPOST, ordersPATCH } from '../schemas/orders'
 import { ordersProductStatusPOST, ordersProductStatusPATCH } from '../schemas/orderProductStatus'
+import { companyPATCH, companyPOST } from '../schemas/company'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
 export const validateContactId = check('contactId').not().isEmpty().isNumeric()
+
+// Company
+export const validatePostCompany = checkSchema(companyPOST);
+export const validatePatchCompany = checkSchema(companyPATCH);
+export const bodyValidationCompany = (req: Request, res: Response, next: NextFunction) => {
+  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, companyPOST)
+};
 
 // Legal
 export const validatePostLegal = checkSchema(legalPOST);
@@ -31,25 +37,11 @@ export const bodyValidationNormal = (req: Request, res: Response, next: NextFunc
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, normalPOST)
 };
 
-// Address
-export const validatePostAddresses = checkSchema(addressesPOST)
-export const validatePatchAddresses = checkSchema(addressesPATCH)
-export const bodyValidationAddress = (req: Request, res: Response, next: NextFunction) => {
-  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, addressesPOST)
-};
-
 // Segments
 export const validatePostPersonSegments = checkSchema(personSegmentsPOST)
 export const validatePatchPersonSegments = checkSchema(personSegmentsPATCH)
 export const bodyValidationPersonSegments = (req: Request, res: Response, next: NextFunction) => {
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, personSegmentsPOST)
-};
-
-// Phone
-export const validatePostPhones = checkSchema(phonesPOST)
-export const validatePatchPhones = checkSchema(phonesPATCH)
-export const bodyValidationPhone = (req: Request, res: Response, next: NextFunction) => {
-  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, phonesPOST)
 };
 
 // Segments
