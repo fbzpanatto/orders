@@ -5,8 +5,6 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 
 import customersRouter from './routes/customers';
-import addressesRouter from './routes/addresses';
-import phonesRouter from './routes/phones'
 import segmentsRouter from './routes/segments'
 import personSegmentsRouter from './routes/personSegments'
 import statusRouter from './routes/status'
@@ -28,13 +26,11 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello World") })
 
-app.use('/phones', phonesRouter)
 app.use('/status', statusRouter)
 app.use('/orders', ordersRouter)
 app.use('/persons', customersRouter)
 app.use('/segments', segmentsRouter)
 app.use('/products', productsRouter)
-app.use('/addresses', addressesRouter)
 app.use('/person-segments', personSegmentsRouter)
 app.use('/order-products-status', orderProductsStatus)
 

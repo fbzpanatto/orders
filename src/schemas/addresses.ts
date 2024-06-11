@@ -19,6 +19,11 @@ export const addressesPOST = {
     isLength: { options: { min: 3, max: 60 } },
     escape: true
   },
+  'address.add_uf': {
+    exists: true,
+    isLength: { options: { min: 2, max: 2 } },
+    escape: true
+  },
   'address.add_neighborhood': {
     exists: true,
     isLength: { options: { min: 3, max: 60 } },
@@ -45,6 +50,11 @@ export const addressesPATCH = {
   'address.add_city': {
     optional: true,
     isLength: { options: { min: 3, max: 60 } },
+    escape: true
+  },
+  'address.add_uf': {
+    optional: true,
+    isLength: { options: { min: 2, max: 2 } },
     escape: true
   },
   'address.add_neighborhood': {
