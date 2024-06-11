@@ -1,10 +1,14 @@
 export interface Company {
-  id?: number,
-  cnpj?: string,
-  state_registration?: string,
-  corporate_name?: string,
-  social_name?: string,
-  active?: boolean | number,
+  company?: {
+    id?: number,
+    cnpj?: string,
+    state_registration?: string,
+    corporate_name?: string,
+    social_name?: string,
+    active?: boolean | number,
+    created_at?: string,
+    updated_at?: string
+  },
   address?: {
     company_id?: number,
     add_street?: string
@@ -13,7 +17,7 @@ export interface Company {
     add_city?: string,
     add_uf?: string,
     add_neighborhood?: string,
-  },
-  created_at?: string,
-  updated_at?: string
+    created_at?: string,
+    updated_at?: string
+  }
 }

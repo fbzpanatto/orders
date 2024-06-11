@@ -8,6 +8,8 @@ export enum Tables {
   person_segments = 'person_segments',
   status = 'status',
   products = 'products',
+  companies = 'companies',
+  company_address = 'company_address',
   orders = 'orders',
   order_products_status = 'order_products_status'
 }

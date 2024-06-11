@@ -192,9 +192,6 @@ export const createNormalPerson = async (body: any) => {
   }
   catch (error) {
     if (connection) await connection.rollback()
-
-    console.log('error', error)
-
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
   finally { if (connection) { connection.release() } }
