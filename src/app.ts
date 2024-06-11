@@ -11,6 +11,7 @@ import statusRouter from './routes/status'
 import productsRouter from './routes/products'
 import ordersRouter from './routes/orders'
 import orderProductsStatus from './routes/orderProductsStatus'
+import companies from './routes/companies'
 
 const app = express()
 
@@ -28,6 +29,7 @@ app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello W
 
 app.use('/status', statusRouter)
 app.use('/orders', ordersRouter)
+app.use('/companies', companies)
 app.use('/persons', customersRouter)
 app.use('/segments', segmentsRouter)
 app.use('/products', productsRouter)
