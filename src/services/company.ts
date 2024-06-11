@@ -19,8 +19,6 @@ export const getCompanies = async (page: number) => {
     const data = emptyOrRows(rows);
     const meta = { page };
 
-    console.log('CHEGANDO AQUI...-----------------')
-
     return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
