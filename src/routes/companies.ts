@@ -21,7 +21,7 @@ router.post('/', validatePostCompany, bodyValidationCompany, async (req: Request
 })
 
 router.patch('/:id', validateId, validatePatchCompany, bodyValidationCompany, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await updateCompany(parseInt(req.params.id), req)
+  const result = await updateCompany(parseInt(req.params.id), req.body as Company)
   return res.status(result.status).json(result)
 })
 

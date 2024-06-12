@@ -4,7 +4,7 @@ import { Schema } from "express-validator"
 export const companyPOST: Schema = {
   company: { exists: true },
   address: { exists: true },
-  'company.id': {
+  'company.company_id': {
     optional: true
   },
   'company.cnpj': {
@@ -30,13 +30,16 @@ export const companyPOST: Schema = {
   'company.active': {
     optional: true
   },
+  'address.company_id': {
+    exists: true
+  },
   ...addressesPOST,
 }
 
 export const companyPATCH: Schema = {
   company: { optional: true },
   address: { optional: true },
-  'company.id': {
+  'company.company_id': {
     optional: true,
   },
   'company.cnpj': {
@@ -62,6 +65,9 @@ export const companyPATCH: Schema = {
   'company.active': {
     optional: true,
     isBoolean: true
+  },
+  'address.company_id': {
+    optional: true,
   },
   ...addressesPATCH,
 }

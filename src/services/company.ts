@@ -2,7 +2,6 @@ import { objectResponse } from '../utils/response';
 import { Company } from '../interfaces/company';
 import { updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
 import { Tables } from '../enums/tables';
-import { Request } from 'express';
 import { emptyOrRows } from '../helper';
 import { myDbConnection } from './db';
 import { PoolConnection } from 'mysql2/promise';
@@ -33,13 +32,14 @@ export const getCompanyById = async (companyId: number) => {
   try {
 
     connection = await myDbConnection()
+    const company_id = 'company_id'
 
     const queryString =
       `
     SELECT c.*, a.*
     FROM ${Tables.companies} AS c
-    LEFT JOIN ${Tables.company_address} AS a ON c.id = a.company_id
-    WHERE c.id=?
+    LEFT JOIN ${Tables.company_address} AS a ON c.${company_id} = a.${company_id}
+    WHERE c.${company_id}=?
     `
 
     const [result] = await connection.query(format(queryString, [companyId]))
@@ -47,7 +47,7 @@ export const getCompanyById = async (companyId: number) => {
 
     const formatedResult: Company = {
       company: {
-        id: castResult.id,
+        company_id: castResult.company_id,
         active: castResult.active,
         cnpj: castResult.cnpj,
         corporate_name: castResult.corporate_name,
@@ -94,7 +94,7 @@ export const createCompany = async (body: Company) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const updateCompany = async (id: number, req: Request) => {
+export const updateCompany = async (company_id: number, body: Company) => {
 
   let connection = null;
 
@@ -103,17 +103,21 @@ export const updateCompany = async (id: number, req: Request) => {
     connection = await myDbConnection()
     await connection.beginTransaction()
 
-    const queryResult = await updateTableSetWhere(connection, Tables.companies, 'id', id, req.body as Company, [])
+    await Promise.all([
+      await updateTableSetWhere(connection, Tables.companies, 'company_id', company_id, body.company, []),
+      await updateTableSetWhere(connection, Tables.company_address, 'company_id', company_id, body.address, []),
+    ])
 
     await connection.commit()
 
-    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult?.affectedRows });
+    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
   }
   catch (error) { return rollBackCatchBlock(error, connection) }
   finally { if (connection) { connection.release() } }
 }
 
 const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
+  console.log('rollBackCatchBlock', error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }

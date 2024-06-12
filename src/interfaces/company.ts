@@ -1,6 +1,6 @@
 export interface Company {
   company?: {
-    id?: number,
+    company_id?: number,
     cnpj?: string,
     state_registration?: string,
     corporate_name?: string,

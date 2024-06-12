@@ -191,6 +191,7 @@ export const createNormalPerson = async (body: any) => {
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
+    console.log('createNormalPerson', error)
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
