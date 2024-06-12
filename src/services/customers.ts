@@ -280,7 +280,7 @@ export const updateNormalPerson = async (personId: number, body: any) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const deleteNormalPersonContact = async (personId: number, contactId: number) => {
+export const deleteCustomerContact = async (personId: number, contactId: number) => {
 
   let connection = null;
 
@@ -291,23 +291,6 @@ export const deleteNormalPersonContact = async (personId: number, contactId: num
     const result = await deleteFromWhere(connection, Tables.person_phones, [{ column: 'id', value: contactId }, { column: 'person_id', value: personId }])
 
     return objectResponse(200, 'Registro Deletado com sucesso', { affectedRows: result.affectedRows })
-
-  }
-  catch { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
-  finally { if (connection) { connection.release() } }
-}
-
-export const deleteLegalPersonContact = async (personId: number, contactId: number) => {
-
-  let connection = null;
-
-  try {
-
-    console.log(personId, contactId)
-
-    connection = await myDbConnection()
-
-    return objectResponse(200, '')
 
   }
   catch { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
