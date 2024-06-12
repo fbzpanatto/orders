@@ -9,5 +9,7 @@ export const unexpectedFieldsFn = (req: Request, res: Response, next: NextFuncti
 
   const unexpectedFields = Object.keys(req.body).filter(key => !schema.hasOwnProperty(key));
 
+  console.log('unexpectedFields', unexpectedFields)
+
   return unexpectedFields.length ? res.status(400).json(objectResponse(400, 'Campo(s) inesperado(s) no corpo da requisição.')) : next()
 }

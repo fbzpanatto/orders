@@ -28,8 +28,7 @@ export const companyPOST: Schema = {
     escape: true
   },
   'company.active': {
-    exists: true,
-    isBoolean: true
+    optional: true
   },
   ...addressesPOST,
 }

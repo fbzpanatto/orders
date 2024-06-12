@@ -37,7 +37,7 @@ export const insertInto = async (connection: PoolConnection, table: string, body
 
   const values = Object.values(body).filter((_, index) => !fieldsToIgnore.includes(columns[index]));
 
-  return await connection.query(format(queryString, values)) as unknown as ResultSetHeader
+  return await connection.query(format(queryString, values)) as any
 };
 
 export const updateTableSetWhere = async (connection: PoolConnection, table: string, column: string, columnValue: number, body: any, fieldsToIgnore: string[]) => {

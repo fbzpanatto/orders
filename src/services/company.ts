@@ -5,7 +5,7 @@ import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
 import { myDbConnection } from './db';
-import { PoolConnection } from 'mysql2/promise';
+import { PoolConnection, ResultSetHeader } from 'mysql2/promise';
 
 export const getCompanies = async (page: number) => {
 
@@ -26,7 +26,7 @@ export const getCompanies = async (page: number) => {
 }
 
 export const getCompanyById = async (companyId: number) => {
-  
+
   let connection = null;
 
   try {
@@ -48,7 +48,12 @@ export const createCompany = async (body: Company) => {
     connection = await myDbConnection()
     await connection.beginTransaction()
 
-    const { insertId: companyId } = await insertInto(connection, Tables.companies, { ...body.company }, [])
+    const [queryResult] = await insertInto(connection, Tables.companies, { ...body.company }, [])
+
+    const companyId = (queryResult as ResultSetHeader).insertId
+
+    console.log('--------------- companyId', (queryResult as ResultSetHeader).insertId)
+
     await insertInto(connection, Tables.company_address, { ...body.address, company_id: companyId }, [])
 
     await connection.commit()
@@ -79,6 +84,7 @@ export const updateCompany = async (id: number, req: Request) => {
 }
 
 const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
+  console.log('------------- error', error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }
