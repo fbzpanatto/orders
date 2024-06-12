@@ -65,8 +65,6 @@ export const getCompanyById = async (companyId: number) => {
       }
     }
 
-    console.log('formatedResult', formatedResult)
-
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: formatedResult })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
