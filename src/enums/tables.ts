@@ -10,6 +10,7 @@ export enum Tables {
   person_segments = 'person_segments',
   persons = 'persons',
   products = 'products',
+  roles = 'roles',
   segments = 'segments',
   status = 'status'
 }

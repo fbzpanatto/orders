@@ -12,6 +12,7 @@ import productsRouter from './routes/products'
 import ordersRouter from './routes/orders'
 import orderProductsStatus from './routes/orderProductsStatus'
 import companies from './routes/companies'
+import roles from './routes/roles'
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello World") })
 
+app.use('/roles', roles)
 app.use('/status', statusRouter)
 app.use('/orders', ordersRouter)
 app.use('/companies', companies)
