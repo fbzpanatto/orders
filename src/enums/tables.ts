@@ -12,5 +12,6 @@ export enum Tables {
   products = 'products',
   roles = 'roles',
   segments = 'segments',
-  status = 'status'
+  status = 'status',
+  permissions = 'permissions'
 }

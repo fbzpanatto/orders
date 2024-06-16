@@ -11,9 +11,12 @@ import { productsPOST, productsPATCH } from '../schemas/products'
 import { ordersPOST, ordersPATCH } from '../schemas/orders'
 import { ordersProductStatusPOST, ordersProductStatusPATCH } from '../schemas/orderProductStatus'
 import { companyPATCH, companyPOST } from '../schemas/company'
+import { permissionPATCH, permissionsPOST } from '../schemas/permissions'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
+export const validatePermissionId = check('permissionId').not().isEmpty().isNumeric()
+export const validateRoleId = check('roleId').not().isEmpty().isNumeric()
 export const validateContactId = check('contactId').not().isEmpty().isNumeric()
 
 // Company
@@ -22,6 +25,14 @@ export const validatePatchCompany = checkSchema(companyPATCH);
 export const bodyValidationCompany = (req: Request, res: Response, next: NextFunction) => {
   console.log('validationResult(req)', validationResult(req))
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, companyPOST)
+};
+
+// Permission
+export const validatePostPermission = checkSchema(permissionsPOST);
+export const validatePatchPermissions = checkSchema(permissionPATCH);
+export const bodyValidationPermissions = (req: Request, res: Response, next: NextFunction) => {
+  console.log('validationResult(req)', validationResult(req))
+  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, permissionsPOST)
 };
 
 // Legal
