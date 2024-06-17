@@ -31,7 +31,7 @@ export const companyPOST: Schema = {
     optional: true
   },
   'address.company_id': {
-    exists: true
+    optional: true,
   },
   ...addressesPOST,
 }

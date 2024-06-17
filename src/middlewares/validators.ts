@@ -23,6 +23,7 @@ export const validateContactId = check('contactId').not().isEmpty().isNumeric()
 export const validatePostCompany = checkSchema(companyPOST);
 export const validatePatchCompany = checkSchema(companyPATCH);
 export const bodyValidationCompany = (req: Request, res: Response, next: NextFunction) => {
+  console.log('validationResult(req)', validationResult(req))
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, companyPOST)
 };
 
