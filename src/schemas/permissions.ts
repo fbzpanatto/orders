@@ -2,42 +2,42 @@ import { Schema } from "express-validator";
 
 const base: Schema = {
   role: { exists: true },
-  customers: { optional: true },
-  companies: { optional: true },
-  orders: { optional: true },
-  permissions: { optional: true },
-  products: { optional: true },
-  segments: { optional: true },
-  production_status: { optional: true },
-  users: { optional: true },
+  customers: { exists: true },
+  companies: { exists: true },
+  orders: { exists: true },
+  permissions: { exists: true },
+  products: { exists: true },
+  segments: { exists: true },
+  production_status: { exists: true },
+  users: { exists: true },
   'role.role_id': {
-    optional: true
+    exists: true
   },
   'role.role_name': {
-    optional: true,
+    exists: true,
     isLength: { options: { min: 3, max: 30 } },
     escape: true
   },
   'customers.permission_id': {
-    optional: true
+    exists: true,
   },
   'customers.role_id': {
-    optional: true
+    exists: true,
   },
   'customers.canCreate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'customers.canRead': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'customers.canUpdate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
@@ -49,19 +49,19 @@ const base: Schema = {
     optional: true
   },
   'companies.canCreate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'companies.canRead': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'companies.canUpdate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
@@ -73,19 +73,19 @@ const base: Schema = {
     optional: true
   },
   'orders.canCreate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'orders.canRead': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'orders.canUpdate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
@@ -97,19 +97,19 @@ const base: Schema = {
     optional: true
   },
   'permissions.canCreate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'permissions.canRead': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'permissions.canUpdate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
@@ -121,19 +121,19 @@ const base: Schema = {
     optional: true
   },
   'products.canCreate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'products.canRead': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'products.canUpdate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
@@ -145,19 +145,19 @@ const base: Schema = {
     optional: true
   },
   'segments.canCreate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'segments.canRead': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'segments.canUpdate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
@@ -169,19 +169,19 @@ const base: Schema = {
     optional: true
   },
   'production_status.canCreate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'production_status.canRead': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'production_status.canUpdate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
@@ -193,19 +193,19 @@ const base: Schema = {
     optional: true
   },
   'users.canCreate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'users.canRead': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   'users.canUpdate': {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true

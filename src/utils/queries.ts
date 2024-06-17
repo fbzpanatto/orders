@@ -76,9 +76,6 @@ export const duplicateKeyUpdate = async (conn: PoolConnection, table: string, ar
   if (!arr?.length || arr === undefined) { return }
 
   const mappedArr = arr.map((el: any) => { return { ...el, [key]: value } })
-
-  console.log('mappedArr', mappedArr)
-
   const columns = extractKeysFromFirstObject(mappedArr);
   const placeholders = columns.map(() => '?').join(', ');
   const updateClause = columns.map(column => `${column} = VALUES(${column})`).join(', ');
@@ -91,8 +88,6 @@ export const duplicateKeyUpdate = async (conn: PoolConnection, table: string, ar
   VALUES ${mappedArr.map(() => `(${placeholders})`).join(', ')}
   ON DUPLICATE KEY UPDATE ${update};
 `;
-
-  console.log('queryString', queryString)
 
   const [result,] = await conn.query(format(queryString, values))
 

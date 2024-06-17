@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, selectAllFrom, duplicateKeyUpdate } from '../utils/queries';
+import { insertInto, selectAllFrom, duplicateKeyUpdate, updateTableSetWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -98,7 +98,11 @@ export const updatePermission = async (roleId: number, body: Permission) => {
     conn = await dbConn()
     await conn.beginTransaction()
 
-    await duplicateKeyUpdate(conn, Tables.permissions, permissions(body), ROLE_ID, roleId)
+    await Promise.all([
+      await updateTableSetWhere(conn, Tables.roles, ROLE_ID, roleId, body.role, []),
+      await duplicateKeyUpdate(conn, Tables.permissions, permissions(body), ROLE_ID, roleId)
+    ])
+
     await conn.commit()
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 2 });
