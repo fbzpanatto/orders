@@ -7,10 +7,11 @@ import { dbConn } from './db';
 import { PoolConnection, format } from 'mysql2/promise';
 import { ResultSetHeader } from 'mysql2';
 import { Permission } from '../interfaces/permission';
-import { RESOURCES } from './../enums/resources';
+import { RESOURCES_ID_TO_NAME, RESOURCES_NAME_TO_ID } from './../enums/resources';
 
 const ROLE_ID = 'role_id'
 const COMPANY_ID = 'company_id'
+interface RolePermissions { role_id: number, role_name: string, created_at: string, updated_at: string, permission_id: number, table_id: number, canCreate: number, canRead: number, canUpdate: number, canDelete: number }
 
 export const getRoles = async (page: number) => {
 
@@ -32,8 +33,6 @@ export const getRoles = async (page: number) => {
 
 export const getPermissionByRole = async (roleId: number) => {
 
-  console.log('roleId', roleId)
-
   let connection = null;
 
   try {
@@ -48,15 +47,26 @@ export const getPermissionByRole = async (roleId: number) => {
     `
 
     const [result] = await connection.query(format(queryString, [roleId]))
-    const queryResult = (result as Array<{ role_id: number, role_name: string, created_at: string, updated_at: string, permission_id: number, table_id: number, canCreate: number, canRead: number, canUpdate: number, canDelete: number }>)
-    console.log(queryResult)
+    const queryResult = (result as Array<RolePermissions>)
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: {} })
+    const data = queryResult.reduce((acc: any, curr: RolePermissions) => {
+      if (!acc.role) { acc = { role: { role_id: curr.role_id, role_name: curr.role_name } } }
+      const resource = RESOURCES_ID_TO_NAME[curr.table_id as keyof typeof RESOURCES_ID_TO_NAME]
+      if (!acc[resource]) {
+        acc[resource] = {
+          permission_id: curr.permission_id,
+          role_id: curr.role_id,
+          canCreate: curr.canCreate,
+          canRead: curr.canRead,
+          canUpdate: curr.canUpdate
+        }
+      }
+      return acc;
+    }, {})
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   }
-  catch (error) {
-    console.log('error', error)
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (connection) { connection.release() } }
 }
 
@@ -68,7 +78,7 @@ export const createPermission = async (body: Permission) => {
 
     const permissions = Object.keys(body)
       .filter(key => key != 'role')
-      .map(key => { return { ...body[key as keyof Permission], table_id: RESOURCES[key as keyof typeof RESOURCES] } })
+      .map(key => { return { ...body[key as keyof Permission], table_id: RESOURCES_NAME_TO_ID[key as keyof typeof RESOURCES_NAME_TO_ID] } })
 
     conn = await dbConn()
     await conn.beginTransaction()
@@ -85,26 +95,29 @@ export const createPermission = async (body: Permission) => {
   finally { if (conn) { conn.release() } }
 }
 
-export const updatePermission = async (company_id: number, body: Company) => {
+export const updatePermission = async (roleId: number, body: Permission) => {
 
-  let connection = null;
+  let conn = null;
 
   try {
 
-    connection = await dbConn()
-    await connection.beginTransaction()
+    const permissions = Object.keys(body)
+      .filter(key => key != 'role')
+      .map(key => { return { ...body[key as keyof Permission], table_id: RESOURCES_NAME_TO_ID[key as keyof typeof RESOURCES_NAME_TO_ID] } })
 
-    await Promise.all([
-      await updateTableSetWhere(connection, Tables.companies, COMPANY_ID, company_id, body.company, []),
-      await updateTableSetWhere(connection, Tables.company_address, 'company_id', company_id, body.address, []),
-    ])
+    conn = await dbConn()
+    await conn.beginTransaction()
 
-    await connection.commit()
+    const [queryResult] = await insertInto(conn, Tables.roles, { ...body.role }, [])
 
-    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
+    const roleId = (queryResult as ResultSetHeader).insertId
+    await duplicateKeyUpdate(conn, Tables.permissions, permissions, ROLE_ID, roleId)
+    await conn.commit()
+
+    return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 2 });
   }
-  catch (error) { return rollback(error, connection) }
-  finally { if (connection) { connection.release() } }
+  catch (error) { return rollback(error, conn) }
+  finally { if (conn) { conn.release() } }
 }
 
 const rollback = async (error: any, connection: PoolConnection | null) => {
