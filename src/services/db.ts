@@ -21,4 +21,4 @@ export const connectionPool = mysql.createPool({
   dateStrings: true
 });
 
-export async function myDbConnection() { return await connectionPool.getConnection() }
+export async function dbConn() { return await connectionPool.getConnection() }

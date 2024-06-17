@@ -4,7 +4,7 @@ import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } fr
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
-import { myDbConnection } from './db';
+import { dbConn } from './db';
 
 export const getSegments = async (page: number) => {
 
@@ -12,7 +12,7 @@ export const getSegments = async (page: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const rows = await selectAllFrom<Segments>(connection, Tables.segments, page)
     const data = emptyOrRows(rows);
     const meta = { page };
@@ -27,7 +27,7 @@ export const getSegment = async (segmentId: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const result = await selectAllFromWhere(connection, Tables.segments, 'id', segmentId) as Array<Segments>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -38,7 +38,7 @@ export const createSegment = async (body: Segments) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const queryResult = await insertInto(connection, Tables.segments, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -50,7 +50,7 @@ export const updateSegment = async (id: number, req: Request) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     const queryResult = await updateTableSetWhere(connection, Tables.segments, 'id', id, req.body as Segments, [])

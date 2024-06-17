@@ -71,32 +71,30 @@ export const deleteFromWhere = async (connection: PoolConnection, table: string,
   return result as ResultSetHeader
 }
 
-export const contactsDuplicateKeyUpdate = async (connection: PoolConnection, table: string, arrayOfObjects: any[] | undefined, personId: number) => {
+export const duplicateKeyUpdate = async (conn: PoolConnection, table: string, arr: any[] | undefined, key: string, value: number) => {
 
-  if (!arrayOfObjects?.length || arrayOfObjects === undefined) { return }
+  if (!arr?.length || arr === undefined) { return }
 
-  const mappedArray = arrayOfObjects
-    .map((el: any) => { return { ...el, person_id: personId, created_at: formatDate(new Date()), updated_at: formatDate(new Date()) } })
+  const mappedArr = arr.map((el: any) => { return { ...el, [key]: value } })
 
-  const columns = extractKeysFromFirstObject(mappedArray);
+  console.log('mappedArr', mappedArr)
+
+  const columns = extractKeysFromFirstObject(mappedArr);
   const placeholders = columns.map(() => '?').join(', ');
-  const updateClause = columns
-    .filter(column => column !== 'created_at')
-    .map(column => `${column} = VALUES(${column})`).join(', ');
+  const updateClause = columns.map(column => `${column} = VALUES(${column})`).join(', ');
 
-  const finalUpdateClause = `${updateClause}, updated_at = VALUES(updated_at)`;
-
-  const valuesArray = mappedArray
-    .flatMap(item => columns
-      .map(column => item[column]));
+  const update = `${updateClause}, updated_at = VALUES(updated_at)`;
+  const values = mappedArr.flatMap(item => columns.map(column => item[column]));
 
   const queryString = `
   INSERT INTO ${table} (${columns.join(', ')}) 
-  VALUES ${mappedArray.map(() => `(${placeholders})`).join(', ')}
-  ON DUPLICATE KEY UPDATE ${finalUpdateClause};
+  VALUES ${mappedArr.map(() => `(${placeholders})`).join(', ')}
+  ON DUPLICATE KEY UPDATE ${update};
 `;
 
-  const [result,] = await connection.query(format(queryString, valuesArray))
+  console.log('queryString', queryString)
+
+  const [result,] = await conn.query(format(queryString, values))
 
   return result as ResultSetHeader
 }

@@ -3,7 +3,7 @@ import { Company } from '../interfaces/company';
 import { updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
-import { myDbConnection } from './db';
+import { dbConn } from './db';
 import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
 
@@ -13,7 +13,7 @@ export const getCompanies = async (page: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
 
     const rows = await selectAllFrom<Company>(connection, Tables.companies, page)
     const data = emptyOrRows(rows);
@@ -31,7 +31,7 @@ export const getCompanyById = async (companyId: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const company_id = 'company_id'
 
     const queryString =
@@ -77,7 +77,7 @@ export const createCompany = async (body: Company) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     const [queryResult] = await insertInto(connection, Tables.companies, { ...body.company }, [])
@@ -100,7 +100,7 @@ export const updateCompany = async (company_id: number, body: Company) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     await Promise.all([

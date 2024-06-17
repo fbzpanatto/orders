@@ -1,187 +1,7 @@
-import { Schema } from "express-validator"
+import { Schema } from "express-validator";
 
-export const permissionsPOST: Schema = {
+const base: Schema = {
   role: { exists: true },
-  customers: { exists: true },
-  companies: { exists: true },
-  orders: { exists: true },
-  permissions: { exists: true },
-  products: { exists: true },
-  segments: { exists: true },
-  production_status: { exists: true },
-  users: { exists: true },
-  'role.role_id': {
-    exists: true,
-    escape: true
-  },
-  'role.role_name': {
-    exists: true,
-    escape: true
-  },
-  'customers.permission_id': {
-    exists: true,
-    escape: true
-  },
-  'customers.role_id': {
-    exists: true,
-    escape: true
-  },
-  'customers.create': {
-    exists: true,
-    escape: true
-  },
-  'customers.read': {
-    exists: true,
-    escape: true
-  },
-  'customers.update': {
-    exists: true,
-    escape: true
-  },
-  'companies.permission_id': {
-    exists: true,
-    escape: true
-  },
-  'companies.role_id': {
-    exists: true,
-    escape: true
-  },
-  'companies.create': {
-    exists: true,
-    escape: true
-  },
-  'companies.read': {
-    exists: true,
-    escape: true
-  },
-  'companies.update': {
-    exists: true,
-    escape: true
-  },
-  'orders.permission_id': {
-    exists: true,
-    escape: true
-  },
-  'orders.role_id': {
-    exists: true,
-    escape: true
-  },
-  'orders.create': {
-    exists: true,
-    escape: true
-  },
-  'orders.read': {
-    exists: true,
-    escape: true
-  },
-  'orders.update': {
-    exists: true,
-    escape: true
-  },
-  'permissions.permission_id': {
-    exists: true,
-    escape: true
-  },
-  'permissions.role_id': {
-    exists: true,
-    escape: true
-  },
-  'permissions.create': {
-    exists: true,
-    escape: true
-  },
-  'permissions.read': {
-    exists: true,
-    escape: true
-  },
-  'permissions.update': {
-    exists: true,
-    escape: true
-  },
-  'products.permission_id': {
-    exists: true,
-    escape: true
-  },
-  'products.role_id': {
-    exists: true,
-    escape: true
-  },
-  'products.create': {
-    exists: true,
-    escape: true
-  },
-  'products.read': {
-    exists: true,
-    escape: true
-  },
-  'products.update': {
-    exists: true,
-    escape: true
-  },
-  'segments.permission_id': {
-    exists: true,
-    escape: true
-  },
-  'segments.role_id': {
-    exists: true,
-    escape: true
-  },
-  'segments.create': {
-    exists: true,
-    escape: true
-  },
-  'segments.read': {
-    exists: true,
-    escape: true
-  },
-  'segments.update': {
-    exists: true,
-    escape: true
-  },
-  'production_status.permission_id': {
-    exists: true,
-    escape: true
-  },
-  'production_status.role_id': {
-    exists: true,
-    escape: true
-  },
-  'production_status.create': {
-    exists: true,
-    escape: true
-  },
-  'production_status.read': {
-    exists: true,
-    escape: true
-  },
-  'production_status.update': {
-    exists: true,
-    escape: true
-  },
-  'users.permission_id': {
-    exists: true,
-    escape: true
-  },
-  'users.role_id': {
-    exists: true,
-    escape: true
-  },
-  'users.create': {
-    exists: true,
-    escape: true
-  },
-  'users.read': {
-    exists: true,
-    escape: true
-  },
-  'users.update': {
-    exists: true,
-    escape: true
-  },
-}
-
-export const permissionPATCH: Schema = {
-  role: { optional: true },
   customers: { optional: true },
   companies: { optional: true },
   orders: { optional: true },
@@ -191,171 +11,207 @@ export const permissionPATCH: Schema = {
   production_status: { optional: true },
   users: { optional: true },
   'role.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'role.role_name': {
     optional: true,
+    isLength: { options: { min: 3, max: 30 } },
     escape: true
   },
   'customers.permission_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'customers.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
-  'customers.create': {
+  'customers.canCreate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'customers.read': {
+  'customers.canRead': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'customers.update': {
+  'customers.canUpdate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
   'companies.permission_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'companies.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
-  'companies.create': {
+  'companies.canCreate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'companies.read': {
+  'companies.canRead': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'companies.update': {
+  'companies.canUpdate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
   'orders.permission_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'orders.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
-  'orders.create': {
+  'orders.canCreate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'orders.read': {
+  'orders.canRead': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'orders.update': {
+  'orders.canUpdate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
   'permissions.permission_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'permissions.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
-  'permissions.create': {
+  'permissions.canCreate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'permissions.read': {
+  'permissions.canRead': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'permissions.update': {
+  'permissions.canUpdate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
   'products.permission_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'products.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
-  'products.create': {
+  'products.canCreate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'products.read': {
+  'products.canRead': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'products.update': {
+  'products.canUpdate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
   'segments.permission_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'segments.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
-  'segments.create': {
+  'segments.canCreate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'segments.read': {
+  'segments.canRead': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'segments.update': {
+  'segments.canUpdate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
   'production_status.permission_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'production_status.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
-  'production_status.create': {
+  'production_status.canCreate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'production_status.read': {
+  'production_status.canRead': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'production_status.update': {
+  'production_status.canUpdate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
   'users.permission_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
   'users.role_id': {
-    optional: true,
-    escape: true
+    optional: true
   },
-  'users.create': {
+  'users.canCreate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'users.read': {
+  'users.canRead': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-  'users.update': {
+  'users.canUpdate': {
     optional: true,
-    escape: true
+    escape: true,
+    isBoolean: true,
+    toBoolean: true
   },
-}
+};
+
+export const permissionsPOST: Schema = { ...base };
+
+export const permissionPATCH: Schema = { ...base };

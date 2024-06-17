@@ -1,10 +1,10 @@
 import { ResultSetHeader, format } from 'mysql2';
-import { myDbConnection } from './db'
+import { dbConn } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
 import { Tables } from '../enums/tables'
-import { contactsDuplicateKeyUpdate, deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
+import { duplicateKeyUpdate, deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
 import { formatDate } from '../utils/formatDate';
 import { PoolConnection } from 'mysql2/promise';
 
@@ -14,7 +14,7 @@ export const getLegalCustomers = async (page = 1) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
 
     const rows = await selectAllFrom(connection, Tables.legal_persons, page)
     const data = emptyOrRows(rows);
@@ -32,7 +32,7 @@ export const getNormalCustomers = async (page = 1) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
 
     const rows = await selectAllFrom(connection, Tables.normal_persons, page)
     const data = emptyOrRows(rows);
@@ -50,7 +50,7 @@ export const getNormalById = async (personId: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
 
     const person_id = 'person_id'
 
@@ -112,7 +112,7 @@ export const getLegalById = async (personId: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
 
     const person_id = 'person_id'
 
@@ -178,7 +178,7 @@ export const createNormalPerson = async (body: any) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     const personId = await createPerson(connection, body, date)
@@ -208,7 +208,7 @@ export const createLegalPerson = async (body: any) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     const personId = await createPerson(connection, body, date)
@@ -233,14 +233,14 @@ export const updateLegalPerson = async (personId: number, body: any) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     await Promise.all([
       updateTableSetWhere(connection, Tables.legal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       updateTableSetWhere(connection, Tables.persons, 'id', personId, body.person, []),
-      contactsDuplicateKeyUpdate(connection, Tables.person_phones, body.contacts, personId)
+      duplicateKeyUpdate(connection, Tables.person_phones, body.contacts, 'person_id', personId)
     ])
 
     await connection.commit()
@@ -260,14 +260,14 @@ export const updateNormalPerson = async (personId: number, body: any) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     await Promise.all([
       updateTableSetWhere(connection, Tables.normal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       updateTableSetWhere(connection, Tables.persons, 'id', personId, body.person, []),
-      contactsDuplicateKeyUpdate(connection, Tables.person_phones, body.contacts, personId)
+      duplicateKeyUpdate(connection, Tables.person_phones, body.contacts, 'person_id', personId)
     ])
 
     await connection.commit()
@@ -287,7 +287,7 @@ export const deleteCustomerContact = async (personId: number, contactId: number)
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
 
     const result = await deleteFromWhere(connection, Tables.person_phones, [{ column: 'id', value: contactId }, { column: 'person_id', value: personId }])
 

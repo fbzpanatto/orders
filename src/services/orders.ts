@@ -4,14 +4,14 @@ import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } fr
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
-import { myDbConnection } from './db';
+import { dbConn } from './db';
 
 export const getAllOrders = async (page: number) => {
   let connection = null;
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const rows = await selectAllFrom<Orders>(connection, Tables.orders, page)
     const data = emptyOrRows(rows);
     const meta = { page };
@@ -25,7 +25,7 @@ export const getPersonOrders = async (personId: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const queryResult = await selectAllFromWhere(connection, Tables.orders, 'person_id', personId) as Array<Orders>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -36,7 +36,7 @@ export const getOrder = async (orderId: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const queryResult = await selectAllFromWhere(connection, Tables.orders, 'id', orderId) as Array<Orders>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -47,7 +47,7 @@ export const createOrder = async (body: Orders) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const queryResult = await insertInto(connection, Tables.orders, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -59,7 +59,7 @@ export const updateOrder = async (id: number, req: Request) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     const queryResult = await updateTableSetWhere(connection, Tables.orders, 'id', id, req.body as Orders, ['person_id'])

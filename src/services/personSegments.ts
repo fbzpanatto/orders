@@ -3,14 +3,14 @@ import { selectAllFromWhere, updateTableSetWhere, insertInto } from '../utils/qu
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { PersonSegments } from '../interfaces/personSegments';
-import { myDbConnection } from './db';
+import { dbConn } from './db';
 
 export const getPersonSegments = async (personId: number) => {
   let connection = null;
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const result = await selectAllFromWhere(connection, Tables.person_segments, 'person_id', personId) as Array<PersonSegments>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -21,7 +21,7 @@ export const createPersonSegment = async (body: PersonSegments) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const queryResult = await insertInto(connection, Tables.person_segments, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -33,7 +33,7 @@ export const updatePersonSegment = async (id: number, req: Request) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     const queryResult = await updateTableSetWhere(connection, Tables.person_segments, 'id', id, req.body as PersonSegments, [])

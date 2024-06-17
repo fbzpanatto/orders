@@ -4,14 +4,14 @@ import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } fr
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
-import { myDbConnection } from './db';
+import { dbConn } from './db';
 
 export const getProducts = async (page: number) => {
   let connection = null;
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const rows = await selectAllFrom<Products>(connection, Tables.products, page)
     const data = emptyOrRows(rows);
     const meta = { page };
@@ -25,7 +25,7 @@ export const getProduct = async (statusId: number) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const queryResult = await selectAllFromWhere(connection, Tables.products, 'id', statusId) as Array<Products>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -36,7 +36,7 @@ export const createProduct = async (body: Products) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     const queryResult = await insertInto(connection, Tables.products, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -48,7 +48,7 @@ export const updateProduct = async (id: number, req: Request) => {
 
   try {
 
-    connection = await myDbConnection()
+    connection = await dbConn()
     await connection.beginTransaction()
 
     const queryResult = await updateTableSetWhere(connection, Tables.products, 'id', id, req.body as Products, [])
