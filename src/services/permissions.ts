@@ -1,6 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { Company } from '../interfaces/company';
-import { updateTableSetWhere, insertInto, selectAllFrom, duplicateKeyUpdate } from '../utils/queries';
+import { insertInto, selectAllFrom, duplicateKeyUpdate } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -10,7 +9,6 @@ import { Permission } from '../interfaces/permission';
 import { RESOURCES_ID_TO_NAME, RESOURCES_NAME_TO_ID } from './../enums/resources';
 
 const ROLE_ID = 'role_id'
-const COMPANY_ID = 'company_id'
 interface RolePermissions { role_id: number, role_name: string, created_at: string, updated_at: string, permission_id: number, table_id: number, canCreate: number, canRead: number, canUpdate: number, canDelete: number }
 
 export const getRoles = async (page: number) => {
@@ -76,17 +74,13 @@ export const createPermission = async (body: Permission) => {
 
   try {
 
-    const permissions = Object.keys(body)
-      .filter(key => key != 'role')
-      .map(key => { return { ...body[key as keyof Permission], table_id: RESOURCES_NAME_TO_ID[key as keyof typeof RESOURCES_NAME_TO_ID] } })
-
     conn = await dbConn()
     await conn.beginTransaction()
 
     const [queryResult] = await insertInto(conn, Tables.roles, { ...body.role }, [])
-
     const roleId = (queryResult as ResultSetHeader).insertId
-    await duplicateKeyUpdate(conn, Tables.permissions, permissions, ROLE_ID, roleId)
+
+    await duplicateKeyUpdate(conn, Tables.permissions, permissions(body), ROLE_ID, roleId)
     await conn.commit()
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 2 });
@@ -101,23 +95,22 @@ export const updatePermission = async (roleId: number, body: Permission) => {
 
   try {
 
-    const permissions = Object.keys(body)
-      .filter(key => key != 'role')
-      .map(key => { return { ...body[key as keyof Permission], table_id: RESOURCES_NAME_TO_ID[key as keyof typeof RESOURCES_NAME_TO_ID] } })
-
     conn = await dbConn()
     await conn.beginTransaction()
 
-    const [queryResult] = await insertInto(conn, Tables.roles, { ...body.role }, [])
-
-    const roleId = (queryResult as ResultSetHeader).insertId
-    await duplicateKeyUpdate(conn, Tables.permissions, permissions, ROLE_ID, roleId)
+    await duplicateKeyUpdate(conn, Tables.permissions, permissions(body), ROLE_ID, roleId)
     await conn.commit()
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 2 });
   }
   catch (error) { return rollback(error, conn) }
   finally { if (conn) { conn.release() } }
+}
+
+const permissions = (body: Permission) => {
+  return Object.keys(body)
+    .filter(key => key != 'role')
+    .map(key => { return { ...body[key as keyof Permission], table_id: RESOURCES_NAME_TO_ID[key as keyof typeof RESOURCES_NAME_TO_ID] } })
 }
 
 const rollback = async (error: any, connection: PoolConnection | null) => {
