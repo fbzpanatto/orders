@@ -118,7 +118,6 @@ const permissions = (body: Permission) => {
 }
 
 const rollback = async (error: any, connection: PoolConnection | null) => {
-  console.log('error', error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }
