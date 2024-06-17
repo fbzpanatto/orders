@@ -13,6 +13,7 @@ import ordersRouter from './routes/orders'
 import orderProductsStatus from './routes/orderProductsStatus'
 import companies from './routes/companies'
 import permissionsRouter from './routes/permissions'
+import usersRouter from './routes/users'
 
 const app = express()
 
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello World") })
 
+app.use('/users', usersRouter)
 app.use('/status', statusRouter)
 app.use('/orders', ordersRouter)
 app.use('/companies', companies)

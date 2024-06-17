@@ -1,17 +1,17 @@
 import { Schema } from "express-validator";
 
 export const userPOST: Schema = {
-  user_id: {
-    optional: true,
-    escape: true,
-  },
   company_id: {
     exists: true,
     escape: true,
+    isInt: true,
+    toInt: true
   },
   role_id: {
     exists: true,
-    escape: true
+    escape: true,
+    isInt: true,
+    toInt: true
   },
   name: {
     exists: true,
@@ -32,22 +32,22 @@ export const userPOST: Schema = {
   password: {
     exists: true,
     escape: true,
-    isLength: { options: { min: 8, max: 8 } },
+    isLength: { options: { min: 8, max: 20 } },
   }
 }
 
 export const userPATCH: Schema = {
-  user_id: {
-    optional: true,
-    escape: true,
-  },
   company_id: {
     optional: true,
     escape: true,
+    isInt: true,
+    toInt: true
   },
   role_id: {
     optional: true,
-    escape: true
+    escape: true,
+    isInt: true,
+    toInt: true
   },
   name: {
     optional: true,
@@ -68,6 +68,6 @@ export const userPATCH: Schema = {
   password: {
     optional: true,
     escape: true,
-    isLength: { options: { min: 8, max: 8 } },
+    isLength: { options: { min: 8, max: 20 } },
   }
 }

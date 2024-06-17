@@ -7,6 +7,9 @@ import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
 import { User } from '../interfaces/users';
 
+const company_id = 'company_id'
+const role_id = 'role_id'
+
 export const getUsers = async (page: number) => {
 
   let connection = null;
@@ -15,7 +18,14 @@ export const getUsers = async (page: number) => {
 
     connection = await dbConn()
 
-    const rows = await selectAllFrom<User>(connection, Tables.users, page)
+    const queryString = `
+    SELECT u.user_id, u.name, u.active, u.username, u.created_at, c.corporate_name, r.role_name
+    FROM ${Tables.users} AS u
+    LEFT JOIN ${Tables.companies} AS c ON u.${company_id} = c.${company_id}
+    LEFT JOIN ${Tables.roles} AS r ON u.${company_id} = r.${role_id}
+    `
+
+    const rows = await selectAllFrom<User>(connection, Tables.users, page, queryString)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -72,12 +82,14 @@ export const updateUser = async (userId: number, body: User) => {
   try {
 
     connection = await dbConn()
-    
+
     await connection.beginTransaction()
-    await updateTableSetWhere(connection, Tables.users, 'user_id', userId, body, []),
+
+    const result = await updateTableSetWhere(connection, Tables.users, 'user_id', userId, body, [])
+
     await connection.commit()
 
-    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
+    return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: result?.affectedRows });
   }
   catch (error) { return rollBackCatchBlock(error, connection) }
   finally { if (connection) { connection.release() } }
