@@ -12,18 +12,24 @@ import { ordersPOST, ordersPATCH } from '../schemas/orders'
 import { ordersProductStatusPOST, ordersProductStatusPATCH } from '../schemas/orderProductStatus'
 import { companyPATCH, companyPOST } from '../schemas/company'
 import { permissionPATCH, permissionsPOST } from '../schemas/permissions'
+import { userPATCH, userPOST } from '../schemas/users'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
-export const validatePermissionId = check('permissionId').not().isEmpty().isNumeric()
-export const validateRoleId = check('roleId').not().isEmpty().isNumeric()
 export const validateContactId = check('contactId').not().isEmpty().isNumeric()
+
+// Company
+export const validatePostUser = checkSchema(userPOST);
+export const validatePatchUser = checkSchema(userPATCH);
+export const bodyValidationUser = (req: Request, res: Response, next: NextFunction) => {
+  console.log('validationResult(req)', validationResult(req))
+  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, userPOST)
+};
 
 // Company
 export const validatePostCompany = checkSchema(companyPOST);
 export const validatePatchCompany = checkSchema(companyPATCH);
 export const bodyValidationCompany = (req: Request, res: Response, next: NextFunction) => {
-  console.log('validationResult(req)', validationResult(req))
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, companyPOST)
 };
 
@@ -31,7 +37,6 @@ export const bodyValidationCompany = (req: Request, res: Response, next: NextFun
 export const validatePostPermission = checkSchema(permissionsPOST);
 export const validatePatchPermissions = checkSchema(permissionPATCH);
 export const bodyValidationPermissions = (req: Request, res: Response, next: NextFunction) => {
-  console.log('validationResult(req)', validationResult(req))
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, permissionsPOST)
 };
 
