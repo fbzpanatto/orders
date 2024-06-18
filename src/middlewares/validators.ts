@@ -13,10 +13,19 @@ import { ordersProductStatusPOST, ordersProductStatusPATCH } from '../schemas/or
 import { companyPATCH, companyPOST } from '../schemas/company'
 import { permissionPATCH, permissionsPOST } from '../schemas/permissions'
 import { userPATCH, userPOST } from '../schemas/users'
+import { fieldPATCH, fieldPOST } from '../schemas/fields'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
 export const validateContactId = check('contactId').not().isEmpty().isNumeric()
+
+// Field
+export const validatePostField = checkSchema(fieldPOST);
+export const validatePatchField = checkSchema(fieldPATCH);
+export const bodyValidationField = (req: Request, res: Response, next: NextFunction) => {
+  console.log('validationResult(req)', validationResult(req))
+  return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, fieldPOST)
+};
 
 // Company
 export const validatePostUser = checkSchema(userPOST);
