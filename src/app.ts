@@ -15,6 +15,7 @@ import companies from './routes/companies'
 import permissionsRouter from './routes/permissions'
 import usersRouter from './routes/users'
 import fieldsRouter from './routes/fields'
+import resourcesRouter from './routes/resources'
 
 const app = express()
 
@@ -37,8 +38,9 @@ app.use('/orders', ordersRouter)
 app.use('/companies', companies)
 app.use('/persons', customersRouter)
 app.use('/segments', segmentsRouter)
-app.use('/permissions', permissionsRouter)
 app.use('/products', productsRouter)
+app.use('/resources', resourcesRouter)
+app.use('/permissions', permissionsRouter)
 app.use('/person-segments', personSegmentsRouter)
 app.use('/order-products-status', orderProductsStatus)
 

@@ -24,7 +24,7 @@ export const getFields = async (page: number) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const getUserById = async (userId: number) => {
+export const getFieldById = async (fieldId: number) => {
 
   let connection = null;
 
@@ -34,7 +34,7 @@ export const getUserById = async (userId: number) => {
 
     const queryString = `SELECT * FROM ${Tables.fields} AS u WHERE u.user_id=?`
 
-    const [result] = await connection.query(format(queryString, [userId]))
+    const [result] = await connection.query(format(queryString, [fieldId]))
     const data = (result as Array<any>)[0]
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data })
@@ -43,7 +43,7 @@ export const getUserById = async (userId: number) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const createUser = async (body: any) => {
+export const createField = async (body: any) => {
 
   let connection = null;
 
@@ -64,7 +64,7 @@ export const createUser = async (body: any) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const updateUser = async (userId: number, body: any) => {
+export const updateField = async (fieldId: number, body: any) => {
 
   let connection = null;
 
@@ -74,7 +74,7 @@ export const updateUser = async (userId: number, body: any) => {
 
     await connection.beginTransaction()
 
-    const result = await updateTableSetWhere(connection, Tables.fields, 'user_id', userId, body, [])
+    const result = await updateTableSetWhere(connection, Tables.fields, 'user_id', fieldId, body, [])
 
     await connection.commit()
 
