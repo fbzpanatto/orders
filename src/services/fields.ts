@@ -5,12 +5,8 @@ import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
 import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
-import { User } from '../interfaces/users';
 
-const company_id = 'company_id'
-const role_id = 'role_id'
-
-export const getUsers = async (page: number) => {
+export const getFields = async (page: number) => {
 
   let connection = null;
 
@@ -18,14 +14,7 @@ export const getUsers = async (page: number) => {
 
     connection = await dbConn()
 
-    const queryString = `
-    SELECT u.user_id, u.name, u.active, u.username, u.created_at, c.corporate_name, r.role_name
-    FROM ${Tables.users} AS u
-    LEFT JOIN ${Tables.companies} AS c ON u.${company_id} = c.${company_id}
-    LEFT JOIN ${Tables.roles} AS r ON u.${company_id} = r.${role_id}
-    `
-
-    const rows = await selectAllFrom<User>(connection, Tables.users, page, queryString)
+    const rows = await selectAllFrom(connection, Tables.fields, page)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -43,10 +32,10 @@ export const getUserById = async (userId: number) => {
 
     connection = await dbConn()
 
-    const queryString = `SELECT * FROM ${Tables.users} AS u WHERE u.user_id=?`
+    const queryString = `SELECT * FROM ${Tables.fields} AS u WHERE u.user_id=?`
 
     const [result] = await connection.query(format(queryString, [userId]))
-    const data = (result as Array<User>)[0]
+    const data = (result as Array<any>)[0]
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   }
@@ -54,7 +43,7 @@ export const getUserById = async (userId: number) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const createUser = async (body: User) => {
+export const createUser = async (body: any) => {
 
   let connection = null;
 
@@ -63,7 +52,7 @@ export const createUser = async (body: User) => {
     connection = await dbConn()
     await connection.beginTransaction()
 
-    const [queryResult] = await insertInto(connection, Tables.users, body, [])
+    const [queryResult] = await insertInto(connection, Tables.fields, body, [])
 
     const affectedRows = (queryResult as ResultSetHeader).affectedRows
 
@@ -75,7 +64,7 @@ export const createUser = async (body: User) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const updateUser = async (userId: number, body: User) => {
+export const updateUser = async (userId: number, body: any) => {
 
   let connection = null;
 
@@ -85,7 +74,7 @@ export const updateUser = async (userId: number, body: User) => {
 
     await connection.beginTransaction()
 
-    const result = await updateTableSetWhere(connection, Tables.users, 'user_id', userId, body, [])
+    const result = await updateTableSetWhere(connection, Tables.fields, 'user_id', userId, body, [])
 
     await connection.commit()
 
