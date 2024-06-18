@@ -43,76 +43,76 @@ export const CONFIGURABLE_RESOURCES_AND_FIELDS = [
       }
     ]
   },
-  {
-    id: 2,
-    resource: 'companies',
-    label: 'Empresas',
-    fields: [
-      {
-        id: 1,
-        field: 'campo_teste',
-        label: 'Test Field'
-      },
-    ]
-  },
-  {
-    id: 3,
-    resource: 'orders',
-    label: 'Pedidos',
-    fields: [
-      {
+  // {
+  //   id: 2,
+  //   resource: 'companies',
+  //   label: 'Empresas',
+  //   fields: [
+  //     {
+  //       id: 1,
+  //       field: 'campo_teste',
+  //       label: 'Test Field'
+  //     },
+  //   ]
+  // },
+  // {
+  //   id: 3,
+  //   resource: 'orders',
+  //   label: 'Pedidos',
+  //   fields: [
+  //     {
 
-      }
-    ]
-  },
-  {
-    id: 4,
-    resource: 'permissions',
-    label: 'Permissões',
-    fields: [
-      {
+  //     }
+  //   ]
+  // },
+  // {
+  //   id: 4,
+  //   resource: 'permissions',
+  //   label: 'Permissões',
+  //   fields: [
+  //     {
 
-      }
-    ]
-  },
-  {
-    id: 5,
-    resource: 'products',
-    label: 'Produtos',
-    fields: [
-      {
+  //     }
+  //   ]
+  // },
+  // {
+  //   id: 5,
+  //   resource: 'products',
+  //   label: 'Produtos',
+  //   fields: [
+  //     {
 
-      }
-    ]
-  },
-  {
-    id: 6,
-    resource: 'segments',
-    label: 'Segmentos',
-    fields: [
-      {
+  //     }
+  //   ]
+  // },
+  // {
+  //   id: 6,
+  //   resource: 'segments',
+  //   label: 'Segmentos',
+  //   fields: [
+  //     {
 
-      }
-    ]
-  },
-  {
-    id: 7,
-    resource: 'production_status',
-    label: 'Status do Produto',
-    fields: [
-      {
+  //     }
+  //   ]
+  // },
+  // {
+  //   id: 7,
+  //   resource: 'production_status',
+  //   label: 'Status do Produto',
+  //   fields: [
+  //     {
 
-      }
-    ]
-  },
-  {
-    id: 8,
-    resource: 'users',
-    label: 'Usuários',
-    fields: [
-      {
+  //     }
+  //   ]
+  // },
+  // {
+  //   id: 8,
+  //   resource: 'users',
+  //   label: 'Usuários',
+  //   fields: [
+  //     {
 
-      }
-    ]
-  }
+  //     }
+  //   ]
+  // }
 ]
