@@ -15,11 +15,6 @@ export interface NormalPerson {
 }
 
 export interface Person extends LegalPerson, NormalPerson {
-  id?: number,
-  observation?: string,
-  first_field?: string,
-  second_field?: string,
-  third_field?: string,
   address?: {
     add_street?: string
     add_number?: string,
@@ -33,6 +28,7 @@ export interface Person extends LegalPerson, NormalPerson {
     second_field: string,
     third_field: string,
     created_at: string
+    company_id?: number | string,
   },
   contacts?: { id: number, contact: string, phone_number: string }[],
   created_at?: string,

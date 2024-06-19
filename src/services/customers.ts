@@ -55,11 +55,11 @@ export const getNormalById = async (personId: number) => {
     const person_id = 'person_id'
 
     const queryString = `
-    SELECT p.*, a.id AS add_id, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field
+    SELECT p.*, a.person_id, a.add_street, a.add_uf, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.person_id, per.first_field, per.second_field, per.third_field, per.company_id
     FROM ${Tables.normal_persons} AS p
     LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
     LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
-    LEFT JOIN ${Tables.persons} AS per ON p.${person_id} = per.id
+    LEFT JOIN ${Tables.persons} AS per ON p.${person_id} = per.${person_id}
     WHERE p.${person_id}=?
   `;
 
@@ -76,16 +76,17 @@ export const getNormalById = async (personId: number) => {
             last_name: curr.last_name,
           },
           address: {
-            id: curr.add_id,
             person_id: curr.person_id,
             add_street: curr.add_street,
+            add_uf: curr.add_uf,
             add_number: curr.add_number,
             add_zipcode: curr.add_zipcode,
             add_city: curr.add_city,
+            company_id: curr.company_id,
             add_neighborhood: curr.add_neighborhood,
           },
           person: {
-            id: curr.id,
+            person_id: curr.person_id,
             observation: curr.observation,
             first_field: curr.first_field,
             second_field: curr.second_field,
@@ -117,7 +118,7 @@ export const getLegalById = async (personId: number) => {
     const person_id = 'person_id'
 
     const queryString = `
-    SELECT p.*, a.id AS add_id, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field
+    SELECT p.*, a.person_id AS add_person_id, a.add_uf, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field
     FROM ${Tables.legal_persons} AS p
     LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
     LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
@@ -138,10 +139,10 @@ export const getLegalById = async (personId: number) => {
             state_registration: curr.state_registration,
           },
           address: {
-            id: curr.add_id,
-            person_id: curr.person_id,
+            person_id: curr.add_person_id,
             add_street: curr.add_street,
             add_number: curr.add_number,
+            add_uf: curr.add_uf,
             add_zipcode: curr.add_zipcode,
             add_city: curr.add_city,
             add_neighborhood: curr.add_neighborhood,
@@ -164,7 +165,9 @@ export const getLegalById = async (personId: number) => {
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
   }
-  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  catch (error) {
+    console.log('error', error)
+     return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (connection) { connection.release() } }
 }
 
@@ -172,18 +175,14 @@ export const createNormalPerson = async (body: any) => {
 
   let connection = null;
 
-  const date = formatDate(new Date())
-  body.customer.created_at = date
-  body.address.created_at = date
-
   try {
 
     connection = await dbConn()
     await connection.beginTransaction()
 
-    const personId = await createPerson(connection, body, date)
+    const personId = await createPerson(connection, body)
     await insertInto(connection, Tables.normal_persons, { ...body.customer, person_id: personId }, [])
-    await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
+    await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId }, [])
     await createContacts(connection, personId, body)
 
     await connection.commit()
@@ -202,18 +201,14 @@ export const createLegalPerson = async (body: any) => {
 
   let connection = null;
 
-  const date = formatDate(new Date())
-  body.customer.created_at = date
-  body.address.created_at = date
-
   try {
 
     connection = await dbConn()
     await connection.beginTransaction()
 
-    const personId = await createPerson(connection, body, date)
+    const personId = await createPerson(connection, body)
     await insertInto(connection, Tables.legal_persons, { ...body.customer, person_id: personId }, [])
-    await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId, id: null }, [])
+    await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId }, [])
     await createContacts(connection, personId, body)
 
     await connection.commit()
@@ -221,6 +216,7 @@ export const createLegalPerson = async (body: any) => {
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
+    console.log('error', error)
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
@@ -298,17 +294,15 @@ export const deleteCustomerContact = async (personId: number, contactId: number)
   finally { if (connection) { connection.release() } }
 }
 
-const createPerson = async (connection: PoolConnection, body: Person, created_at: string) => {
-
-  body.person.created_at = created_at
+const createPerson = async (connection: PoolConnection, body: Person) => {
 
   const sql =
     `
-    INSERT INTO persons (created_at, observation, first_field, second_field, third_field)
+    INSERT INTO persons (observation, first_field, second_field, third_field, company_id)
     VALUES (?, ?, ?, ?, ?)
   `
 
-  const values = [body.person.created_at, body.person.observation, body.person.first_field, body.person.second_field, body.person.third_field]
+  const values = [body.person.observation, body.person.first_field, body.person.second_field, body.person.third_field, body.person.company_id]
 
   const [result,] = await connection.query(sql, values)
 

@@ -64,6 +64,7 @@ const normalCustomerPATCH: Schema = {
 }
 
 export const normalPOST: Schema = {
+  company: { optional: true },
   customer: { exists: true },
   address: { exists: true },
   person: { optional: true },
@@ -74,6 +75,7 @@ export const normalPOST: Schema = {
 }
 
 export const normalPATCH: Schema = {
+  company: { optional: true },
   customer: { optional: true },
   address: { optional: true },
   person: { optional: true },

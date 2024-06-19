@@ -55,6 +55,7 @@ const legalCustomerPATCH: Schema = {
 }
 
 export const legalPOST: Schema = {
+  company: { optional: true },
   customer: { exists: true },
   address: { exists: true },
   person: { optional: true },
@@ -65,6 +66,7 @@ export const legalPOST: Schema = {
 }
 
 export const legalPATCH: Schema = {
+  company: { optional: true },
   customer: { optional: true },
   address: { optional: true },
   person: { optional: true },

@@ -19,4 +19,10 @@ export const person = {
     isLength: { options: { min: 3, max: 100 } },
     escape: true
   },
+  'person.company_id': {
+    optional: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
 }
