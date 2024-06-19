@@ -1,25 +1,43 @@
+import { RESOURCES_NAME_TO_ID } from './../enums/resources';
 import { objectResponse } from '../utils/response';
 import { Company } from '../interfaces/company';
-import { updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllFrom, selectAllFromWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
 import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
+import { Request } from 'express'
+import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from './../enums/resources';
+import { Field } from '../interfaces/field';
+import { Console } from 'console';
 
-export const getCompanies = async (page: number) => {
+export const getCompanies = async (page: number, request: Request) => {
+
+  const { customFields } = request.query
 
   let connection = null;
+  let extra = null;
 
   try {
 
     connection = await dbConn()
 
-    const rows = await selectAllFrom<Company>(connection, Tables.companies, page)
-    const data = emptyOrRows(rows);
-    const meta = { page };
+    const data = emptyOrRows(await selectAllFrom<Company>(connection, Tables.companies, page));
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+    if (customFields) {
+
+      extra = (await selectAllFromWhere(connection, Tables.fields, 'table_id', RESOURCES_NAME_TO_ID.customers) as Field[])
+        .map(row => {
+          return {
+            id: row.id,
+            table: RESOURCE.find(table => table.id === row.table_id)?.label,
+            field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.field, label: row.label
+          }
+        })
+    }
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta: { page, extra } })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }

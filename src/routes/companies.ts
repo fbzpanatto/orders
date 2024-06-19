@@ -6,7 +6,7 @@ import { Company } from '../interfaces/company'
 const router = Router()
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getCompanies(1)
+  const result = await getCompanies(1, req)
   return res.status(result.status).json(result)
 })
 
