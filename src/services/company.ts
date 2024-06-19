@@ -10,7 +10,6 @@ import { format, ResultSetHeader } from 'mysql2';
 import { Request } from 'express'
 import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from './../enums/resources';
 import { Field } from '../interfaces/field';
-import { Console } from 'console';
 
 export const getCompanies = async (page: number, request: Request) => {
 
