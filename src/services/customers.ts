@@ -118,7 +118,7 @@ export const getLegalById = async (personId: number) => {
     const person_id = 'person_id'
 
     const queryString = `
-    SELECT p.*, a.person_id AS add_person_id, a.add_uf, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field
+    SELECT p.*, a.person_id AS add_person_id, a.add_uf, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field, per.company_id
     FROM ${Tables.legal_persons} AS p
     LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
     LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
@@ -148,7 +148,7 @@ export const getLegalById = async (personId: number) => {
             add_neighborhood: curr.add_neighborhood,
           },
           person: {
-            id: curr.id,
+            company_id: curr.company_id,
             observation: curr.observation,
             first_field: curr.first_field,
             second_field: curr.second_field,
