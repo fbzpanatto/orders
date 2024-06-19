@@ -55,11 +55,11 @@ export const getNormalById = async (personId: number) => {
     const person_id = 'person_id'
 
     const queryString = `
-    SELECT p.*, a.person_id, a.add_street, a.add_uf, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.person_id, per.first_field, per.second_field, per.third_field, per.company_id
+    SELECT p.*, a.person_id AS add_person_id, a.add_uf, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field, per.company_id
     FROM ${Tables.normal_persons} AS p
     LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
     LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
-    LEFT JOIN ${Tables.persons} AS per ON p.${person_id} = per.${person_id}
+    LEFT JOIN ${Tables.persons} AS per ON p.${person_id} = per.id
     WHERE p.${person_id}=?
   `;
 
@@ -76,17 +76,17 @@ export const getNormalById = async (personId: number) => {
             last_name: curr.last_name,
           },
           address: {
-            person_id: curr.person_id,
+            person_id: curr.add_person_id,
             add_street: curr.add_street,
-            add_uf: curr.add_uf,
             add_number: curr.add_number,
+            add_uf: curr.add_uf,
             add_zipcode: curr.add_zipcode,
             add_city: curr.add_city,
-            company_id: curr.company_id,
             add_neighborhood: curr.add_neighborhood,
           },
           person: {
-            person_id: curr.person_id,
+            id: curr.id,
+            company_id: curr.company_id,
             observation: curr.observation,
             first_field: curr.first_field,
             second_field: curr.second_field,
@@ -148,6 +148,7 @@ export const getLegalById = async (personId: number) => {
             add_neighborhood: curr.add_neighborhood,
           },
           person: {
+            id: curr.id,
             company_id: curr.company_id,
             observation: curr.observation,
             first_field: curr.first_field,
@@ -167,7 +168,8 @@ export const getLegalById = async (personId: number) => {
   }
   catch (error) {
     console.log('error', error)
-     return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
   finally { if (connection) { connection.release() } }
 }
 
