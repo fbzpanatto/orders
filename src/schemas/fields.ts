@@ -7,10 +7,11 @@ export const fieldPOST: Schema = {
     isInt: true,
     toInt: true
   },
-  field: {
+  field_id: {
     exists: true,
     escape: true,
-    isLength: { options: { min: 3, max: 20 } },
+    isInt: true,
+    toInt: true
   },
   label: {
     exists: true,
@@ -26,10 +27,11 @@ export const fieldPATCH: Schema = {
     isInt: true,
     toInt: true
   },
-  field: {
+  field_id: {
     exists: true,
     escape: true,
-    isLength: { options: { min: 3, max: 20 } },
+    isInt: true,
+    toInt: true
   },
   label: {
     exists: true,

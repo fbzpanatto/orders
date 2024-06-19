@@ -1,10 +1,12 @@
 import { objectResponse } from '../utils/response';
-import { updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllFrom, duplicateKeyUpdate } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
 import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
+import { Field } from '../interfaces/field';
+import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from '../enums/resources';
 
 export const getFields = async (page: number) => {
 
@@ -18,7 +20,9 @@ export const getFields = async (page: number) => {
     const data = emptyOrRows(rows);
     const meta = { page };
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+    const formatedData = (data as Field[]).map(row => { return { id: row.id, table: RESOURCE.find(table => table.id === row.table_id)?.label, field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.label, label: row.label } })
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: formatedData, meta })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }
@@ -32,7 +36,7 @@ export const getFieldById = async (fieldId: number) => {
 
     connection = await dbConn()
 
-    const queryString = `SELECT * FROM ${Tables.fields} AS u WHERE u.user_id=?`
+    const queryString = `SELECT * FROM ${Tables.fields} AS f WHERE f.id=?`
 
     const [result] = await connection.query(format(queryString, [fieldId]))
     const data = (result as Array<any>)[0]
@@ -43,7 +47,7 @@ export const getFieldById = async (fieldId: number) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const createField = async (body: any) => {
+export const createField = async (body: Field) => {
 
   let connection = null;
 
@@ -64,7 +68,7 @@ export const createField = async (body: any) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const updateField = async (fieldId: number, body: any) => {
+export const updateField = async (fieldId: number, body: Field) => {
 
   let connection = null;
 
@@ -73,8 +77,7 @@ export const updateField = async (fieldId: number, body: any) => {
     connection = await dbConn()
 
     await connection.beginTransaction()
-
-    const result = await updateTableSetWhere(connection, Tables.fields, 'user_id', fieldId, body, [])
+    const result = await updateTableSetWhere(connection, Tables.fields, 'id', fieldId, { label: body.label }, [])
 
     await connection.commit()
 
@@ -85,7 +88,6 @@ export const updateField = async (fieldId: number, body: any) => {
 }
 
 const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
-  console.log('rollBackCatchBlock', error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }

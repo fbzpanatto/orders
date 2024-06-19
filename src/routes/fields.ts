@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { validateId, validatePatchField, bodyValidationField, validatePostField } from '../middlewares/validators'
 import { getFields, updateField, getFieldById, createField } from '../services/fields'
+import { Field } from '../interfaces/field'
 
 const router = Router()
 
@@ -15,12 +16,12 @@ router.get('/:id', validateId, async (req: Request, res: Response, next: NextFun
 })
 
 router.post('/', validatePostField, bodyValidationField, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await createField(req.body as any)
+  const result = await createField(req.body as Field)
   return res.status(result.status).json(result)
 })
 
 router.patch('/:id', validateId, validatePatchField, bodyValidationField, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await updateField(parseInt(req.params.id), req.body as any)
+  const result = await updateField(parseInt(req.params.id), req.body as Field)
   return res.status(result.status).json(result)
 })
 
