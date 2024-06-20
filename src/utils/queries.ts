@@ -50,6 +50,28 @@ export const insertInto = async (connection: PoolConnection, table: string, body
   return await connection.query(format(queryString, values)) as any
 };
 
+export const update = async (conn: PoolConnection, table: string, whereObject: { [key: string]: any }, body: { [key: string]: any }, ignore: string[]) => {
+
+  if (body === undefined) { return }
+
+  const columns = Object.entries(body)
+    .filter(([key]) => !ignore.includes(key))
+    .map(([key, value]) => ({ key, value }));
+
+  const setClause = columns.map(({ key }) => `${key}=?`).join(', ');
+  const whereClause = Object.keys(whereObject).map(key => `${key}=?`).join(' AND ');
+
+  const queryString = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
+
+  const setValues = columns.map(({ value }) => value);
+  const whereValues = Object.values(whereObject);
+  const values = [...setValues, ...whereValues];
+
+  const [result] = await conn.query(format(queryString, values));
+
+  return result as ResultSetHeader;
+};
+
 export const updateTableSetWhere = async (connection: PoolConnection, table: string, column: string, columnValue: number, body: any, fieldsToIgnore: string[]) => {
 
   if (body === undefined) { return }
@@ -96,6 +118,28 @@ export const duplicateKeyUpdate = async (conn: PoolConnection, table: string, ar
   const queryString = `
   INSERT INTO ${table} (${columns.join(', ')}) 
   VALUES ${mappedArr.map(() => `(${placeholders})`).join(', ')}
+  ON DUPLICATE KEY UPDATE ${update};
+`;
+
+  const [result,] = await conn.query(format(queryString, values))
+
+  return result as ResultSetHeader
+}
+
+export const duplicateKey = async (conn: PoolConnection, table: string, arr: { [key: string]: any }[] | undefined) => {
+
+  if (!arr?.length || arr === undefined) { return }
+
+  const columns = extractKeysFromFirstObject(arr);
+  const placeholders = columns.map(() => '?').join(', ');
+  const updateClause = columns.map(column => `${column} = VALUES(${column})`).join(', ');
+
+  const update = `${updateClause}, updated_at = VALUES(updated_at)`;
+  const values = arr.flatMap(item => columns.map(column => item[column]));
+
+  const queryString = `
+  INSERT INTO ${table} (${columns.join(', ')}) 
+  VALUES ${arr.map(() => `(${placeholders})`).join(', ')}
   ON DUPLICATE KEY UPDATE ${update};
 `;
 

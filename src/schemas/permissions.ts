@@ -50,13 +50,13 @@ const base: Schema = {
     toBoolean: true
   },
   'companies.permission_id': {
-    optional: true
+    exists: true,
   },
   'companies.company_id': {
-    optional: true
+    exists: true,
   },
   'companies.role_id': {
-    optional: true
+    exists: true,
   },
   'companies.canCreate': {
     exists: true,

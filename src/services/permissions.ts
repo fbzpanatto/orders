@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, selectAllFrom, duplicateKeyUpdate, updateTableSetWhere, selectMaxColumn } from '../utils/queries';
+import { insertInto, selectAllFrom, duplicateKeyUpdate, updateTableSetWhere, selectMaxColumn, update, duplicateKey } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -59,10 +59,10 @@ export const getRoles = async (request: Request, page: number) => {
           acc[resource] = {
             permission_id: curr.permission_id,
             role_id: curr.role_id,
+            company_id: curr.company_id,
             canCreate: curr.canCreate,
             canRead: curr.canRead,
             canUpdate: curr.canUpdate,
-            company_id: curr.company_id
           }
         }
         return acc;
@@ -103,7 +103,7 @@ export const createPermission = async (body: Permission) => {
     await insertInto(conn, Tables.roles, { ...body.role, role_id: newRoleId, company_id: body.company?.company_id }, [])
 
     const startingPermissionId = await selectMaxColumn(conn, Tables.permissions, PERMISSION_ID, MAX_PERMISSION_ID, COMPANY_ID, (body.company?.company_id as number))
-    const permissionsBody = permissions(body, (body.company?.company_id as number), newRoleId, startingPermissionId)
+    const permissionsBody = createPermissions(body, (body.company?.company_id as number), newRoleId, startingPermissionId)
 
     await duplicateKeyUpdate(conn, Tables.permissions, permissionsBody, ROLE_ID, newRoleId)
     await conn.commit()
@@ -119,10 +119,8 @@ export const createPermission = async (body: Permission) => {
 
 export const updatePermission = async (request: Request) => {
 
-  const { body, query } = request 
-
-  console.log(query)
-  console.log(body)
+  const { body, query } = request
+  const { role_id, company_id } = query
 
   let conn = null;
 
@@ -131,10 +129,10 @@ export const updatePermission = async (request: Request) => {
     conn = await dbConn()
     await conn.beginTransaction()
 
-    // await Promise.all([
-    //   await updateTableSetWhere(conn, Tables.roles, ROLE_ID, roleId, body.role, []),
-    //   await duplicateKeyUpdate(conn, Tables.permissions, permissions(body), ROLE_ID, roleId)
-    // ])
+    await Promise.all([
+      await update(conn, Tables.roles, { role_id, company_id }, body.role, []),
+      await duplicateKey(conn, Tables.permissions, formatPermissions(body))
+    ])
 
     await conn.commit()
 
@@ -144,14 +142,20 @@ export const updatePermission = async (request: Request) => {
   finally { if (conn) { conn.release() } }
 }
 
-const permissions = (body: Permission, companyId: number, roleId: number, permissionCounterId: number) => {
+const createPermissions = (body: Permission, companyId: number, roleId: number, counterId: number) => {
 
   return Object.keys(body)
     .filter(key => key != 'role' && key != 'company')
     .map((key, index) => {
-      if (index != 0) { permissionCounterId += 1 }
-      return { ...body[key as keyof Permission], table_id: RESOURCES_NAME_TO_ID[key as keyof typeof RESOURCES_NAME_TO_ID], company_id: companyId, permission_id: permissionCounterId, role_id: roleId };
+      if (index != 0) { counterId += 1 }
+      return { ...body[key as keyof Permission], table_id: RESOURCES_NAME_TO_ID[key as keyof typeof RESOURCES_NAME_TO_ID], company_id: companyId, permission_id: counterId, role_id: roleId };
     })
+}
+
+const formatPermissions = (body: Permission) => {
+  return Object.keys(body)
+    .filter(key => key != 'role' && key != 'company')
+    .map((key) => { return { ...body[key as keyof Permission], table_id: RESOURCES_NAME_TO_ID[key as keyof typeof RESOURCES_NAME_TO_ID] } })
 }
 
 const rollback = async (error: any, connection: PoolConnection | null) => {
