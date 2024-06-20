@@ -23,7 +23,8 @@ interface RolePermissions {
   canCreate: number,
   canRead: number,
   canUpdate: number,
-  canDelete: number
+  canDelete: number,
+  company_id: number
 }
 
 export const getRoles = async (request: Request, page: number) => {
@@ -39,18 +40,20 @@ export const getRoles = async (request: Request, page: number) => {
     if (role_id && company_id) {
 
       const queryString = `
-      SELECT r.*, p.*
+      SELECT r.*, p.*, c.company_id
       FROM ${Tables.roles} AS r
-      LEFT JOIN ${Tables.permissions} AS p ON r.${ROLE_ID} = p.${ROLE_ID}
-      LEFT JOIN ${Tables.companies} AS c ON r.${COMPANY_ID} = c.${COMPANY_ID}
-      WHERE r.${ROLE_ID}=?
-      `
+      LEFT JOIN ${Tables.permissions} AS p 
+        ON r.${ROLE_ID} = p.${ROLE_ID} AND r.${COMPANY_ID} = p.${COMPANY_ID}
+      LEFT JOIN ${Tables.companies} AS c 
+        ON r.${COMPANY_ID} = c.${COMPANY_ID}
+      WHERE r.${ROLE_ID} = ? AND r.${COMPANY_ID} = ?
+    `
 
-      const [result] = await connection.query(format(queryString, [role_id]))
+      const [result] = await connection.query(format(queryString, [parseInt(role_id as string), parseInt(company_id as string)]))
       const queryResult = (result as Array<RolePermissions>)
 
       const data = queryResult.reduce((acc: any, curr: RolePermissions) => {
-        if (!acc.role) { acc = { role: { role_id: curr.role_id, role_name: curr.role_name } } }
+        if (!acc.role) { acc = { role: { role_id: curr.role_id, role_name: curr.role_name, company_id: curr.company_id } } }
         const resource = RESOURCES_ID_TO_NAME[curr.table_id as keyof typeof RESOURCES_ID_TO_NAME]
         if (!acc[resource]) {
           acc[resource] = {
@@ -58,7 +61,8 @@ export const getRoles = async (request: Request, page: number) => {
             role_id: curr.role_id,
             canCreate: curr.canCreate,
             canRead: curr.canRead,
-            canUpdate: curr.canUpdate
+            canUpdate: curr.canUpdate,
+            company_id: curr.company_id
           }
         }
         return acc;
@@ -78,7 +82,10 @@ export const getRoles = async (request: Request, page: number) => {
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
   }
-  catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
+  catch (error) {
+    console.log('getRoles Error', error)
+    return objectResponse(400, 'Não foi possível processar sua solicitação.', {})
+  }
   finally { if (connection) { connection.release() } }
 }
 
@@ -110,7 +117,12 @@ export const createPermission = async (body: Permission) => {
   finally { if (conn) { conn.release() } }
 }
 
-export const updatePermission = async (roleId: number, body: Permission) => {
+export const updatePermission = async (request: Request) => {
+
+  const { body, query } = request 
+
+  console.log(query)
+  console.log(body)
 
   let conn = null;
 
@@ -119,10 +131,10 @@ export const updatePermission = async (roleId: number, body: Permission) => {
     conn = await dbConn()
     await conn.beginTransaction()
 
-    await Promise.all([
-      await updateTableSetWhere(conn, Tables.roles, ROLE_ID, roleId, body.role, []),
-      // await duplicateKeyUpdate(conn, Tables.permissions, permissions(body), ROLE_ID, roleId)
-    ])
+    // await Promise.all([
+    //   await updateTableSetWhere(conn, Tables.roles, ROLE_ID, roleId, body.role, []),
+    //   await duplicateKeyUpdate(conn, Tables.permissions, permissions(body), ROLE_ID, roleId)
+    // ])
 
     await conn.commit()
 

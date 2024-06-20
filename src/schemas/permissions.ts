@@ -25,6 +25,9 @@ const base: Schema = {
   'customers.permission_id': {
     exists: true,
   },
+  'customers.company_id': {
+    optional: true
+  },
   'customers.role_id': {
     exists: true,
   },
@@ -47,6 +50,9 @@ const base: Schema = {
     toBoolean: true
   },
   'companies.permission_id': {
+    optional: true
+  },
+  'companies.company_id': {
     optional: true
   },
   'companies.role_id': {
@@ -76,6 +82,9 @@ const base: Schema = {
   'orders.role_id': {
     optional: true
   },
+  'orders.company_id': {
+    optional: true
+  },
   'orders.canCreate': {
     exists: true,
     escape: true,
@@ -98,6 +107,9 @@ const base: Schema = {
     optional: true
   },
   'permissions.role_id': {
+    optional: true
+  },
+  'permissions.company_id': {
     optional: true
   },
   'permissions.canCreate': {
@@ -124,6 +136,9 @@ const base: Schema = {
   'products.role_id': {
     optional: true
   },
+  'products.company_id': {
+    optional: true
+  },
   'products.canCreate': {
     exists: true,
     escape: true,
@@ -146,6 +161,9 @@ const base: Schema = {
     optional: true
   },
   'segments.role_id': {
+    optional: true
+  },
+  'segments.company_id': {
     optional: true
   },
   'segments.canCreate': {
@@ -172,6 +190,9 @@ const base: Schema = {
   'production_status.role_id': {
     optional: true
   },
+  'production_status.company_id': {
+    optional: true
+  },
   'production_status.canCreate': {
     exists: true,
     escape: true,
@@ -191,6 +212,9 @@ const base: Schema = {
     toBoolean: true
   },
   'users.permission_id': {
+    optional: true
+  },
+  'users.company_id': {
     optional: true
   },
   'users.role_id': {

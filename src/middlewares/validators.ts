@@ -46,6 +46,7 @@ export const bodyValidationCompany = (req: Request, res: Response, next: NextFun
 export const validatePostPermission = checkSchema(permissionsPOST);
 export const validatePatchPermissions = checkSchema(permissionPATCH);
 export const bodyValidationPermissions = (req: Request, res: Response, next: NextFunction) => {
+  console.log('validationResult(req)', validationResult(req))
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, permissionsPOST)
 };
 

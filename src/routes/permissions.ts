@@ -15,8 +15,8 @@ router.post('/', validatePostPermission, bodyValidationPermissions, async (req: 
   return res.status(result.status).json(result)
 })
 
-router.patch('/:id', validateId, validatePatchPermissions, bodyValidationPermissions, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await updatePermission(parseInt(req.params.id), req.body)
+router.patch('/', validatePatchPermissions, bodyValidationPermissions, async (req: Request, res: Response, next: NextFunction) => {
+  const result = await updatePermission(req)
   return res.status(result.status).json(result)
 })
 
