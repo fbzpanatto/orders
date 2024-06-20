@@ -2,6 +2,7 @@ import { Schema } from "express-validator";
 
 const base: Schema = {
   role: { exists: true },
+  company: { exists: true },
   customers: { exists: true },
   companies: { exists: true },
   orders: { exists: true },
@@ -17,6 +18,9 @@ const base: Schema = {
     exists: true,
     isLength: { options: { min: 3, max: 30 } },
     escape: true
+  },
+  'company.company_id': {
+    exists: true
   },
   'customers.permission_id': {
     exists: true,

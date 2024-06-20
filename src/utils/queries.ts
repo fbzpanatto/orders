@@ -4,6 +4,23 @@ import { config } from '../config'
 import { formatDate } from './formatDate';
 import { PoolConnection } from 'mysql2/promise';
 
+export const selectMaxColumnIdResult = async (conn: PoolConnection, table: string, columnName: string, maxColumnAlias: string, whereColumn: string, whereColumnValue: number) => {
+  const maxColumnResult = await selectMaxColumnId(conn, table, columnName, maxColumnAlias, whereColumn, whereColumnValue);
+  const lastColumnID = maxColumnResult[maxColumnAlias] || 0;
+  const newColumnId = lastColumnID + 1;
+  return newColumnId as number
+}
+
+export const selectMaxColumnId = async (conn: PoolConnection, table: string, maxColumn: string, maxColumnAlias: string, columnWhereKey: string, columnWhereValue: number) => {
+  const query = `
+    SELECT MAX(${maxColumn}) as ${maxColumnAlias}
+    FROM ${table}
+    WHERE ${columnWhereKey} = ?;
+  `;
+  const [results] = await conn.query(query, [columnWhereValue]);
+  return (results as Array<any>)[0]
+};
+
 export async function selectAllFrom<T>(connection: PoolConnection, table: string, page = 1, paramQuery?: string) {
 
   const offset = getOffset(page, config().listPerPage);
