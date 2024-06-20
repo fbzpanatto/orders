@@ -1,17 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { Permission } from '../interfaces/permission'
-import { createPermission, getRoles, getPermissionByRole, updatePermission } from '../services/permissions'
+import { createPermission, getRoles, updatePermission } from '../services/permissions'
 import { validatePostPermission, bodyValidationPermissions, validatePatchPermissions, validateId } from '../middlewares/validators'
 
 const router = Router()
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getRoles(1)
-  return res.status(result.status).json(result)
-})
-
-router.get('/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getPermissionByRole(parseInt(req.params.id))
+  const result = await getRoles(req, 1)
   return res.status(result.status).json(result)
 })
 
