@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, selectAllFrom, duplicateKeyUpdate, updateTableSetWhere,selectMaxColumn } from '../utils/queries';
+import { insertInto, selectAllFrom, duplicateKeyUpdate, updateTableSetWhere, selectMaxColumn } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -12,7 +12,18 @@ const COMPANY_ID = 'company_id'
 const MAX_ROLE_ID = 'max_role_id'
 const PERMISSION_ID = 'permission_id'
 const MAX_PERMISSION_ID = 'max_permission_id'
-interface RolePermissions { role_id: number, role_name: string, created_at: string, updated_at: string, permission_id: number, table_id: number, canCreate: number, canRead: number, canUpdate: number, canDelete: number }
+interface RolePermissions {
+  role_id: number,
+  role_name: string,
+  created_at: string,
+  updated_at: string,
+  permission_id: number,
+  table_id: number,
+  canCreate: number,
+  canRead: number,
+  canUpdate: number,
+  canDelete: number
+}
 
 export const getRoles = async (page: number) => {
 
