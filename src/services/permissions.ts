@@ -1,10 +1,9 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, selectAllFrom, duplicateKeyUpdate, updateTableSetWhere, selectMaxColumnId, selectMaxColumnIdResult } from '../utils/queries';
+import { insertInto, selectAllFrom, duplicateKeyUpdate, updateTableSetWhere,selectMaxColumn } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
 import { PoolConnection, format } from 'mysql2/promise';
-import { ResultSetHeader } from 'mysql2';
 import { Permission } from '../interfaces/permission';
 import { RESOURCES_ID_TO_NAME, RESOURCES_NAME_TO_ID } from './../enums/resources';
 
@@ -81,11 +80,11 @@ export const createPermission = async (body: Permission) => {
     conn = await dbConn()
     await conn.beginTransaction()
 
-    const newRoleId = await selectMaxColumnIdResult(conn, Tables.roles, ROLE_ID, MAX_ROLE_ID, COMPANY_ID, (body.company?.company_id as number))
+    const newRoleId = await selectMaxColumn(conn, Tables.roles, ROLE_ID, MAX_ROLE_ID, COMPANY_ID, (body.company?.company_id as number))
 
     await insertInto(conn, Tables.roles, { ...body.role, role_id: newRoleId, company_id: body.company?.company_id }, [])
 
-    const startingPermissionId = await selectMaxColumnIdResult(conn, Tables.permissions, PERMISSION_ID, MAX_PERMISSION_ID, COMPANY_ID, (body.company?.company_id as number))
+    const startingPermissionId = await selectMaxColumn(conn, Tables.permissions, PERMISSION_ID, MAX_PERMISSION_ID, COMPANY_ID, (body.company?.company_id as number))
     const permissionsBody = permissions(body, (body.company?.company_id as number), newRoleId, startingPermissionId)
 
     await duplicateKeyUpdate(conn, Tables.permissions, permissionsBody, ROLE_ID, newRoleId)
