@@ -50,16 +50,8 @@ export const getRoles = async (request: Request, page: number) => {
         { table: 'companies', alias: 'c', conditions: [{ column1: 'r.company_id', column2: 'c.company_id' }] }
       ];
 
-      const result = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
-      const queryResult = (result as Array<RolePermissions>)
-
-      const data = queryResult.reduce((acc: any, curr: RolePermissions) => {
-        if (!acc.role) { acc = { role: { role_id: curr.role_id, role_name: curr.role_name, company_id: curr.company_id } } }
-        const resource = RESOURCES_ID_TO_NAME[curr.table_id as keyof typeof RESOURCES_ID_TO_NAME]
-        if (!acc[resource]) { acc[resource] = { permission_id: curr.permission_id, role_id: curr.role_id, company_id: curr.company_id, canCreate: curr.canCreate, canRead: curr.canRead, canUpdate: curr.canUpdate } }
-        return acc;
-      }, {})
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+      const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceData(queryResult) })
     }
 
     const selectFields = ['r.*', 'c.*'];
@@ -125,6 +117,15 @@ export const updatePermission = async (request: Request) => {
   }
   catch (error) { return rollback(error, conn) }
   finally { if (conn) { conn.release() } }
+}
+
+const reduceData = (queryResult: any) => {
+  return queryResult.reduce((acc: any, curr: RolePermissions) => {
+    if (!acc.role) { acc = { role: { role_id: curr.role_id, role_name: curr.role_name, company_id: curr.company_id } } }
+    const resource = RESOURCES_ID_TO_NAME[curr.table_id as keyof typeof RESOURCES_ID_TO_NAME]
+    if (!acc[resource]) { acc[resource] = { permission_id: curr.permission_id, role_id: curr.role_id, company_id: curr.company_id, canCreate: curr.canCreate, canRead: curr.canRead, canUpdate: curr.canUpdate } }
+    return acc;
+  }, {})
 }
 
 const createPermissions = (body: Permission, companyId: number, roleId: number, counterId: number) => {

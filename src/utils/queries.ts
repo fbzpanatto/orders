@@ -4,7 +4,6 @@ import { config } from '../config'
 import { formatDate } from './formatDate';
 import { PoolConnection } from 'mysql2/promise';
 
-
 export interface WhereConditions { [key: string]: any }
 export interface JoinCondition { column1: string, column2: string }
 export interface JoinClause { table: string, alias: string, conditions: JoinCondition[] }
