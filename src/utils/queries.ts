@@ -26,6 +26,23 @@ export async function selectAllFrom<T>(connection: PoolConnection, table: string
   return results as Array<T>
 }
 
+export const selectAllWithWhereLeft = async (connection: PoolConnection, table: string, whereConditions: { [key: string]: any }, joins: { table: string, on: string }[] = []) => {
+
+  if (Object.keys(whereConditions).length === 0) { return }
+
+  const whereClause = Object.keys(whereConditions).map(key => `${table}.${key}=?`).join(' AND ');
+
+  const joinClause = joins.map(join => `LEFT JOIN ${join.table} ON ${join.on}`).join(' ');
+
+  const queryString = `SELECT * FROM ${table} ${joinClause} WHERE ${whereClause}`;
+
+  const values = Object.values(whereConditions);
+
+  const [results] = await connection.query(format(queryString, values));
+
+  return results;
+};
+
 export const selectAllWithWhere = async (connection: PoolConnection, table: string, whereConditions: { [key: string]: any }) => {
 
   if (Object.keys(whereConditions).length === 0) { return }
@@ -35,7 +52,7 @@ export const selectAllWithWhere = async (connection: PoolConnection, table: stri
 
   const values = Object.values(whereConditions);
 
-  const [results,] = await connection.query(format(queryString, values));
+  const [results] = await connection.query(format(queryString, values));
 
   return results;
 };

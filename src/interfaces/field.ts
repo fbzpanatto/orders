@@ -1,5 +1,6 @@
 export interface Field {
-  id?: number,
+  id?:number
+  company_id?: number,
   table_id?: number,
   field_id?: number,
   label?: string,
