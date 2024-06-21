@@ -1,9 +1,9 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, selectAllFrom, duplicateKeyUpdate, selectMaxColumn, update, duplicateKey, selectAllWithWhere, selectAllWithWhereLeft } from '../utils/queries';
+import { insertInto, duplicateKeyUpdate, selectMaxColumn, update, duplicateKey, selectAllWithWhereLeft, selectWithJoinsAndWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
-import { PoolConnection, format } from 'mysql2/promise';
+import { PoolConnection } from 'mysql2/promise';
 import { Permission } from '../interfaces/permission';
 import { Request } from 'express'
 import { RESOURCES_ID_TO_NAME, RESOURCES_NAME_TO_ID } from './../enums/resources';
@@ -37,49 +37,42 @@ export const getRoles = async (request: Request, page: number) => {
 
     connection = await dbConn()
 
-    const leftJoins = [{ table: Tables.companies, on: `${Tables.roles}.company_id = ${Tables.companies}.company_id` }]
-
     if (role_id && company_id) {
 
-      const queryString = `
-      SELECT r.*, p.*, c.company_id
-      FROM ${Tables.roles} AS r
-      LEFT JOIN ${Tables.permissions} AS p ON r.${ROLE_ID} = p.${ROLE_ID} AND r.${COMPANY_ID} = p.${COMPANY_ID}
-      LEFT JOIN ${Tables.companies} AS c ON r.${COMPANY_ID} = c.${COMPANY_ID}
-      WHERE r.${ROLE_ID} = ? AND r.${COMPANY_ID} = ?
-    `
+      const baseTable = 'roles';
+      const baseAlias = 'r';
+      const selectFields = ['r.*', 'p.*', 'c.company_id'];
+      const whereConditions = { role_id, company_id };
+      const joins = [
+        { table: 'permissions', alias: 'p', conditions: [{ column1: 'r.role_id', column2: 'p.role_id' }, { column1: 'r.company_id', column2: 'p.company_id' }] },
+        { table: 'companies', alias: 'c', conditions: [{ column1: 'r.company_id', column2: 'c.company_id' }] }
+      ];
 
-      const [result] = await connection.query(format(queryString, [parseInt(role_id as string), parseInt(company_id as string)]))
+      const result = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
       const queryResult = (result as Array<RolePermissions>)
 
       const data = queryResult.reduce((acc: any, curr: RolePermissions) => {
         if (!acc.role) { acc = { role: { role_id: curr.role_id, role_name: curr.role_name, company_id: curr.company_id } } }
         const resource = RESOURCES_ID_TO_NAME[curr.table_id as keyof typeof RESOURCES_ID_TO_NAME]
-        if (!acc[resource]) {
-          acc[resource] = {
-            permission_id: curr.permission_id,
-            role_id: curr.role_id,
-            company_id: curr.company_id,
-            canCreate: curr.canCreate,
-            canRead: curr.canRead,
-            canUpdate: curr.canUpdate,
-          }
-        }
+        if (!acc[resource]) { acc[resource] = { permission_id: curr.permission_id, role_id: curr.role_id, company_id: curr.company_id, canCreate: curr.canCreate, canRead: curr.canRead, canUpdate: curr.canUpdate } }
         return acc;
       }, {})
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
-    const rows = await selectAllWithWhereLeft(connection, Tables.roles, {}, leftJoins)
-    const data = emptyOrRows(rows);
+    const baseTable = 'roles';
+    const baseAlias = 'r';
+    const selectFields = ['r.*', 'c.*'];
+    const whereConditions = { company_id: 1 }
+    const joins = [{ table: 'companies', alias: 'c', conditions: [{ column1: 'r.company_id', column2: 'c.company_id' }] }]
+
+    const result = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const data = emptyOrRows(result);
     const meta = { page };
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
   }
-  catch (error) {
-    console.log('getRoles Error', error)
-    return objectResponse(400, 'Não foi possível processar sua solicitação.', {})
-  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }
 }
 
@@ -104,10 +97,7 @@ export const createPermission = async (body: Permission) => {
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 2 });
   }
-  catch (error) {
-    console.log('createPermission', error)
-    return rollback(error, conn)
-  }
+  catch (error) { return rollback(error, conn) }
   finally { if (conn) { conn.release() } }
 }
 
