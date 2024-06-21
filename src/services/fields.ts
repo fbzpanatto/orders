@@ -27,8 +27,7 @@ export const getFields = async (request: Request, page: number) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
-    // TODO: get company_id from user that has in request body or header after auth.
-    const rows = await selectAllWithWhereLeft(connection, Tables.fields, { company_id: 1 }, leftJoins)
+    const rows = await selectAllWithWhereLeft(connection, Tables.fields, {}, leftJoins)
     const data = emptyOrRows(rows);
     const meta = { page };
 
@@ -45,10 +44,7 @@ export const getFields = async (request: Request, page: number) => {
     })
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: formatedData, meta })
   }
-  catch (error) {
-    console.log('error', error)
-    return objectResponse(400, 'Não foi possível processar sua solicitação.', {})
-  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }
 }
 

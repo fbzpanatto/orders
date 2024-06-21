@@ -28,15 +28,11 @@ export async function selectAllFrom<T>(connection: PoolConnection, table: string
 
 export const selectAllWithWhereLeft = async (connection: PoolConnection, table: string, whereConditions: { [key: string]: any }, joins: { table: string, on: string }[] = []) => {
 
-  if (Object.keys(whereConditions).length === 0) { return }
-
-  const whereClause = Object.keys(whereConditions).map(key => `${table}.${key}=?`).join(' AND ');
-
-  console.log('whereClause', whereClause)
+  const whereClause = Object.keys(whereConditions).length > 0 ? 'WHERE ' + Object.keys(whereConditions).map(key => `${table}.${key}=?`).join(' AND ') : '';
 
   const joinClause = joins.map(join => `LEFT JOIN ${join.table} ON ${join.on}`).join(' ');
 
-  const queryString = `SELECT * FROM ${table} ${joinClause} WHERE ${whereClause}`;
+  const queryString = `SELECT * FROM ${table} ${joinClause} ${whereClause}`;
 
   const values = Object.values(whereConditions);
 

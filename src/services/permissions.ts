@@ -72,7 +72,7 @@ export const getRoles = async (request: Request, page: number) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
-    const rows = await selectAllWithWhereLeft(connection, Tables.roles, { company_id: 1 }, leftJoins)
+    const rows = await selectAllWithWhereLeft(connection, Tables.roles, {}, leftJoins)
     const data = emptyOrRows(rows);
     const meta = { page };
 
