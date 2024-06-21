@@ -64,9 +64,7 @@ export const selectWithJoinsAndWhere = async (connection: PoolConnection, baseTa
 
   const selectClause = selectFields.join(', ');
 
-  const whereClause = Object.keys(whereConditions).length > 0
-    ? 'WHERE ' + Object.keys(whereConditions).map(key => `${baseAlias}.${key}=?`).join(' AND ')
-    : '';
+  const whereClause = Object.keys(whereConditions).length > 0 ? 'WHERE ' + Object.keys(whereConditions).map(key => `${baseAlias}.${key}=?`).join(' AND ') : '';
 
   const joinClause = joins.map(join => {
     const joinConditions = join.conditions.map(condition => `${condition.column1} = ${condition.column2}`).join(' AND ');

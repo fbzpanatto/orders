@@ -13,6 +13,7 @@ const COMPANY_ID = 'company_id'
 const MAX_ROLE_ID = 'max_role_id'
 const PERMISSION_ID = 'permission_id'
 const MAX_PERMISSION_ID = 'max_permission_id'
+
 interface RolePermissions {
   role_id: number,
   role_name: string,
@@ -62,7 +63,8 @@ export const getRoles = async (request: Request, page: number) => {
     }
 
     const selectFields = ['r.*', 'c.*'];
-    const whereConditions = { company_id: 1 }
+    // const whereConditions = { company_id: 2 }
+    const whereConditions = {}
     const joins = [{ table: 'companies', alias: 'c', conditions: [{ column1: 'r.company_id', column2: 'c.company_id' }] }]
 
     const result = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
