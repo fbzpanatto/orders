@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, selectAllFrom, duplicateKeyUpdate, selectMaxColumn, update, duplicateKey } from '../utils/queries';
+import { insertInto, selectAllFrom, duplicateKeyUpdate, selectMaxColumn, update, duplicateKey, selectAllWithWhere, selectAllWithWhereLeft } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -37,6 +37,8 @@ export const getRoles = async (request: Request, page: number) => {
 
     connection = await dbConn()
 
+    const leftJoins = [{ table: Tables.companies, on: `${Tables.roles}.company_id = ${Tables.companies}.company_id` }]
+
     if (role_id && company_id) {
 
       const queryString = `
@@ -70,13 +72,7 @@ export const getRoles = async (request: Request, page: number) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
-    const queryString = `
-    SELECT r.*, c.corporate_name
-    FROM ${Tables.roles} AS r
-    LEFT JOIN ${Tables.companies} AS c ON r.${COMPANY_ID} = c.${COMPANY_ID}
-    `
-
-    const rows = await selectAllFrom(connection, Tables.roles, page, queryString)
+    const rows = await selectAllWithWhereLeft(connection, Tables.roles, { company_id: 1 }, leftJoins)
     const data = emptyOrRows(rows);
     const meta = { page };
 

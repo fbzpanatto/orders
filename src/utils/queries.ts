@@ -32,6 +32,8 @@ export const selectAllWithWhereLeft = async (connection: PoolConnection, table: 
 
   const whereClause = Object.keys(whereConditions).map(key => `${table}.${key}=?`).join(' AND ');
 
+  console.log('whereClause', whereClause)
+
   const joinClause = joins.map(join => `LEFT JOIN ${join.table} ON ${join.on}`).join(' ');
 
   const queryString = `SELECT * FROM ${table} ${joinClause} WHERE ${whereClause}`;
