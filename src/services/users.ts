@@ -5,12 +5,13 @@ import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
 import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
+import { Request } from 'express'
 import { User } from '../interfaces/users';
 
 const company_id = 'company_id'
 const role_id = 'role_id'
 
-export const getUsers = async (page: number) => {
+export const getUsers = async (request: Request, page: number) => {
 
   let connection = null;
 
@@ -75,7 +76,10 @@ export const createUser = async (body: User) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const updateUser = async (userId: number, body: User) => {
+export const updateUser = async (request: Request) => {
+
+  const { body, query } = request
+  const { user_id, company_id } = query
 
   let connection = null;
 
@@ -85,7 +89,7 @@ export const updateUser = async (userId: number, body: User) => {
 
     await connection.beginTransaction()
 
-    const result = await updateTableSetWhere(connection, Tables.users, 'user_id', userId, body, [])
+    const result = await updateTableSetWhere(connection, Tables.users, 'user_id', 1, body, [])
 
     await connection.commit()
 
