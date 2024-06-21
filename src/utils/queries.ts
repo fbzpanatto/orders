@@ -5,20 +5,9 @@ import { formatDate } from './formatDate';
 import { PoolConnection } from 'mysql2/promise';
 
 
-interface WhereConditions {
-  [key: string]: any;
-}
-
-interface JoinCondition {
-  column1: string;
-  column2: string;
-}
-
-interface JoinClause {
-  table: string;
-  alias: string;
-  conditions: JoinCondition[];
-}
+export interface WhereConditions { [key: string]: any }
+export interface JoinCondition { column1: string, column2: string }
+export interface JoinClause { table: string, alias: string, conditions: JoinCondition[] }
 
 export const selectMaxColumn = async (conn: PoolConnection, table: string, columnName: string, maxColumnAlias: string, whereColumn: string, whereColumnValue: number) => {
 

@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, duplicateKeyUpdate, selectMaxColumn, update, duplicateKey, selectAllWithWhereLeft, selectWithJoinsAndWhere } from '../utils/queries';
+import { insertInto, duplicateKeyUpdate, selectMaxColumn, update, duplicateKey, selectWithJoinsAndWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';

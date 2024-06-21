@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, update, selectAllWithWhereLeft } from '../utils/queries';
+import { insertInto, update, selectAllWithWhereLeft, selectWithJoinsAndWhere, JoinClause, WhereConditions } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -19,11 +19,19 @@ export const getFields = async (request: Request, page: number) => {
 
     connection = await dbConn()
 
+    const baseTable = Tables.fields;
+    const baseAlias = 'f';
+
     const leftJoins = [{ table: Tables.companies, on: `${Tables.fields}.company_id = ${Tables.companies}.company_id` }]
 
     if (company_id && table_id && field_id) {
-      const result = await selectAllWithWhereLeft(connection, Tables.fields, { company_id, table_id, field_id }, leftJoins)
-      const data = (result as Array<any>)[0]
+
+      const selectFields = ['f.*'];
+      const whereConditions: WhereConditions = { company_id, table_id, field_id };
+      const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 'f.company_id', column2: 'c.company_id' }] }]
+
+      const result = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+      const data = (result as Array<{ [key: string]: any }>)[0]
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
