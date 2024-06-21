@@ -36,6 +36,9 @@ export const selectAllWithWhereLeft = async (connection: PoolConnection, table: 
 
   const values = Object.values(whereConditions);
 
+  console.log('queryString', queryString)
+  console.log('values', values)
+
   const [results] = await connection.query(format(queryString, values));
 
   return results;

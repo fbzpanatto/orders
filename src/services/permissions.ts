@@ -44,10 +44,8 @@ export const getRoles = async (request: Request, page: number) => {
       const queryString = `
       SELECT r.*, p.*, c.company_id
       FROM ${Tables.roles} AS r
-      LEFT JOIN ${Tables.permissions} AS p 
-        ON r.${ROLE_ID} = p.${ROLE_ID} AND r.${COMPANY_ID} = p.${COMPANY_ID}
-      LEFT JOIN ${Tables.companies} AS c 
-        ON r.${COMPANY_ID} = c.${COMPANY_ID}
+      LEFT JOIN ${Tables.permissions} AS p ON r.${ROLE_ID} = p.${ROLE_ID} AND r.${COMPANY_ID} = p.${COMPANY_ID}
+      LEFT JOIN ${Tables.companies} AS c ON r.${COMPANY_ID} = c.${COMPANY_ID}
       WHERE r.${ROLE_ID} = ? AND r.${COMPANY_ID} = ?
     `
 
