@@ -37,10 +37,11 @@ export const getRoles = async (request: Request, page: number) => {
 
     connection = await dbConn()
 
+    const baseTable = 'roles';
+    const baseAlias = 'r';
+
     if (role_id && company_id) {
 
-      const baseTable = 'roles';
-      const baseAlias = 'r';
       const selectFields = ['r.*', 'p.*', 'c.company_id'];
       const whereConditions = { role_id, company_id };
       const joins = [
@@ -60,8 +61,6 @@ export const getRoles = async (request: Request, page: number) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
-    const baseTable = 'roles';
-    const baseAlias = 'r';
     const selectFields = ['r.*', 'c.*'];
     const whereConditions = { company_id: 1 }
     const joins = [{ table: 'companies', alias: 'c', conditions: [{ column1: 'r.company_id', column2: 'c.company_id' }] }]
