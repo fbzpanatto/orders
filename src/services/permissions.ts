@@ -55,7 +55,7 @@ export const getRoles = async (request: Request, page: number) => {
     }
 
     const selectFields = ['r.*', 'c.*'];
-    // const whereConditions = { company_id: 2 }
+    // TODO: const whereConditions = { company_id: 2 }
     const whereConditions = {}
     const joins = [{ table: 'companies', alias: 'c', conditions: [{ column1: 'r.company_id', column2: 'c.company_id' }] }]
 

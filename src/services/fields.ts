@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, update, selectAllWithWhereLeft, selectWithJoinsAndWhere, JoinClause, WhereConditions } from '../utils/queries';
+import { insertInto, update, selectWithJoinsAndWhere, JoinClause, WhereConditions } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -22,8 +22,6 @@ export const getFields = async (request: Request, page: number) => {
     const baseTable = Tables.fields;
     const baseAlias = 'f';
 
-    const leftJoins = [{ table: Tables.companies, on: `${Tables.fields}.company_id = ${Tables.companies}.company_id` }]
-
     if (company_id && table_id && field_id) {
 
       const selectFields = ['f.*'];
@@ -35,22 +33,16 @@ export const getFields = async (request: Request, page: number) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
-    const rows = await selectAllWithWhereLeft(connection, Tables.fields, {}, leftJoins)
-    const data = emptyOrRows(rows);
+    const selectFields = ['f.*', 'c.corporate_name'];
+    // TODO: const whereConditions = { company_id: 2 }
+    const whereConditions: WhereConditions = {};
+    const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 'f.company_id', column2: 'c.company_id' }] }]
+
+    const rows = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const data = formatedData(emptyOrRows(rows));
     const meta = { page };
 
-    const formatedData = (data as any[]).map(row => {
-      return {
-        table_id: row.table_id,
-        field_id: row.field_id,
-        company_id: row.company_id,
-        corporate_name: row.corporate_name,
-        table: RESOURCE.find(table => table.id === row.table_id)?.label,
-        field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.label,
-        label: row.label
-      }
-    })
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: formatedData, meta })
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }
@@ -101,4 +93,18 @@ export const updateField = async (request: Request) => {
 const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+}
+
+const formatedData = (data: any[]) => {
+  return data.map(row => {
+    return {
+      table_id: row.table_id,
+      field_id: row.field_id,
+      company_id: row.company_id,
+      corporate_name: row.corporate_name,
+      table: RESOURCE.find(table => table.id === row.table_id)?.label,
+      field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.label,
+      label: row.label
+    }
+  })
 }
