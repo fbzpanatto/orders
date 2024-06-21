@@ -11,12 +11,12 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.get('/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getOrder(parseInt(req.params.id))
+  const result = await getOrder(req)
   return res.status(result.status).json(result)
 })
 
 router.get('/person/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getPersonOrders(parseInt(req.params.id))
+  const result = await getPersonOrders(req)
   return res.status(result.status).json(result)
 })
 

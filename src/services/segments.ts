@@ -1,6 +1,6 @@
 import { objectResponse } from '../utils/response';
 import { Segments } from '../interfaces/segments';
-import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllFrom, selectAllWithWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
@@ -21,14 +21,16 @@ export const getSegments = async (page: number) => {
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const getSegment = async (segmentId: number) => {
+export const getSegment = async (req: Request) => {
+
+  const { segment_id, company_id } = req.query
 
   let connection = null;
 
   try {
 
     connection = await dbConn()
-    const result = await selectAllFromWhere(connection, Tables.segments, 'id', segmentId) as Array<Segments>
+    const result = await selectAllWithWhere(connection, Tables.segments, { segment_id, company_id }) as Array<Segments>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

@@ -1,6 +1,6 @@
 import { objectResponse } from '../utils/response';
 import { Products } from '../interfaces/products';
-import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
+import { selectAllWithWhere, updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
@@ -20,13 +20,13 @@ export const getProducts = async (page: number) => {
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const getProduct = async (statusId: number) => {
+export const getProduct = async (req: Request) => {
   let connection = null;
 
   try {
 
     connection = await dbConn()
-    const queryResult = await selectAllFromWhere(connection, Tables.products, 'id', statusId) as Array<Products>
+    const queryResult = await selectAllWithWhere(connection, Tables.products, {}) as Array<Products>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

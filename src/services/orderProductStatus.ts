@@ -1,6 +1,6 @@
 import { objectResponse } from '../utils/response';
 import { OrderProductsStatus } from '../interfaces/order_products_status';
-import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
+import { selectAllWithWhere, updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
@@ -20,13 +20,13 @@ export const getAllOrderProductsStatus = async (page: number) => {
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const getOrderProductsStatus = async (orderId: number) => {
+export const getOrderProductsStatus = async (req: Request) => {
   let connection = null;
 
   try {
 
     connection = await dbConn()
-    const queryResult = await selectAllFromWhere(connection, Tables.order_products_status, 'order_id', orderId) as Array<OrderProductsStatus>
+    const queryResult = await selectAllWithWhere(connection, Tables.order_products_status, {}) as Array<OrderProductsStatus>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

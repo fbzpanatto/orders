@@ -1,7 +1,7 @@
 import { RESOURCES_NAME_TO_ID } from './../enums/resources';
 import { objectResponse } from '../utils/response';
 import { Company } from '../interfaces/company';
-import { updateTableSetWhere, insertInto, selectAllFrom, selectAllFromWhere } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllFrom, selectAllWithWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -26,7 +26,7 @@ export const getCompanies = async (page: number, request: Request) => {
 
     if (customFields) {
 
-      extra = (await selectAllFromWhere(connection, Tables.fields, 'table_id', RESOURCES_NAME_TO_ID.customers) as Field[])
+      extra = (await selectAllWithWhere(connection, Tables.fields, {}) as Field[])
         .map(row => {
           return {
             id: row.id,

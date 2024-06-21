@@ -26,13 +26,18 @@ export async function selectAllFrom<T>(connection: PoolConnection, table: string
   return results as Array<T>
 }
 
-export const selectAllFromWhere = async (connection: PoolConnection, table: string, column: string, columnValue: string | number) => {
+export const selectAllWithWhere = async (connection: PoolConnection, table: string, whereConditions: { [key: string]: any }) => {
 
-  const queryString = `SELECT * FROM ${table} WHERE ${column}=?`;
+  if (Object.keys(whereConditions).length === 0) { return }
 
-  const [results,] = await connection.query(format(queryString, [columnValue]))
+  const whereClause = Object.keys(whereConditions).map(key => `${key}=?`).join(' AND ');
+  const queryString = `SELECT * FROM ${table} WHERE ${whereClause}`;
 
-  return results
+  const values = Object.values(whereConditions);
+
+  const [results,] = await connection.query(format(queryString, values));
+
+  return results;
 };
 
 export const insertInto = async (connection: PoolConnection, table: string, body: { [key: string]: any }, fieldsToIgnore: string[]) => {

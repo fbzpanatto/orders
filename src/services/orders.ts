@@ -1,6 +1,6 @@
 import { objectResponse } from '../utils/response';
 import { Orders } from '../interfaces/orders';
-import { selectAllFromWhere, updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
+import { selectAllWithWhere, updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { emptyOrRows } from '../helper';
@@ -20,24 +20,24 @@ export const getAllOrders = async (page: number) => {
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const getPersonOrders = async (personId: number) => {
+export const getPersonOrders = async (req: Request) => {
   let connection = null;
 
   try {
 
     connection = await dbConn()
-    const queryResult = await selectAllFromWhere(connection, Tables.orders, 'person_id', personId) as Array<Orders>
+    const queryResult = await selectAllWithWhere(connection, Tables.orders, {}) as Array<Orders>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const getOrder = async (orderId: number) => {
+export const getOrder = async (req: Request) => {
   let connection = null;
 
   try {
 
     connection = await dbConn()
-    const queryResult = await selectAllFromWhere(connection, Tables.orders, 'id', orderId) as Array<Orders>
+    const queryResult = await selectAllWithWhere(connection, Tables.orders, {}) as Array<Orders>
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

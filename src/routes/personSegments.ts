@@ -6,7 +6,7 @@ import { bodyValidationPersonSegments, validateId, validatePostPersonSegments, v
 const router = Router()
 
 router.get('/:personId', validatePersonId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getPersonSegments(parseInt(req.params.personId))
+  const result = await getPersonSegments(req)
   return res.status(result.status).json(result)
 })
 

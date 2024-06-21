@@ -7,6 +7,12 @@ export const fieldPOST: Schema = {
     isInt: true,
     toInt: true
   },
+  company_id: {
+    exists: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
   field_id: {
     exists: true,
     escape: true,
@@ -22,6 +28,12 @@ export const fieldPOST: Schema = {
 
 export const fieldPATCH: Schema = {
   table_id: {
+    exists: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
+  company_id: {
     exists: true,
     escape: true,
     isInt: true,

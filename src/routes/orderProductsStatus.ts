@@ -14,7 +14,7 @@ router.get('/',
 router.get('/:id',
   validateId,
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await getOrderProductsStatus(parseInt(req.params.id))
+    const result = await getOrderProductsStatus(req)
     return res.status(result.status).json(result)
   })
 

@@ -6,7 +6,7 @@ import { Field } from '../interfaces/field'
 const router = Router()
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getFields(1)
+  const result = await getFields(req, 1)
   return res.status(result.status).json(result)
 })
 
@@ -20,8 +20,8 @@ router.post('/', validatePostField, bodyValidationField, async (req: Request, re
   return res.status(result.status).json(result)
 })
 
-router.patch('/:id', validateId, validatePatchField, bodyValidationField, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await updateField(parseInt(req.params.id), req.body as Field)
+router.patch('/', validateId, validatePatchField, bodyValidationField, async (req: Request, res: Response, next: NextFunction) => {
+  const result = await updateField(req)
   return res.status(result.status).json(result)
 })
 

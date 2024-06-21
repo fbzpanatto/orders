@@ -1,17 +1,20 @@
 import { objectResponse } from '../utils/response';
-import { selectAllFromWhere, updateTableSetWhere, insertInto } from '../utils/queries';
+import { selectAllWithWhere, updateTableSetWhere, insertInto } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
 import { PersonSegments } from '../interfaces/personSegments';
 import { dbConn } from './db';
 
-export const getPersonSegments = async (personId: number) => {
+export const getPersonSegments = async (req: Request) => {
+
+  const { person_id } = req.query
+
   let connection = null;
 
   try {
 
     connection = await dbConn()
-    const result = await selectAllFromWhere(connection, Tables.person_segments, 'person_id', personId) as Array<PersonSegments>
+    const result = await selectAllWithWhere(connection, Tables.person_segments, { person_id }) as Array<PersonSegments>
     return objectResponse(200, 'Consulta realizada com sucesso.', { result })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }

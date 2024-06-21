@@ -1,14 +1,18 @@
 import { objectResponse } from '../utils/response';
-import { updateTableSetWhere, insertInto, selectAllFrom, duplicateKeyUpdate } from '../utils/queries';
+import { insertInto, update, selectAllWithWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
 import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
 import { Field } from '../interfaces/field';
+import { Request } from 'express'
 import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from '../enums/resources';
 
-export const getFields = async (page: number) => {
+export const getFields = async (request: Request, page: number) => {
+
+  const { query } = request
+  const { company_id } = query
 
   let connection = null;
 
@@ -16,11 +20,18 @@ export const getFields = async (page: number) => {
 
     connection = await dbConn()
 
-    const rows = await selectAllFrom(connection, Tables.fields, page)
+    const rows = await selectAllWithWhere(connection, Tables.fields, { company_id })
     const data = emptyOrRows(rows);
     const meta = { page };
 
-    const formatedData = (data as Field[]).map(row => { return { id: row.id, table: RESOURCE.find(table => table.id === row.table_id)?.label, field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.label, label: row.label } })
+    const formatedData = (data as Field[]).map(row => {
+      return {
+        id: row.id,
+        table: RESOURCE.find(table => table.id === row.table_id)?.label,
+        field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.label,
+        label: row.label
+      }
+    })
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: formatedData, meta })
   }
@@ -68,16 +79,18 @@ export const createField = async (body: Field) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const updateField = async (fieldId: number, body: Field) => {
+export const updateField = async (request: Request) => {
 
   let connection = null;
+  const { body, query } = request
+  const { table_id, field_id, company_id } = query
 
   try {
 
     connection = await dbConn()
 
     await connection.beginTransaction()
-    const result = await updateTableSetWhere(connection, Tables.fields, 'id', fieldId, { label: body.label }, [])
+    const result = await update(connection, Tables.fields, { table_id, field_id, company_id }, { label: body.label }, [])
 
     await connection.commit()
 

@@ -11,7 +11,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 })
 
 router.get('/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getSegment(parseInt(req.params.id))
+  const result = await getSegment(req)
   return res.status(result.status).json(result)
 })
 
