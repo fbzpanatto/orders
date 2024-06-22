@@ -1,7 +1,7 @@
-import { RESOURCES_NAME_TO_ID } from './../enums/resources';
+import { JoinClause } from './../utils/queries';
 import { objectResponse } from '../utils/response';
 import { Company } from '../interfaces/company';
-import { updateTableSetWhere, insertInto, selectAllFrom, selectAllWithWhere } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllFrom, selectAllWithWhere, selectWithJoinsAndWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -11,21 +11,32 @@ import { Request } from 'express'
 import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from './../enums/resources';
 import { Field } from '../interfaces/field';
 
+interface CompanyRole { company_id: number, corporate_name: string, role_id: number, role_name: string }
+
 export const getCompanies = async (page: number, request: Request) => {
 
-  const { customFields } = request.query
+  const { customFields, roles, company_id } = request.query
 
   let connection = null;
   let extra = null;
 
   try {
 
+    const baseTable = 'companies';
+    const baseAlias = 'c';
+
     connection = await dbConn()
 
-    const data = emptyOrRows(await selectAllFrom<Company>(connection, Tables.companies, page));
+    if (roles) {
+      const selectFields = ['c.company_id', 'c.corporate_name', 'r.role_id', 'r.role_name']
+      const whereConditions = {}
+      const joins: JoinClause[] = [{ table: 'roles', alias: 'r', conditions: [{ column1: 'c.company_id', column2: 'r.company_id' }] }]
+
+      const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<CompanyRole>
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: companyRoles(queryResult) })
+    }
 
     if (customFields) {
-
       extra = (await selectAllWithWhere(connection, Tables.fields, {}) as Field[])
         .map(row => {
           return {
@@ -36,7 +47,9 @@ export const getCompanies = async (page: number, request: Request) => {
         })
     }
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta: { page, extra } })
+    const queryResult = emptyOrRows(await selectAllFrom<Company>(connection, Tables.companies, page));
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult, meta: { page, extra } })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }
@@ -137,4 +150,12 @@ const rollBackCatchBlock = async (error: any, connection: PoolConnection | null)
   console.log('rollBackCatchBlock', error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+}
+
+const companyRoles = (arr: CompanyRole[]) => {
+  return arr.reduce((acc: { company_id: number, corporate_name: string, roles: { role_id: number, role_name: string }[] }[], curr: CompanyRole) => {
+    if (!acc.find(el => el.company_id === curr.company_id)) { acc.push({ company_id: curr.company_id, corporate_name: curr.corporate_name, roles: [] }) }
+    acc.find(el => el.company_id === curr.company_id)?.roles.push({ role_id: curr.role_id, role_name: curr.role_name })
+    return acc
+  }, [])
 }
