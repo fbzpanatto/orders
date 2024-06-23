@@ -5,7 +5,5 @@ export interface User {
   name?: string,
   active?: boolean,
   username?: string,
-  password?: string,
-  created_at?: string,
-  updated_at?:string
+  password?: string
 }

@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { updateTableSetWhere, insertInto, selectAllFrom } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllFrom, selectMaxColumn } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -9,7 +9,9 @@ import { Request } from 'express'
 import { User } from '../interfaces/users';
 
 const company_id = 'company_id'
-const role_id = 'role_id'
+const USER_ID = 'user_id'
+const COMPANY_ID = 'company_id'
+const MAX_USER_ID = 'max_user_id'
 
 export const getUsers = async (request: Request, page: number) => {
 
@@ -23,7 +25,7 @@ export const getUsers = async (request: Request, page: number) => {
     SELECT u.user_id, u.name, u.active, u.username, u.created_at, c.corporate_name, r.role_name
     FROM ${Tables.users} AS u
     LEFT JOIN ${Tables.companies} AS c ON u.${company_id} = c.${company_id}
-    LEFT JOIN ${Tables.roles} AS r ON u.${company_id} = r.${role_id}
+    LEFT JOIN ${Tables.roles} AS r ON u.${company_id} = r.${USER_ID}
     `
 
     const rows = await selectAllFrom<User>(connection, Tables.users, page, queryString)
@@ -57,23 +59,27 @@ export const getUserById = async (userId: number) => {
 
 export const createUser = async (body: User) => {
 
-  let connection = null;
+  let conn = null;
 
   try {
 
-    connection = await dbConn()
-    await connection.beginTransaction()
+    conn = await dbConn()
+    await conn.beginTransaction()
 
-    const [queryResult] = await insertInto(connection, Tables.users, body, [])
+    const newUserId = await selectMaxColumn(conn, Tables.users, USER_ID, MAX_USER_ID, COMPANY_ID, (body.company_id as number))
+    const [queryResult] = await insertInto(conn, Tables.users, { ...body, user_id: newUserId }, [])
 
     const affectedRows = (queryResult as ResultSetHeader).affectedRows
 
-    await connection.commit()
+    await conn.commit()
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows });
   }
-  catch (error) { return rollBackCatchBlock(error, connection) }
-  finally { if (connection) { connection.release() } }
+  catch (error) {
+    console.log(error)
+    return rollBackCatchBlock(error, conn)
+  }
+  finally { if (conn) { conn.release() } }
 }
 
 export const updateUser = async (request: Request) => {
