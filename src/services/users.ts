@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { updateTableSetWhere, insertInto, selectMaxColumn, selectWithJoinsAndWhere } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectMaxColumn, selectWithJoinsAndWhere, update } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -8,6 +8,7 @@ import { ResultSetHeader } from 'mysql2';
 import { Request } from 'express'
 import { User } from '../interfaces/users';
 
+interface UserToUpdate { role_id: number, company_id: number, name: string, active: boolean, username: string, password: string }
 interface AllUsers { user_id: number, name: string, active: boolean | number, username: string, corporate_name: string, role_name: string, created_at: string, company_id: number }
 
 const USER_ID = 'user_id'
@@ -48,7 +49,6 @@ export const getUsers = async (request: Request, page: number) => {
 
       const selectFields = ['u.user_id', 'u.name', 'u.username', 'u.password', 'u.active', 'r.role_id', 'c.company_id']
       const whereConditions = { company_id, user_id }
-
       const result = (await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<{ [key: string]: any }>)[0]
 
       return objectResponse(200, 'Consulta realizada com sucesso.', { data: result })
@@ -77,14 +77,8 @@ export const createUser = async (body: User) => {
     conn = await dbConn()
     await conn.beginTransaction()
 
-    const newUserId = await selectMaxColumn(
-      conn, Tables.users, USER_ID, MAX_USER_ID, COMPANY_ID, (body.company_id as number)
-    )
-
-    const [queryResult] = await insertInto(
-      conn, Tables.users, { ...body, user_id: newUserId }, []
-    )
-
+    const newUserId = await selectMaxColumn(conn, Tables.users, USER_ID, MAX_USER_ID, COMPANY_ID, (body.company_id as number))
+    const [queryResult] = await insertInto(conn, Tables.users, { ...body, user_id: newUserId }, [])
     const affectedRows = (queryResult as ResultSetHeader).affectedRows
 
     await conn.commit()
@@ -100,25 +94,26 @@ export const updateUser = async (request: Request) => {
   const { body, query } = request
   const { user_id, company_id } = query
 
-  let connection = null;
+  let conn = null;
 
   try {
 
-    connection = await dbConn()
+    conn = await dbConn()
 
-    await connection.beginTransaction()
+    await conn.beginTransaction()
 
-    const result = await updateTableSetWhere(connection, Tables.users, USER_ID, 1, body, [])
+    const result = await update(conn, Tables.users, { user_id, company_id }, (body as UserToUpdate), [])
 
-    await connection.commit()
+    await conn.commit()
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: result?.affectedRows });
   }
-  catch (error) { return rollBackCatchBlock(error, connection) }
-  finally { if (connection) { connection.release() } }
+  catch (error) { return rollBackCatchBlock(error, conn) }
+  finally { if (conn) { conn.release() } }
 }
 
 const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
+  console.log(error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }

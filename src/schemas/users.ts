@@ -7,6 +7,9 @@ export const userPOST: Schema = {
     isInt: true,
     toInt: true
   },
+  user_id: {
+    optional: true
+  },
   role_id: {
     exists: true,
     escape: true,
@@ -38,35 +41,41 @@ export const userPOST: Schema = {
 
 export const userPATCH: Schema = {
   company_id: {
-    optional: true,
+    exists: true,
     escape: true,
     isInt: true,
     toInt: true
   },
   role_id: {
-    optional: true,
+    exists: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
+  user_id: {
+    exists: true,
     escape: true,
     isInt: true,
     toInt: true
   },
   name: {
-    optional: true,
+    exists: true,
     escape: true,
     isLength: { options: { min: 3, max: 45 } },
   },
   active: {
-    optional: true,
+    exists: true,
     escape: true,
     isBoolean: true,
     toBoolean: true
   },
   username: {
-    optional: true,
+    exists: true,
     escape: true,
     isLength: { options: { min: 3, max: 20 } },
   },
   password: {
-    optional: true,
+    exists: true,
     escape: true,
     isLength: { options: { min: 8, max: 20 } },
   }
