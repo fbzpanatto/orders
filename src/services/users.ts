@@ -22,6 +22,23 @@ export const getUsers = async (request: Request, page: number) => {
 
   const baseTable = 'users';
   const baseAlias = 'u';
+  const joins = [
+    {
+      table: 'roles',
+      alias: 'r',
+      conditions: [
+        { column1: 'u.company_id', column2: 'r.company_id' },
+        { column1: 'u.role_id', column2: 'r.role_id' }
+      ]
+    },
+    {
+      table: 'companies',
+      alias: 'c',
+      conditions: [
+        { column1: 'c.company_id', column2: 'r.company_id' }
+      ]
+    }
+  ]
 
   try {
 
@@ -29,36 +46,18 @@ export const getUsers = async (request: Request, page: number) => {
 
     if (company_id && user_id) {
 
-      console.log('company_id', company_id, 'user_id', user_id)
+      const selectFields = ['u.user_id', 'u.name', 'u.username', 'u.password', 'u.active', 'r.role_id', 'c.company_id']
+      const whereConditions = { company_id, user_id }
 
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data: {} })
+      const result = (await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<{ [key: string]: any }>)[0]
+
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: result })
     }
 
-    const selectFields = [
-      'u.user_id', 'u.name', 'u.username', 'u.active', 'u.created_at', 'r.role_id, r.role_name', 'c.company_id', 'c.corporate_name'
-    ];
+    const selectFields = ['u.user_id', 'u.name', 'u.username', 'u.active', 'u.created_at', 'r.role_id, r.role_name', 'c.company_id', 'c.corporate_name']
     const whereConditions = {}
-    const joins = [
-      {
-        table: 'roles',
-        alias: 'r',
-        conditions: [
-          { column1: 'u.company_id', column2: 'r.company_id' },
-          { column1: 'u.role_id', column2: 'r.role_id' }
-        ]
-      },
-      {
-        table: 'companies',
-        alias: 'c',
-        conditions: [
-          { column1: 'c.company_id', column2: 'r.company_id' }
-        ]
-      }
-    ]
 
-    const result = await selectWithJoinsAndWhere(
-      conn, baseTable, baseAlias, selectFields, whereConditions, joins
-    )
+    const result = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
 
     const data = emptyOrRows(result) as Array<AllUsers>
     const meta = { page };
