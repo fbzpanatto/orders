@@ -31,7 +31,7 @@ export const getUsers = async (request: Request, page: number) => {
 
       console.log('company_id', company_id, 'user_id', user_id)
 
-      console.log('pegando um item')
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: {} })
     }
 
     const selectFields = [

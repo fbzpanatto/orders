@@ -38,10 +38,7 @@ export const selectAllWithWhereLeft = async (connection: PoolConnection, table: 
 
   const queryString = `SELECT * FROM ${table} ${joinClause} ${whereClause}`;
 
-  const values = Object.values(whereConditions);
-
-  console.log('queryString', queryString)
-  console.log('values', values)
+  const values = Object.values(whereConditions)
 
   const [results] = await connection.query(format(queryString, values));
 
@@ -68,8 +65,7 @@ export const selectWithJoinsAndWhere = async (connection: PoolConnection, baseTa
 
   const values = Object.values(whereConditions);
 
-  console.log('queryString', queryString);
-  console.log('values', values);
+  console.log('queryString', queryString)
 
   const [results] = await connection.query(format(queryString, values));
 
