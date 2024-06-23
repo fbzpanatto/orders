@@ -28,6 +28,9 @@ export const getUsers = async (request: Request, page: number) => {
     conn = await dbConn()
 
     if (company_id && user_id) {
+
+      console.log('company_id', company_id, 'user_id', user_id)
+
       console.log('pegando um item')
     }
 
