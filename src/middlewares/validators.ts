@@ -23,7 +23,6 @@ export const validateContactId = check('contactId').not().isEmpty().isNumeric()
 export const validatePostField = checkSchema(fieldPOST);
 export const validatePatchField = checkSchema(fieldPATCH);
 export const bodyValidationField = (req: Request, res: Response, next: NextFunction) => {
-  console.log('validationResult(req)', validationResult(req))
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, fieldPOST)
 };
 
@@ -31,7 +30,6 @@ export const bodyValidationField = (req: Request, res: Response, next: NextFunct
 export const validatePostUser = checkSchema(userPOST);
 export const validatePatchUser = checkSchema(userPATCH);
 export const bodyValidationUser = (req: Request, res: Response, next: NextFunction) => {
-  console.log('validationResult(req)', validationResult(req))
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, userPOST)
 };
 
@@ -46,7 +44,6 @@ export const bodyValidationCompany = (req: Request, res: Response, next: NextFun
 export const validatePostPermission = checkSchema(permissionsPOST);
 export const validatePatchPermissions = checkSchema(permissionPATCH);
 export const bodyValidationPermissions = (req: Request, res: Response, next: NextFunction) => {
-  console.log('validationResult(req)', validationResult(req))
   return !validationResult(req).isEmpty() ? invalidValues(res, req) : unexpectedFieldsFn(req, res, next, permissionsPOST)
 };
 

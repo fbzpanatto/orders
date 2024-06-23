@@ -166,10 +166,7 @@ export const getLegalById = async (personId: number) => {
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
   }
-  catch (error) {
-    console.log('error', error)
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.')}
   finally { if (connection) { connection.release() } }
 }
 
@@ -192,7 +189,6 @@ export const createNormalPerson = async (body: any) => {
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
-    console.log('createNormalPerson', error)
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
@@ -218,7 +214,6 @@ export const createLegalPerson = async (body: any) => {
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
-    console.log('error', error)
     if (connection) await connection.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }

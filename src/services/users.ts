@@ -8,6 +8,8 @@ import { ResultSetHeader } from 'mysql2';
 import { Request } from 'express'
 import { User } from '../interfaces/users';
 
+interface AllUsers { user_id: number, name: string, active: boolean | number, username: string, corporate_name: string, role_name: string, created_at: string, company_id: number }
+
 const USER_ID = 'user_id'
 const COMPANY_ID = 'company_id'
 const MAX_USER_ID = 'max_user_id'
@@ -26,11 +28,11 @@ export const getUsers = async (request: Request, page: number) => {
     conn = await dbConn()
 
     if (company_id && user_id) {
-
+      console.log('pegando um item')
     }
 
     const selectFields = [
-      'u.name', 'u.username', 'u.active', 'u.created_at', 'r.role_id, r.role_name', 'c.corporate_name'
+      'u.user_id', 'u.name', 'u.username', 'u.active', 'u.created_at', 'r.role_id, r.role_name', 'c.company_id', 'c.corporate_name'
     ];
     const whereConditions = {}
     const joins = [
@@ -55,7 +57,7 @@ export const getUsers = async (request: Request, page: number) => {
       conn, baseTable, baseAlias, selectFields, whereConditions, joins
     )
 
-    const data = emptyOrRows(result);
+    const data = emptyOrRows(result) as Array<AllUsers>
     const meta = { page };
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
@@ -104,7 +106,7 @@ export const updateUser = async (request: Request) => {
 
     await connection.beginTransaction()
 
-    const result = await updateTableSetWhere(connection, Tables.users, 'user_id', 1, body, [])
+    const result = await updateTableSetWhere(connection, Tables.users, USER_ID, 1, body, [])
 
     await connection.commit()
 
@@ -115,7 +117,6 @@ export const updateUser = async (request: Request) => {
 }
 
 const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
-  console.log('rollBackCatchBlock', error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }

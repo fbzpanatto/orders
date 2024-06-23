@@ -147,7 +147,6 @@ export const updateCompany = async (company_id: number, body: Company) => {
 }
 
 const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
-  console.log('rollBackCatchBlock', error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }
