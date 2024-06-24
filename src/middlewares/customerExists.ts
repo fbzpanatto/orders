@@ -22,6 +22,8 @@ export const normalExistsByDoc = async (req: Request, res: Response, next: NextF
 
   let connection = null;
 
+  const { company_id, person_id } = req.query
+
   try {
 
     connection = await dbConn()
@@ -35,11 +37,13 @@ export const legalExistsById = async (req: Request, res: Response, next: NextFun
 
   let connection = null;
 
+  const { company_id, person_id } = req.query
+
   try {
 
     connection = await dbConn()
 
-    return (await selectAllWithWhere(connection, Tables.legal_persons, { person_id: parseInt(req.params.id) }) as Array<LegalPerson>).length ?
+    return (await selectAllWithWhere(connection, Tables.legal_persons, { company_id, person_id }) as Array<LegalPerson>).length ?
       next() : res.status(404).json(objectResponse(404, 'Registro não encontrado.'))
   } catch (error) { res.status(400).json(objectResponse(400, 'Não foi possível processar sua requisição.')) }
 }
@@ -48,11 +52,13 @@ export const normalExistsById = async (req: Request, res: Response, next: NextFu
 
   let connection = null;
 
+  const { company_id, person_id } = req.query
+
   try {
 
     connection = await dbConn()
 
-    return (await selectAllWithWhere(connection, Tables.normal_persons, { person_id: parseInt(req.params.id) }) as Array<NormalPerson>).length ?
+    return (await selectAllWithWhere(connection, Tables.normal_persons, { company_id, person_id }) as Array<NormalPerson>).length ?
       next() : res.status(404).json(objectResponse(404, 'Registro não encontrado.'))
   } catch (error) { res.status(400).json(objectResponse(400, 'Não foi possível processar sua requisição.')) }
 }

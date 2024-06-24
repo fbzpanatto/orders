@@ -17,7 +17,7 @@ router.get('/legal', async (req: Request, res: Response, next: NextFunction) => 
 })
 
 router.get('/normal/select', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getNormalById(parseInt(req.params.personId))
+  const result = await getNormalById(req)
   return res.status(result.status).json(result)
 })
 
@@ -36,13 +36,13 @@ router.post('/legal', validatePostLegal, bodyValidationLegal, legalExistsByDoc, 
   return res.status(result.status).json(result)
 });
 
-router.patch('/legal/:id', validateId, validatePatchLegal, bodyValidationLegal, legalExistsById, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await updateLegalPerson(parseInt(req.params.id), req.body as Person)
+router.patch('/legal/patch', validatePatchLegal, bodyValidationLegal, legalExistsById, async (req: Request, res: Response, next: NextFunction) => {
+  const result = await updateLegalPerson(req)
   return res.status(result.status).json(result)
 })
 
-router.patch('/normal/:id', validateId, validatePatchNormal, bodyValidationNormal, normalExistsById, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await updateNormalPerson(parseInt(req.params.id), req.body as Person)
+router.patch('/normal/patch', validatePatchNormal, bodyValidationNormal, normalExistsById, async (req: Request, res: Response, next: NextFunction) => {
+  const result = await updateNormalPerson(req)
   return res.status(result.status).json(result)
 })
 
