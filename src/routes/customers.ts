@@ -16,13 +16,13 @@ router.get('/legal', async (req: Request, res: Response, next: NextFunction) => 
   return res.status(result.status).json(result)
 })
 
-router.get('/normal/:personId', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/normal/select', async (req: Request, res: Response, next: NextFunction) => {
   const result = await getNormalById(parseInt(req.params.personId))
   return res.status(result.status).json(result)
 })
 
-router.get('/legal/:personId', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getLegalById(parseInt(req.params.personId))
+router.get('/legal/select', async (req: Request, res: Response, next: NextFunction) => {
+  const result = await getLegalById(req)
   return res.status(result.status).json(result)
 })
 

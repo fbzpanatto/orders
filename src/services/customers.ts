@@ -3,8 +3,9 @@ import { dbConn } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Tables } from '../enums/tables'
-import { deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere, selectMaxColumn, duplicateKey } from '../utils/queries';
-import { PoolConnection } from 'mysql2/promise';
+import { deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, JoinClause } from '../utils/queries';
+import { PoolConnection, QueryResult } from 'mysql2/promise';
+import { Request } from 'express';
 
 export const getLegalCustomers = async (page = 1) => {
 
@@ -105,7 +106,9 @@ export const getNormalById = async (personId: number) => {
   finally { if (connection) { connection.release() } }
 }
 
-export const getLegalById = async (personId: number) => {
+export const getLegalById = async (req: Request) => {
+
+  const { company_id, person_id } = req.query
 
   let connection = null;
 
@@ -113,59 +116,83 @@ export const getLegalById = async (personId: number) => {
 
     connection = await dbConn()
 
-    const person_id = 'person_id'
+    const baseTable = 'persons';
+    const baseAlias = 'p';
 
-    const queryString = `
-    SELECT p.*, a.person_id AS add_person_id, a.add_uf, a.add_street, a.add_number, a.add_zipcode, a.add_city, a.add_neighborhood, c.id AS pc_id, c.phone_number, c.contact, per.observation, per.id, per.first_field, per.second_field, per.third_field, per.company_id
-    FROM ${Tables.legal_persons} AS p
-    LEFT JOIN ${Tables.person_addresses} AS a ON p.${person_id} = a.${person_id}
-    LEFT JOIN ${Tables.person_phones} AS c ON p.${person_id} = c.${person_id}
-    LEFT JOIN ${Tables.persons} AS per ON p.${person_id} = per.id
-    WHERE p.${person_id}=?
-  `;
+    if (company_id && person_id) {
 
-    const [result,] = await connection.query(format(queryString, [personId])) as Array<{ [key: string]: any }>
-
-    const aggregatedResult = result.reduce((acc: any, curr: any) => {
-      if (!acc.customer) {
-        acc = {
-          customer: {
-            person_id: curr.person_id,
-            cnpj: curr.cnpj,
-            corporate_name: curr.corporate_name,
-            social_name: curr.social_name,
-            state_registration: curr.state_registration,
-          },
-          address: {
-            person_id: curr.add_person_id,
-            add_street: curr.add_street,
-            add_number: curr.add_number,
-            add_uf: curr.add_uf,
-            add_zipcode: curr.add_zipcode,
-            add_city: curr.add_city,
-            add_neighborhood: curr.add_neighborhood,
-          },
-          person: {
-            id: curr.id,
-            company_id: curr.company_id,
-            observation: curr.observation,
-            first_field: curr.first_field,
-            second_field: curr.second_field,
-            third_field: curr.third_field
-          },
-          contacts: []
-        };
-      }
-      if (!(curr.pc_id === null) && !acc.contacts.some((obj: any) => obj.pc_id === curr.pc_id)) {
-        acc.contacts = [...acc.contacts, { id: curr.pc_id, person_id: curr.person_id, phone_number: curr.phone_number, contact: curr.contact }]
-      }
-      return acc;
-    }, {});
-
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
+      const selectFields = ['p.*', 'a.*', 'l.*', 'comp.social_name as compSocialName', 'comp.cnpj as compCnpj', 'comp.corporate_name as compCorporateName'];
+      const whereConditions = { company_id, person_id };
+      const joins = [
+        {
+          table: Tables.companies, alias: 'comp',
+          conditions: [{ column1: 'p.company_id', column2: 'comp.company_id' }]
+        },
+        {
+          table: Tables.legal_persons, alias: 'l',
+          conditions: [{ column1: 'p.company_id', column2: 'l.company_id' }, { column1: 'p.person_id', column2: 'l.person_id' },]
+        },
+        {
+          table: Tables.person_addresses, alias: 'a',
+          conditions: [{ column1: 'p.company_id', column2: 'a.company_id' }, { column1: 'p.person_id', column2: 'a.person_id' },]
+        },
+        {
+          table: Tables.person_phones, alias: 'c',
+          conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
+        }
+      ];
+      const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceQueryResult(queryResult) })
+    }
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: {} })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (connection) { connection.release() } }
+}
+
+const reduceQueryResult = (queryResult: QueryResult) => {
+  return (queryResult as Array<any>).reduce((acc, curr) => {
+    if (!acc.customer) {
+      acc = {
+        company: {
+          corporate_name: curr.compCorporateName,
+          social_name: curr.compSocialName,
+          cnpj: curr.compCnpj
+        },
+        customer: {
+          person_id: curr.person_id,
+          company_id: curr.company_id,
+          cnpj: curr.cnpj,
+          state_registration: curr.state_registration,
+          corporate_name: curr.corporate_name,
+          social_name: curr.social_name,
+        },
+        person: {
+          person_id: curr.person_id,
+          company_id: curr.company_id,
+          observation: curr.observation,
+          first_field: curr.first_field,
+          second_field: curr.second_field,
+          third_field: curr.third_field
+        },
+        address: {
+          person_id: curr.person_id,
+          company_id: curr.company_id,
+          add_street: curr.add_street,
+          add_number: curr.add_number,
+          add_uf: curr.add_uf,
+          add_zipcode: curr.add_zipcode,
+          add_city: curr.add_city,
+          add_neighborhood: curr.add_neighborhood,
+        },
+        contacts: []
+      }
+    }
+    if (!(curr.contact_id === null) && !acc.contacts.some((obj: any) => obj.contact_id === curr.contact_id)) {
+      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.person_id, company_id: curr.company_id, phone_number: curr.phone_number, contact: curr.contact }]
+    }
+    return acc
+  }, {})
 }
 
 export const createNormalPerson = async (body: any) => {
