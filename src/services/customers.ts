@@ -1,11 +1,9 @@
-import { ResultSetHeader, format } from 'mysql2';
+import { format } from 'mysql2';
 import { dbConn } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
-import { Person } from '../interfaces/person';
 import { Tables } from '../enums/tables'
-import { duplicateKeyUpdate, deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere, selectMaxColumn } from '../utils/queries';
-import { formatDate } from '../utils/formatDate';
+import { deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere, selectMaxColumn, duplicateKey } from '../utils/queries';
 import { PoolConnection } from 'mysql2/promise';
 
 export const getLegalCustomers = async (page = 1) => {
@@ -175,18 +173,19 @@ export const createNormalPerson = async (body: any) => {
   let conn = null;
 
   try {
-
     conn = await dbConn()
     await conn.beginTransaction()
 
     const person_id = await selectMaxColumn(conn, Tables.persons, 'person_id', 'max_person_id', 'company_id', parseInt(body.person.company_id as string))
+    const contact_id = await selectMaxColumn(conn, Tables.person_phones, 'contact_id', 'max_contact_id', 'company_id', parseInt(body.person.company_id as string))
+    const contactsBody = createContacts(body.contacts, person_id, contact_id)
 
-    // Promise.all([
-    //   await createPerson(conn, body, person_id),
-    //   await insertInto(conn, Tables.legal_persons, { ...body.customer, person_id }, []),
-    //   await insertInto(conn, Tables.person_addresses, { ...body.address, person_id }, []),
-    //   await createContacts(conn, person_id, body)
-    // ])
+    Promise.all([
+      await createPerson(conn, body, person_id),
+      await insertInto(conn, Tables.normal_persons, { ...body.customer, person_id }, []),
+      await insertInto(conn, Tables.person_addresses, { ...body.address, person_id }, []),
+      await duplicateKey(conn, Tables.person_phones, contactsBody)
+    ])
 
     await conn.commit()
 
@@ -199,37 +198,22 @@ export const createNormalPerson = async (body: any) => {
   finally { if (conn) { conn.release() } }
 }
 
-const createContacts = (body: any[], person_id: number, contact_id: number) => {
-  return body.map((c, index) => {
-    if (index != 0) { contact_id += 1 }
-    return {
-      person_id,
-      contact_id,
-      company_id: c.company_id,
-      phone_number: c.phone_number,
-      contact: c.contact
-    }
-  })
-}
-
 export const createLegalPerson = async (body: any) => {
 
   let conn = null;
 
   try {
-
     conn = await dbConn()
     await conn.beginTransaction()
 
     const person_id = await selectMaxColumn(conn, Tables.persons, 'person_id', 'max_person_id', 'company_id', parseInt(body.person.company_id as string))
     const contact_id = await selectMaxColumn(conn, Tables.person_phones, 'contact_id', 'max_contact_id', 'company_id', parseInt(body.person.company_id as string))
-    const contactsBody = createContacts(body.contacts, person_id, contact_id)
 
     Promise.all([
       await createPerson(conn, body, person_id),
       await insertInto(conn, Tables.legal_persons, { ...body.customer, person_id }, []),
       await insertInto(conn, Tables.person_addresses, { ...body.address, person_id }, []),
-      await duplicateKeyUpdate(conn, Tables.person_phones, contactsBody, 'person_id', person_id)
+      await duplicateKey(conn, Tables.person_phones, createContacts(body.contacts, person_id, contact_id))
     ])
 
     await conn.commit()
@@ -237,7 +221,6 @@ export const createLegalPerson = async (body: any) => {
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
-    console.log('createLegalPerson', error)
     if (conn) await conn.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
@@ -257,7 +240,7 @@ export const updateLegalPerson = async (personId: number, body: any) => {
       updateTableSetWhere(connection, Tables.legal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       updateTableSetWhere(connection, Tables.persons, 'id', personId, body.person, []),
-      duplicateKeyUpdate(connection, Tables.person_phones, body.contacts, 'person_id', personId)
+      duplicateKey(connection, Tables.person_phones, body.contacts)
     ])
 
     await connection.commit()
@@ -284,7 +267,7 @@ export const updateNormalPerson = async (personId: number, body: any) => {
       updateTableSetWhere(connection, Tables.normal_persons, 'person_id', personId, body.customer, []),
       updateTableSetWhere(connection, Tables.person_addresses, 'person_id', personId, body.address, []),
       updateTableSetWhere(connection, Tables.persons, 'id', personId, body.person, []),
-      duplicateKeyUpdate(connection, Tables.person_phones, body.contacts, 'person_id', personId)
+      duplicateKey(connection, Tables.person_phones, body.contacts)
     ])
 
     await connection.commit()
@@ -327,13 +310,9 @@ const createPerson = async (connection: PoolConnection, body: any, person_id: nu
   await connection.query(sql, values)
 }
 
-const contact = (person_id: number, contact_id: number, item: { contact_id: number, company_id: number, contact: string, phone_number: string }) => {
-
-  return {
-    person_id,
-    contact_id,
-    phone_number: item.phone_number,
-    contact: item.contact,
-    company_id: item.company_id
-  }
+const createContacts = (body: any[], person_id: number, contact_id: number) => {
+  return body.map((c, index) => {
+    if (index != 0) { contact_id += 1 }
+    return { person_id, contact_id, company_id: c.company_id, phone_number: c.phone_number, contact: c.contact }
+  })
 }
