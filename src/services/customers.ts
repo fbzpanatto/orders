@@ -319,29 +319,33 @@ export const updateNormalPerson = async (req: Request) => {
   const { query, body } = req
   const { company_id, person_id } = query
 
-  let connection = null;
+  let conn = null;
 
   try {
 
-    connection = await dbConn()
-    await connection.beginTransaction()
+    conn = await dbConn()
+    await conn.beginTransaction()
+
+    const contact_id = await selectMaxColumn(conn, Tables.person_phones, 'contact_id', 'max_contact_id', 'company_id', parseInt(company_id as string))
+    const contacts = createContacts(body.contacts, parseInt(person_id as string), contact_id)
 
     await Promise.all([
-      update(connection, Tables.normal_persons, { company_id, person_id }, body.customer, []),
-      update(connection, Tables.person_addresses, { company_id, person_id }, body.address, []),
-      update(connection, Tables.persons, { company_id, person_id }, body.person, []),
-      duplicateKey(connection, Tables.person_phones, body.contacts)
+      update(conn, Tables.normal_persons, { company_id, person_id }, body.customer, []),
+      update(conn, Tables.person_addresses, { company_id, person_id }, body.address, []),
+      update(conn, Tables.persons, { company_id, person_id }, body.person, []),
+      duplicateKey(conn, Tables.person_phones, contacts)
     ])
 
-    await connection.commit()
+    await conn.commit()
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
-    if (connection) await connection.rollback()
+    console.log('error', error)
+    if (conn) await conn.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
-  finally { if (connection) { connection.release() } }
+  finally { if (conn) { conn.release() } }
 }
 
 export const deleteCustomerContact = async (personId: number, contactId: number) => {
