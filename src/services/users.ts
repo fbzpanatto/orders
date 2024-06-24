@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { updateTableSetWhere, insertInto, selectMaxColumn, selectWithJoinsAndWhere, update } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectMaxColumn, selectWithJoinsAndWhere, update, JoinClause } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -7,6 +7,8 @@ import { PoolConnection } from 'mysql2/promise';
 import { ResultSetHeader } from 'mysql2';
 import { Request } from 'express'
 import { User } from '../interfaces/users';
+
+interface CompanyRole { company_id: number, corporate_name: string, role_id: number, role_name: string }
 
 interface UserToUpdate { role_id: number, company_id: number, name: string, active: boolean, username: string, password: string }
 interface AllUsers { user_id: number, name: string, active: boolean | number, username: string, corporate_name: string, role_name: string, created_at: string, company_id: number }
@@ -17,9 +19,10 @@ const MAX_USER_ID = 'max_user_id'
 
 export const getUsers = async (request: Request, page: number) => {
 
-  const { company_id, user_id } = request.query
+  const { company_id, user_id, roles } = request.query
 
   let conn = null;
+  let companyRoles = null;
 
   const baseTable = 'users';
   const baseAlias = 'u';
@@ -45,13 +48,22 @@ export const getUsers = async (request: Request, page: number) => {
 
     conn = await dbConn()
 
+    if (roles) {
+      const selectFields = ['c.company_id', 'c.corporate_name', 'r.role_id', 'r.role_name']
+      const whereConditions = {}
+      const joins: JoinClause[] = [{ table: 'roles', alias: 'r', conditions: [{ column1: 'c.company_id', column2: 'r.company_id' }] }]
+
+      const queryResult = await selectWithJoinsAndWhere(conn, Tables.companies, 'c', selectFields, whereConditions, joins) as Array<CompanyRole>
+      companyRoles = companyRolesFn(queryResult)
+    }
+
     if (company_id && user_id) {
 
       const selectFields = ['u.user_id', 'u.name', 'u.username', 'u.password', 'u.active', 'r.role_id', 'c.company_id']
       const whereConditions = { company_id, user_id }
       const result = (await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<{ [key: string]: any }>)[0]
 
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data: result })
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: result, meta: { companyRoles } })
     }
 
     const selectFields = ['u.user_id', 'u.name', 'u.username', 'u.active', 'u.created_at', 'r.role_id, r.role_name', 'c.company_id', 'c.corporate_name']
@@ -116,4 +128,12 @@ const rollBackCatchBlock = async (error: any, connection: PoolConnection | null)
   console.log(error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+}
+
+const companyRolesFn = (arr: CompanyRole[]) => {
+  return arr.reduce((acc: { company_id: number, corporate_name: string, roles: { role_id: number, role_name: string }[] }[], curr: CompanyRole) => {
+    if (!acc.find(el => el.company_id === curr.company_id)) { acc.push({ company_id: curr.company_id, corporate_name: curr.corporate_name, roles: [] }) }
+    acc.find(el => el.company_id === curr.company_id)?.roles.push({ role_id: curr.role_id, role_name: curr.role_name })
+    return acc
+  }, [])
 }
