@@ -4,7 +4,16 @@ import { addressesPOST, addressesPATCH } from "./addresses"
 
 const legalCustomerPOST: Schema = {
   'customer.person_id': {
-    optional: true
+    optional: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
+  'customer.company_id': {
+    exists: true,
+    escape: true,
+    isInt: true,
+    toInt: true
   },
   'customer.cnpj': {
     exists: true,
@@ -30,7 +39,16 @@ const legalCustomerPOST: Schema = {
 
 const legalCustomerPATCH: Schema = {
   'customer.person_id': {
-    optional: true
+    optional: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
+  'customer.company_id': {
+    optional: true,
+    escape: true,
+    isInt: true,
+    toInt: true
   },
   'customer.cnpj': {
     optional: true,

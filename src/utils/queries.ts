@@ -65,8 +65,6 @@ export const selectWithJoinsAndWhere = async (connection: PoolConnection, baseTa
 
   const values = Object.values(whereConditions);
 
-  console.log('queryString', queryString)
-
   const [results] = await connection.query(format(queryString, values));
 
   return results;

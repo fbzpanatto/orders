@@ -30,7 +30,7 @@ export interface Person extends LegalPerson, NormalPerson {
     created_at: string
     company_id?: number | string,
   },
-  contacts?: { id: number, contact: string, phone_number: string }[],
+  contacts?: { contact_id: number, person_id: number, company_id: number, contact: string, phone_number: string }[],
   created_at?: string,
   updated_at?: string
 }

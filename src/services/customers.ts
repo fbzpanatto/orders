@@ -4,7 +4,7 @@ import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Person } from '../interfaces/person';
 import { Tables } from '../enums/tables'
-import { duplicateKeyUpdate, deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere } from '../utils/queries';
+import { duplicateKeyUpdate, deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere, selectMaxColumn } from '../utils/queries';
 import { formatDate } from '../utils/formatDate';
 import { PoolConnection } from 'mysql2/promise';
 
@@ -166,58 +166,82 @@ export const getLegalById = async (personId: number) => {
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: aggregatedResult })
   }
-  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.')}
+  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (connection) { connection.release() } }
 }
 
 export const createNormalPerson = async (body: any) => {
 
-  let connection = null;
+  let conn = null;
 
   try {
 
-    connection = await dbConn()
-    await connection.beginTransaction()
+    conn = await dbConn()
+    await conn.beginTransaction()
 
-    const personId = await createPerson(connection, body)
-    await insertInto(connection, Tables.normal_persons, { ...body.customer, person_id: personId }, [])
-    await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId }, [])
-    await createContacts(connection, personId, body)
+    const person_id = await selectMaxColumn(conn, Tables.persons, 'person_id', 'max_person_id', 'company_id', parseInt(body.person.company_id as string))
 
-    await connection.commit()
+    // Promise.all([
+    //   await createPerson(conn, body, person_id),
+    //   await insertInto(conn, Tables.legal_persons, { ...body.customer, person_id }, []),
+    //   await insertInto(conn, Tables.person_addresses, { ...body.address, person_id }, []),
+    //   await createContacts(conn, person_id, body)
+    // ])
+
+    await conn.commit()
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
-    if (connection) await connection.rollback()
+    if (conn) await conn.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
-  finally { if (connection) { connection.release() } }
+  finally { if (conn) { conn.release() } }
+}
+
+const createContacts = (body: any[], person_id: number, contact_id: number) => {
+  return body.map((c, index) => {
+    if (index != 0) { contact_id += 1 }
+    return {
+      person_id,
+      contact_id,
+      company_id: c.company_id,
+      phone_number: c.phone_number,
+      contact: c.contact
+    }
+  })
 }
 
 export const createLegalPerson = async (body: any) => {
 
-  let connection = null;
+  let conn = null;
 
   try {
 
-    connection = await dbConn()
-    await connection.beginTransaction()
+    conn = await dbConn()
+    await conn.beginTransaction()
 
-    const personId = await createPerson(connection, body)
-    await insertInto(connection, Tables.legal_persons, { ...body.customer, person_id: personId }, [])
-    await insertInto(connection, Tables.person_addresses, { ...body.address, person_id: personId }, [])
-    await createContacts(connection, personId, body)
+    const person_id = await selectMaxColumn(conn, Tables.persons, 'person_id', 'max_person_id', 'company_id', parseInt(body.person.company_id as string))
+    const contact_id = await selectMaxColumn(conn, Tables.person_phones, 'contact_id', 'max_contact_id', 'company_id', parseInt(body.person.company_id as string))
+    const contactsBody = createContacts(body.contacts, person_id, contact_id)
 
-    await connection.commit()
+    Promise.all([
+      await createPerson(conn, body, person_id),
+      await insertInto(conn, Tables.legal_persons, { ...body.customer, person_id }, []),
+      await insertInto(conn, Tables.person_addresses, { ...body.address, person_id }, []),
+      await duplicateKeyUpdate(conn, Tables.person_phones, contactsBody, 'person_id', person_id)
+    ])
+
+    await conn.commit()
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
-    if (connection) await connection.rollback()
+    console.log('createLegalPerson', error)
+    if (conn) await conn.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
-  finally { if (connection) { connection.release() } }
+  finally { if (conn) { conn.release() } }
 }
 
 export const updateLegalPerson = async (personId: number, body: any) => {
@@ -291,43 +315,25 @@ export const deleteCustomerContact = async (personId: number, contactId: number)
   finally { if (connection) { connection.release() } }
 }
 
-const createPerson = async (connection: PoolConnection, body: Person) => {
+const createPerson = async (connection: PoolConnection, body: any, person_id: number) => {
 
   const sql =
     `
-    INSERT INTO persons (observation, first_field, second_field, third_field, company_id)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO persons (observation, first_field, second_field, third_field, company_id, person_id)
+    VALUES (?, ?, ?, ?, ?, ?)
   `
 
-  const values = [body.person.observation, body.person.first_field, body.person.second_field, body.person.third_field, body.person.company_id]
-
-  const [result,] = await connection.query(sql, values)
-
-  const { insertId: personId } = result as ResultSetHeader
-
-  return personId;
+  const values = [body.person.observation, body.person.first_field, body.person.second_field, body.person.third_field, body.person.company_id, person_id]
+  await connection.query(sql, values)
 }
 
-const createContacts = async (connection: PoolConnection, personId: number, body: Person) => {
-
-  if (body.contacts && body.contacts.length) {
-    for (let item of body.contacts) {
-      if (personId && item.contact && item.phone_number) {
-        await insertInto(connection, Tables.person_phones, contact(personId, item, true), [])
-      }
-    }
-  }
-}
-
-const contact = (personId: number, item: { id: number, contact: string, phone_number: string }, post: boolean) => {
-
-  let key = post ? 'created_at' : 'updated_at'
-  let date = { [key]: formatDate(new Date()) }
+const contact = (person_id: number, contact_id: number, item: { contact_id: number, company_id: number, contact: string, phone_number: string }) => {
 
   return {
-    person_id: personId,
+    person_id,
+    contact_id,
     phone_number: item.phone_number,
     contact: item.contact,
-    ...date
+    company_id: item.company_id
   }
 }

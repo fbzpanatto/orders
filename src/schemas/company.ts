@@ -30,9 +30,6 @@ export const companyPOST: Schema = {
   'company.active': {
     optional: true
   },
-  'address.company_id': {
-    optional: true,
-  },
   ...addressesPOST,
 }
 
@@ -65,9 +62,6 @@ export const companyPATCH: Schema = {
   'company.active': {
     optional: true,
     isBoolean: true
-  },
-  'address.company_id': {
-    optional: true,
   },
   ...addressesPATCH,
 }

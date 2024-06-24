@@ -1,4 +1,10 @@
 export const addressesPOST = {
+  'address.company_id': {
+    exists: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
   'address.add_street': {
     exists: true,
     isLength: { options: { min: 3, max: 100 } },
@@ -32,6 +38,12 @@ export const addressesPOST = {
 }
 
 export const addressesPATCH = {
+  'address.company_id': {
+    optional: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
   'address.add_street': {
     optional: true,
     isLength: { options: { min: 3, max: 100 } },
