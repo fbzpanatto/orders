@@ -1,7 +1,7 @@
 import { JoinClause } from './../utils/queries';
 import { objectResponse } from '../utils/response';
 import { Company } from '../interfaces/company';
-import { updateTableSetWhere, insertInto, selectAllFrom, selectAllWithWhere, selectWithJoinsAndWhere } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllFrom, selectWithJoinsAndWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -15,7 +15,7 @@ interface CompanyRole { company_id: number, corporate_name: string, role_id: num
 
 export const getCompanies = async (page: number, request: Request) => {
 
-  const { customFields, roles, company_id } = request.query
+  const { custom_fields, roles, company_id } = request.query
 
   let connection = null;
   let extra = null;
@@ -36,11 +36,19 @@ export const getCompanies = async (page: number, request: Request) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data: companyRoles(queryResult) })
     }
 
-    if (customFields) {
-      extra = (await selectAllWithWhere(connection, Tables.fields, {}) as Field[])
-        .map(row => {
+    if (custom_fields) {
+
+      const baseTable = 'fields';
+      const baseAlias = 'f';
+      const selectFields = ['f.*']
+      // TODO: 
+      const whereConditions = { company_id: 1 }
+      const joins: JoinClause[] = []
+
+      extra = ((await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
+        .map((row: Field) => {
           return {
-            id: row.id,
+            id: row.field_id,
             table: RESOURCE.find(table => table.id === row.table_id)?.label,
             field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.field, label: row.label
           }
