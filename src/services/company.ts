@@ -36,13 +36,11 @@ export const getCompanies = async (page: number, request: Request) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data: companyRoles(queryResult) })
     }
 
-    if (custom_fields) {
-
+    if (custom_fields && company_id) {
       const baseTable = 'fields';
       const baseAlias = 'f';
       const selectFields = ['f.*']
-      // TODO: 
-      const whereConditions = { company_id: 1 }
+      const whereConditions = { company_id }
       const joins: JoinClause[] = []
 
       extra = ((await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
@@ -55,9 +53,9 @@ export const getCompanies = async (page: number, request: Request) => {
         })
     }
 
-    const queryResult = emptyOrRows(await selectAllFrom<Company>(connection, Tables.companies, page));
+    const companies = emptyOrRows(await selectAllFrom<Company>(connection, Tables.companies, page));
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: queryResult, meta: { page, extra } })
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: companies, meta: { page, extra } })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }

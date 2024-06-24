@@ -11,7 +11,7 @@ import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from '../enums/resource
 
 export const getFields = async (request: Request, page: number) => {
 
-  const { company_id, table_id, field_id } = request.query
+  const { company_id, table_id, field_id, custom_fields } = request.query
 
   let connection = null;
 
@@ -30,6 +30,25 @@ export const getFields = async (request: Request, page: number) => {
 
       const result = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
       const data = (result as Array<{ [key: string]: any }>)[0]
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+    }
+
+    if (company_id && custom_fields) {
+
+      const baseTable = 'fields';
+      const baseAlias = 'f';
+      const selectFields = ['f.*']
+      const whereConditions = { company_id }
+      const joins: JoinClause[] = []
+
+      const data = ((await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
+        .map((row: Field) => {
+          return {
+            id: row.field_id,
+            table: RESOURCE.find(table => table.id === row.table_id)?.label,
+            field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.field, label: row.label
+          }
+        })
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
