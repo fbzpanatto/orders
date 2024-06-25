@@ -17,7 +17,6 @@ import { fieldPATCH, fieldPOST } from '../schemas/fields'
 
 export const validateId = check('id').not().isEmpty().isNumeric()
 export const validatePersonId = check('personId').not().isEmpty().isNumeric()
-export const validateContactId = check('contactId').not().isEmpty().isNumeric()
 
 // Field
 export const validatePostField = checkSchema(fieldPOST);

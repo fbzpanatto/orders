@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { createNormalPerson, createLegalPerson, updateLegalPerson, updateNormalPerson, getNormalCustomers, getLegalCustomers, getLegalById, getNormalById, deleteCustomerContact } from '../services/customers'
-import { validateId, validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal, bodyValidationNormal, bodyValidationLegal, validatePersonId, validateContactId } from '../middlewares/validators'
+import { validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal, bodyValidationNormal, bodyValidationLegal } from '../middlewares/validators'
 import { legalExistsByDoc, normalExistsByDoc, legalExistsById, normalExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'
 
@@ -46,13 +46,13 @@ router.patch('/normal/patch', validatePatchNormal, bodyValidationNormal, normalE
   return res.status(result.status).json(result)
 })
 
-router.delete('/normal/:personId/contact/:contactId', validatePersonId, validateContactId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await deleteCustomerContact(parseInt(req.params.personId), parseInt(req.params.contactId))
+router.delete('/normal', async (req: Request, res: Response, next: NextFunction) => {
+  const result = await deleteCustomerContact(req)
   return res.status(result.status).json(result)
 })
 
-router.delete('/legal/:personId/contact/:contactId', validatePersonId, validateContactId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await deleteCustomerContact(parseInt(req.params.personId), parseInt(req.params.contactId))
+router.delete('/legal', async (req: Request, res: Response, next: NextFunction) => {
+  const result = await deleteCustomerContact(req)
   return res.status(result.status).json(result)
 })
 

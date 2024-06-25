@@ -58,7 +58,7 @@ export const getNormalById = async (req: Request) => {
 
     if (company_id && person_id) {
 
-      const selectFields = ['p.*', 'a.*', 'l.*', 'c.*', 'comp.social_name as compSocialName', 'comp.cnpj as compCnpj', 'comp.corporate_name as compCorporateName'];
+      const selectFields = ['p.*', 'a.*', 'l.*', 'c.*', 'comp.company_id as compCompanyId', 'comp.social_name as compSocialName', 'comp.cnpj as compCnpj', 'comp.corporate_name as compCorporateName'];
       const whereConditions = { company_id, person_id };
       const joins = [
         {
@@ -102,7 +102,7 @@ export const getLegalById = async (req: Request) => {
 
     if (company_id && person_id) {
 
-      const selectFields = ['p.*', 'a.*', 'l.*', 'c.*', 'comp.social_name as compSocialName', 'comp.cnpj as compCnpj', 'comp.corporate_name as compCorporateName'];
+      const selectFields = ['p.*', 'a.*', 'l.*', 'c.*', 'comp.company_id as compCompanyId', 'comp.social_name as compSocialName', 'comp.cnpj as compCnpj', 'comp.corporate_name as compCorporateName'];
       const whereConditions = { company_id, person_id };
       const joins = [
         {
@@ -136,6 +136,7 @@ const reduceNormalQueryResult = (queryResult: QueryResult) => {
     if (!acc.customer) {
       acc = {
         company: {
+          company_id: curr.compCompanyId,
           corporate_name: curr.compCorporateName,
           social_name: curr.compSocialName,
           cnpj: curr.compCnpj
@@ -178,9 +179,13 @@ const reduceNormalQueryResult = (queryResult: QueryResult) => {
 
 const reduceLegalQueryResult = (queryResult: QueryResult) => {
   return (queryResult as Array<any>).reduce((acc, curr) => {
+
+    console.log('reduceLegalQueryResult', curr)
+
     if (!acc.customer) {
       acc = {
         company: {
+          company_id: curr.compCompanyId,
           corporate_name: curr.compCorporateName,
           social_name: curr.compSocialName,
           cnpj: curr.compCnpj
@@ -348,21 +353,29 @@ export const updateNormalPerson = async (req: Request) => {
   finally { if (conn) { conn.release() } }
 }
 
-export const deleteCustomerContact = async (personId: number, contactId: number) => {
+export const deleteCustomerContact = async (req: Request) => {
 
-  let connection = null;
+  let conn = null;
+
+  const { company_id, person_id, contact_id } = req.query
 
   try {
 
-    connection = await dbConn()
+    conn = await dbConn()
 
-    const result = await deleteFromWhere(connection, Tables.person_phones, [{ column: 'id', value: contactId }, { column: 'person_id', value: personId }])
+    const result = await deleteFromWhere(
+      conn, Tables.person_phones,
+      [{ column: 'contact_id', value: parseInt(contact_id as string) }, { column: 'person_id', value: parseInt(person_id as string) }, { column: 'company_id', value: parseInt(company_id as string) }]
+    )
 
     return objectResponse(200, 'Registro Deletado com sucesso', { affectedRows: result.affectedRows })
 
   }
-  catch { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
-  finally { if (connection) { connection.release() } }
+  catch (error) {
+    console.log(error)
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+  }
+  finally { if (conn) { conn.release() } }
 }
 
 const createPerson = async (connection: PoolConnection, body: any, person_id: number) => {
