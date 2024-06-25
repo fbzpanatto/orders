@@ -342,8 +342,6 @@ export const updateLegalPerson = async (req: Request) => {
   const { company_id, person_id } = query
   let conn = null;
 
-  console.log(body)
-
   try {
     conn = await dbConn()
     await conn.beginTransaction()
