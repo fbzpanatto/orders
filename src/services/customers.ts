@@ -1,12 +1,10 @@
-import { format } from 'mysql2';
 import { dbConn } from './db'
 import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Tables } from '../enums/tables'
-import { deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, JoinClause, update } from '../utils/queries';
+import { deleteFromWhere, insertInto, selectAllFrom, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, update } from '../utils/queries';
 import { PoolConnection, QueryResult } from 'mysql2/promise';
 import { Request } from 'express';
-import { person } from '../schemas/complementary';
 
 export const getLegalCustomers = async (page = 1) => {
 
