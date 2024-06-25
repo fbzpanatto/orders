@@ -69,6 +69,7 @@ export const normalPOST: Schema = {
   address: { exists: true },
   person: { optional: true },
   contacts: { optional: true },
+  segments: { optional: true },
   ...normalCustomerPOST,
   ...addressesPOST,
   ...person
@@ -80,6 +81,7 @@ export const normalPATCH: Schema = {
   address: { optional: true },
   person: { optional: true },
   contacts: { optional: true },
+  segments: { optional: true },
   ...normalCustomerPATCH,
   ...addressesPATCH,
   ...person

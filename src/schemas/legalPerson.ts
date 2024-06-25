@@ -78,6 +78,7 @@ export const legalPOST: Schema = {
   address: { exists: true },
   person: { optional: true },
   contacts: { optional: true },
+  segments: { optional: true },
   ...legalCustomerPOST,
   ...addressesPOST,
   ...person
@@ -89,6 +90,7 @@ export const legalPATCH: Schema = {
   address: { optional: true },
   person: { optional: true },
   contacts: { optional: true },
+  segments: { optional: true },
   ...legalCustomerPATCH,
   ...addressesPATCH,
   ...person
