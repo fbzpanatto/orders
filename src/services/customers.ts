@@ -6,6 +6,7 @@ import { Tables } from '../enums/tables'
 import { deleteFromWhere, insertInto, selectAllFrom, updateTableSetWhere, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, JoinClause, update } from '../utils/queries';
 import { PoolConnection, QueryResult } from 'mysql2/promise';
 import { Request } from 'express';
+import { person } from '../schemas/complementary';
 
 export const getLegalCustomers = async (page = 1) => {
 
@@ -46,42 +47,40 @@ export const getNormalCustomers = async (page = 1) => {
 export const getNormalById = async (req: Request) => {
 
   const { company_id, person_id } = req.query
-
   let connection = null;
 
   try {
-
     connection = await dbConn()
-
     const baseTable = 'persons';
     const baseAlias = 'p';
-
-    if (company_id && person_id) {
-
-      const selectFields = ['p.*', 'a.*', 'l.*', 'c.*', 'comp.company_id as compCompanyId', 'comp.social_name as compSocialName', 'comp.cnpj as compCnpj', 'comp.corporate_name as compCorporateName'];
-      const whereConditions = { company_id, person_id };
-      const joins = [
-        {
-          table: Tables.companies, alias: 'comp',
-          conditions: [{ column1: 'p.company_id', column2: 'comp.company_id' }]
-        },
-        {
-          table: Tables.normal_persons, alias: 'l',
-          conditions: [{ column1: 'p.company_id', column2: 'l.company_id' }, { column1: 'p.person_id', column2: 'l.person_id' },]
-        },
-        {
-          table: Tables.person_addresses, alias: 'a',
-          conditions: [{ column1: 'p.company_id', column2: 'a.company_id' }, { column1: 'p.person_id', column2: 'a.person_id' },]
-        },
-        {
-          table: Tables.person_phones, alias: 'c',
-          conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
-        }
-      ];
-      const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceNormalQueryResult(queryResult) })
-    }
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: {} })
+    const selectFields = [
+      'co.company_id as coCompanyId', 'co.social_name as coSocialName', 'co.cnpj as coCnpj', 'co.corporate_name as coCorporateName',
+      'c.*', 'c.company_id AS cCompanyId', 'c.person_id AS cPersonId',
+      'a.*', 'a.company_id AS aCompanyId', 'a.person_id AS aPersonId',
+      'l.*', 'l.company_id AS lCompanyId', 'l.person_id AS lPersonId',
+      'p.*', 'p.company_id AS pCompanyId', 'p.person_id AS pPersonId',
+    ];
+    const whereConditions = { company_id, person_id };
+    const joins = [
+      {
+        table: Tables.companies, alias: 'co',
+        conditions: [{ column1: 'p.company_id', column2: 'co.company_id' }]
+      },
+      {
+        table: Tables.normal_persons, alias: 'l',
+        conditions: [{ column1: 'p.company_id', column2: 'l.company_id' }, { column1: 'p.person_id', column2: 'l.person_id' },]
+      },
+      {
+        table: Tables.person_addresses, alias: 'a',
+        conditions: [{ column1: 'p.company_id', column2: 'a.company_id' }, { column1: 'p.person_id', column2: 'a.person_id' },]
+      },
+      {
+        table: Tables.person_phones, alias: 'c',
+        conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
+      }
+    ];
+    const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceNormalQueryResult(queryResult) })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (connection) { connection.release() } }
@@ -90,42 +89,40 @@ export const getNormalById = async (req: Request) => {
 export const getLegalById = async (req: Request) => {
 
   const { company_id, person_id } = req.query
-
   let connection = null;
 
   try {
-
     connection = await dbConn()
-
     const baseTable = 'persons';
     const baseAlias = 'p';
-
-    if (company_id && person_id) {
-
-      const selectFields = ['p.*', 'a.*', 'l.*', 'c.*', 'comp.company_id as compCompanyId', 'comp.social_name as compSocialName', 'comp.cnpj as compCnpj', 'comp.corporate_name as compCorporateName'];
-      const whereConditions = { company_id, person_id };
-      const joins = [
-        {
-          table: Tables.companies, alias: 'comp',
-          conditions: [{ column1: 'p.company_id', column2: 'comp.company_id' }]
-        },
-        {
-          table: Tables.legal_persons, alias: 'l',
-          conditions: [{ column1: 'p.company_id', column2: 'l.company_id' }, { column1: 'p.person_id', column2: 'l.person_id' },]
-        },
-        {
-          table: Tables.person_addresses, alias: 'a',
-          conditions: [{ column1: 'p.company_id', column2: 'a.company_id' }, { column1: 'p.person_id', column2: 'a.person_id' },]
-        },
-        {
-          table: Tables.person_phones, alias: 'c',
-          conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
-        }
-      ];
-      const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceLegalQueryResult(queryResult) })
-    }
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: {} })
+    const selectFields = [
+      'co.company_id as coCompanyId', 'co.social_name as coSocialName', 'co.cnpj as coCnpj', 'co.corporate_name as coCorporateName',
+      'c.*', 'c.company_id AS cCompanyId', 'c.person_id AS cPersonId',
+      'a.*', 'a.company_id AS aCompanyId', 'a.person_id AS aPersonId',
+      'l.*', 'l.company_id AS lCompanyId', 'l.person_id AS lPersonId',
+      'p.*', 'p.company_id AS pCompanyId', 'p.person_id AS pPersonId',
+    ];
+    const whereConditions = { company_id, person_id };
+    const joins = [
+      {
+        table: Tables.companies, alias: 'co',
+        conditions: [{ column1: 'p.company_id', column2: 'co.company_id' }]
+      },
+      {
+        table: Tables.legal_persons, alias: 'l',
+        conditions: [{ column1: 'p.company_id', column2: 'l.company_id' }, { column1: 'p.person_id', column2: 'l.person_id' },]
+      },
+      {
+        table: Tables.person_addresses, alias: 'a',
+        conditions: [{ column1: 'p.company_id', column2: 'a.company_id' }, { column1: 'p.person_id', column2: 'a.person_id' },]
+      },
+      {
+        table: Tables.person_phones, alias: 'c',
+        conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
+      }
+    ];
+    const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceLegalQueryResult(queryResult) })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (connection) { connection.release() } }
@@ -136,30 +133,30 @@ const reduceNormalQueryResult = (queryResult: QueryResult) => {
     if (!acc.customer) {
       acc = {
         company: {
-          company_id: curr.compCompanyId,
-          corporate_name: curr.compCorporateName,
-          social_name: curr.compSocialName,
-          cnpj: curr.compCnpj
+          company_id: curr.coCompanyId,
+          corporate_name: curr.coCorporateName,
+          social_name: curr.coSocialName,
+          cnpj: curr.coCnpj
         },
         customer: {
-          person_id: curr.person_id,
-          company_id: curr.company_id,
+          person_id: curr.lPersonId,
+          company_id: curr.lCompanyId,
           cpf: curr.cpf,
           first_name: curr.first_name,
           middle_name: curr.middle_name,
           last_name: curr.last_name
         },
         person: {
-          person_id: curr.person_id,
-          company_id: curr.company_id,
+          person_id: curr.pPersonId,
+          company_id: curr.pCompanyId,
           observation: curr.observation,
           first_field: curr.first_field,
           second_field: curr.second_field,
           third_field: curr.third_field
         },
         address: {
-          person_id: curr.person_id,
-          company_id: curr.company_id,
+          person_id: curr.aPersonId,
+          company_id: curr.aCompanyId,
           add_street: curr.add_street,
           add_number: curr.add_number,
           add_uf: curr.add_uf,
@@ -171,7 +168,7 @@ const reduceNormalQueryResult = (queryResult: QueryResult) => {
       }
     }
     if (!(curr.contact_id === null) && !acc.contacts.some((obj: any) => obj.contact_id === curr.contact_id)) {
-      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.person_id, company_id: curr.company_id, phone_number: curr.phone_number, contact: curr.contact }]
+      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.cPersonId, company_id: curr.cCompanyId, phone_number: curr.phone_number, contact: curr.contact }]
     }
     return acc
   }, {})
@@ -179,36 +176,33 @@ const reduceNormalQueryResult = (queryResult: QueryResult) => {
 
 const reduceLegalQueryResult = (queryResult: QueryResult) => {
   return (queryResult as Array<any>).reduce((acc, curr) => {
-
-    console.log('reduceLegalQueryResult', curr)
-
     if (!acc.customer) {
       acc = {
         company: {
-          company_id: curr.compCompanyId,
-          corporate_name: curr.compCorporateName,
-          social_name: curr.compSocialName,
-          cnpj: curr.compCnpj
+          company_id: curr.coCompanyId,
+          corporate_name: curr.coCorporateName,
+          social_name: curr.coSocialName,
+          cnpj: curr.coCnpj
         },
         customer: {
-          person_id: curr.person_id,
-          company_id: curr.company_id,
+          person_id: curr.lPersonId,
+          company_id: curr.lCompanyId,
           cnpj: curr.cnpj,
           state_registration: curr.state_registration,
           corporate_name: curr.corporate_name,
           social_name: curr.social_name,
         },
         person: {
-          person_id: curr.person_id,
-          company_id: curr.company_id,
+          person_id: curr.pPersonId,
+          company_id: curr.pCompanyId,
           observation: curr.observation,
           first_field: curr.first_field,
           second_field: curr.second_field,
           third_field: curr.third_field
         },
         address: {
-          person_id: curr.person_id,
-          company_id: curr.company_id,
+          person_id: curr.aPersonId,
+          company_id: curr.aCompanyId,
           add_street: curr.add_street,
           add_number: curr.add_number,
           add_uf: curr.add_uf,
