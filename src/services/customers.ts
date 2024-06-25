@@ -5,6 +5,8 @@ import { deleteFromWhere, insertInto, selectMaxColumn, duplicateKey, selectWithJ
 import { PoolConnection, QueryResult } from 'mysql2/promise';
 import { Request } from 'express';
 
+interface SegmentBody { segment_id: number | string | null, company_id: number, segment: string, person_id?: number | null }
+
 export const getLegalCustomers = async (req: Request) => {
 
   let conn = null;
@@ -68,7 +70,6 @@ export const getNormalCustomers = async (req: Request) => {
 }
 
 export const getNormalById = async (req: Request) => {
-
   const { company_id, person_id } = req.query
   let connection = null;
 
@@ -82,9 +83,19 @@ export const getNormalById = async (req: Request) => {
       'a.*', 'a.company_id AS aCompanyId', 'a.person_id AS aPersonId',
       'l.*', 'l.company_id AS lCompanyId', 'l.person_id AS lPersonId',
       'p.*', 'p.company_id AS pCompanyId', 'p.person_id AS pPersonId',
+      'ps.*', 'ps.company_id AS psCompanyId', 'ps.person_id AS psPersonId',
+      'seg.name AS segment_name'
     ];
     const whereConditions = { company_id, person_id };
     const joins = [
+      {
+        table: Tables.person_segments, alias: 'ps',
+        conditions: [{ column1: 'p.person_id', column2: 'ps.person_id' }, { column1: 'p.company_id', column2: 'ps.company_id' }]
+      },
+      {
+        table: Tables.segments, alias: 'seg',
+        conditions: [{ column1: 'ps.company_id', column2: 'seg.company_id' }, { column1: 'ps.segment_id', column2: 'seg.segment_id' }]
+      },
       {
         table: Tables.companies, alias: 'co',
         conditions: [{ column1: 'p.company_id', column2: 'co.company_id' }]
@@ -103,6 +114,9 @@ export const getNormalById = async (req: Request) => {
       }
     ];
     const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+
+    console.log('queryResult', queryResult)
+
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceNormalQueryResult(queryResult) })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -110,7 +124,6 @@ export const getNormalById = async (req: Request) => {
 }
 
 export const getLegalById = async (req: Request) => {
-
   const { company_id, person_id } = req.query
   let connection = null;
 
@@ -124,9 +137,19 @@ export const getLegalById = async (req: Request) => {
       'a.*', 'a.company_id AS aCompanyId', 'a.person_id AS aPersonId',
       'l.*', 'l.company_id AS lCompanyId', 'l.person_id AS lPersonId',
       'p.*', 'p.company_id AS pCompanyId', 'p.person_id AS pPersonId',
+      'ps.*', 'ps.company_id AS psCompanyId', 'ps.person_id AS psPersonId',
+      'seg.name AS segment_name'
     ];
     const whereConditions = { company_id, person_id };
     const joins = [
+      {
+        table: Tables.person_segments, alias: 'ps',
+        conditions: [{ column1: 'p.person_id', column2: 'ps.person_id' }, { column1: 'p.company_id', column2: 'ps.company_id' }]
+      },
+      {
+        table: Tables.segments, alias: 'seg',
+        conditions: [{ column1: 'ps.company_id', column2: 'seg.company_id' }, { column1: 'ps.segment_id', column2: 'seg.segment_id' }]
+      },
       {
         table: Tables.companies, alias: 'co',
         conditions: [{ column1: 'p.company_id', column2: 'co.company_id' }]
@@ -145,6 +168,9 @@ export const getLegalById = async (req: Request) => {
       }
     ];
     const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+
+    console.log('queryResult', queryResult)
+
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceLegalQueryResult(queryResult) })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -187,11 +213,15 @@ const reduceNormalQueryResult = (queryResult: QueryResult) => {
           add_city: curr.add_city,
           add_neighborhood: curr.add_neighborhood,
         },
-        contacts: []
+        contacts: [],
+        segments: []
       }
     }
     if (!(curr.contact_id === null) && !acc.contacts.some((obj: any) => obj.contact_id === curr.contact_id)) {
-      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.cPersonId, company_id: curr.cCompanyId, phone_number: curr.phone_number, contact: curr.contact }]
+      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.person_id, company_id: curr.company_id, phone_number: curr.phone_number, contact: curr.contact }]
+    }
+    if (!(curr.segment_id === null) && !acc.segments.some((obj: any) => obj.segment_id === curr.segment_id)) {
+      acc.segments = [...acc.segments, { segment_id: curr.segment_id, company_id: curr.psCompanyId, person_id: curr.psPersonId, name: curr.segment_name }]
     }
     return acc
   }, {})
@@ -233,11 +263,15 @@ const reduceLegalQueryResult = (queryResult: QueryResult) => {
           add_city: curr.add_city,
           add_neighborhood: curr.add_neighborhood,
         },
-        contacts: []
+        contacts: [],
+        segments: []
       }
     }
     if (!(curr.contact_id === null) && !acc.contacts.some((obj: any) => obj.contact_id === curr.contact_id)) {
       acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.person_id, company_id: curr.company_id, phone_number: curr.phone_number, contact: curr.contact }]
+    }
+    if (!(curr.segment_id === null) && !acc.segments.some((obj: any) => obj.segment_id === curr.segment_id)) {
+      acc.segments = [...acc.segments, { segment_id: curr.segment_id, company_id: curr.psCompanyId, person_id: curr.psPersonId, name: curr.segment_name }]
     }
     return acc
   }, {})
@@ -318,11 +352,22 @@ export const updateLegalPerson = async (req: Request) => {
     const contact_id = await selectMaxColumn(conn, Tables.person_phones, 'contact_id', 'max_contact_id', 'company_id', parseInt(company_id as string))
     const contacts = createContacts(body.contacts, parseInt(person_id as string), contact_id)
 
+    const segment_id = await selectMaxColumn(conn, Tables.segments, 'segment_id', 'max_segment_id', 'company_id', parseInt(company_id as string))
+    const segments = createSegments((body.segments as SegmentBody[]), parseInt(company_id as string), parseInt(person_id as string), segment_id)
+
+    console.log('segments', segments)
+
+    const personSegments = segments?.map(s => { return { company_id, person_id, segment_id: s.segment_id } })
+
+    console.log('personSegments segments', segments)
+
     await Promise.all([
       update(conn, Tables.legal_persons, { company_id, person_id }, body.customer, []),
       update(conn, Tables.person_addresses, { company_id, person_id }, body.address, []),
       update(conn, Tables.persons, { company_id, person_id }, body.person, []),
-      duplicateKey(conn, Tables.person_phones, contacts)
+      duplicateKey(conn, Tables.person_phones, contacts),
+      duplicateKey(conn, Tables.segments, segments),
+      duplicateKey(conn, Tables.person_segments, personSegments)
     ])
 
     await conn.commit()
@@ -352,11 +397,18 @@ export const updateNormalPerson = async (req: Request) => {
     const contact_id = await selectMaxColumn(conn, Tables.person_phones, 'contact_id', 'max_contact_id', 'company_id', parseInt(company_id as string))
     const contacts = createContacts(body.contacts, parseInt(person_id as string), contact_id)
 
+    const segment_id = await selectMaxColumn(conn, Tables.segments, 'segment_id', 'max_segment_id', 'company_id', parseInt(company_id as string))
+    const segments = createSegments((body.segments as SegmentBody[]), parseInt(company_id as string), parseInt(person_id as string), segment_id)
+
+    const personSegments = segments?.map(s => { return { company_id, person_id, segment_id: s.segment_id } })
+
     await Promise.all([
       update(conn, Tables.normal_persons, { company_id, person_id }, body.customer, []),
       update(conn, Tables.person_addresses, { company_id, person_id }, body.address, []),
       update(conn, Tables.persons, { company_id, person_id }, body.person, []),
-      duplicateKey(conn, Tables.person_phones, contacts)
+      duplicateKey(conn, Tables.person_phones, contacts),
+      duplicateKey(conn, Tables.segments, segments),
+      duplicateKey(conn, Tables.person_segments, personSegments)
     ])
 
     await conn.commit()
@@ -409,11 +461,21 @@ const createPerson = async (connection: PoolConnection, body: any, person_id: nu
 }
 
 const createContacts = (body: any[], person_id: number, contact_id: number) => {
-  if (!body.length) { return }
+  if (!body?.length) { return [] }
   return body.map((c, index) => {
     if (c.contact_id && c.contact_id != null && c.contact_id != '' && c.contact_id != undefined) { return c }
     const newContact = { person_id, contact_id, company_id: c.company_id, phone_number: c.phone_number, contact: c.contact }
     contact_id += 1
     return newContact
+  })
+}
+
+const createSegments = (body: SegmentBody[], company_id: number, person_id: number, segment_id: number) => {
+  if (!body?.length) { return [] }
+  return body.map((seg, index) => {
+    if (seg.segment_id && seg.segment_id != null && seg.segment_id != '' && seg.segment_id != undefined) { return { company_id: seg.company_id, segment_id: seg.segment_id, name: seg.segment } }
+    const newSegment = { company_id, segment_id, name: seg.segment }
+    segment_id += 1
+    return newSegment
   })
 }
