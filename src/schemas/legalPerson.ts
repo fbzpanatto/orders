@@ -4,10 +4,7 @@ import { addressesPOST, addressesPATCH } from "./addresses"
 
 const legalCustomerPOST: Schema = {
   'customer.person_id': {
-    optional: true,
-    escape: true,
-    isInt: true,
-    toInt: true
+    optional: true
   },
   'customer.company_id': {
     exists: true,

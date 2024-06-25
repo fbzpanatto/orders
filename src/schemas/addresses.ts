@@ -1,9 +1,6 @@
 export const addressesPOST = {
   'address.company_id': {
-    exists: true,
-    escape: true,
-    isInt: true,
-    toInt: true
+    optional: true
   },
   'address.add_street': {
     exists: true,

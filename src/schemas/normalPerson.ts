@@ -3,7 +3,7 @@ import { person } from "./complementary"
 import { Schema } from "express-validator"
 
 const normalCustomerPOST: Schema = {
-  'customer.person_id': {
+  'customer.person_id': { 
     optional: true
   },
   'customer.cpf': {

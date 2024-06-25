@@ -218,7 +218,7 @@ const reduceNormalQueryResult = (queryResult: QueryResult) => {
       }
     }
     if (!(curr.contact_id === null) && !acc.contacts.some((obj: any) => obj.contact_id === curr.contact_id)) {
-      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.person_id, company_id: curr.company_id, phone_number: curr.phone_number, contact: curr.contact }]
+      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.cPersonId, company_id: curr.cCompanyId, phone_number: curr.phone_number, contact: curr.contact }]
     }
     if (!(curr.segment_id === null) && !acc.segments.some((obj: any) => obj.segment_id === curr.segment_id)) {
       acc.segments = [...acc.segments, { segment_id: curr.segment_id, company_id: curr.psCompanyId, person_id: curr.psPersonId, name: curr.segment_name }]
@@ -268,7 +268,7 @@ const reduceLegalQueryResult = (queryResult: QueryResult) => {
       }
     }
     if (!(curr.contact_id === null) && !acc.contacts.some((obj: any) => obj.contact_id === curr.contact_id)) {
-      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.person_id, company_id: curr.company_id, phone_number: curr.phone_number, contact: curr.contact }]
+      acc.contacts = [...acc.contacts, { contact_id: curr.contact_id, person_id: curr.cPersonId, company_id: curr.cCompanyId, phone_number: curr.phone_number, contact: curr.contact }]
     }
     if (!(curr.segment_id === null) && !acc.segments.some((obj: any) => obj.segment_id === curr.segment_id)) {
       acc.segments = [...acc.segments, { segment_id: curr.segment_id, company_id: curr.psCompanyId, person_id: curr.psPersonId, name: curr.segment_name }]
@@ -338,28 +338,21 @@ export const createLegalPerson = async (body: any) => {
 }
 
 export const updateLegalPerson = async (req: Request) => {
-
   const { query, body } = req
   const { company_id, person_id } = query
-
   let conn = null;
 
-  try {
+  console.log(body)
 
+  try {
     conn = await dbConn()
     await conn.beginTransaction()
 
     const contact_id = await selectMaxColumn(conn, Tables.person_phones, 'contact_id', 'max_contact_id', 'company_id', parseInt(company_id as string))
     const contacts = createContacts(body.contacts, parseInt(person_id as string), contact_id)
-
     const segment_id = await selectMaxColumn(conn, Tables.segments, 'segment_id', 'max_segment_id', 'company_id', parseInt(company_id as string))
     const segments = createSegments((body.segments as SegmentBody[]), parseInt(company_id as string), parseInt(person_id as string), segment_id)
-
-    console.log('segments', segments)
-
     const personSegments = segments?.map(s => { return { company_id, person_id, segment_id: s.segment_id } })
-
-    console.log('personSegments segments', segments)
 
     await Promise.all([
       update(conn, Tables.legal_persons, { company_id, person_id }, body.customer, []),
@@ -371,35 +364,24 @@ export const updateLegalPerson = async (req: Request) => {
     ])
 
     await conn.commit()
-
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
   }
-  catch (error) {
-    console.log('error', error)
-    if (conn) await conn.rollback()
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  catch (error) { return await rollBackCatchBlock(error, conn) }
   finally { if (conn) { conn.release() } }
 }
 
 export const updateNormalPerson = async (req: Request) => {
-
   const { query, body } = req
   const { company_id, person_id } = query
-
   let conn = null;
-
   try {
-
     conn = await dbConn()
     await conn.beginTransaction()
 
     const contact_id = await selectMaxColumn(conn, Tables.person_phones, 'contact_id', 'max_contact_id', 'company_id', parseInt(company_id as string))
     const contacts = createContacts(body.contacts, parseInt(person_id as string), contact_id)
-
     const segment_id = await selectMaxColumn(conn, Tables.segments, 'segment_id', 'max_segment_id', 'company_id', parseInt(company_id as string))
     const segments = createSegments((body.segments as SegmentBody[]), parseInt(company_id as string), parseInt(person_id as string), segment_id)
-
     const personSegments = segments?.map(s => { return { company_id, person_id, segment_id: s.segment_id } })
 
     await Promise.all([
@@ -412,14 +394,9 @@ export const updateNormalPerson = async (req: Request) => {
     ])
 
     await conn.commit()
-
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
   }
-  catch (error) {
-    console.log('error', error)
-    if (conn) await conn.rollback()
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  catch (error) { return await rollBackCatchBlock(error, conn) }
   finally { if (conn) { conn.release() } }
 }
 
@@ -478,4 +455,10 @@ const createSegments = (body: SegmentBody[], company_id: number, person_id: numb
     segment_id += 1
     return newSegment
   })
+}
+
+const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
+  console.log('rollBackCatchBlock', error)
+  if (connection) await connection.rollback()
+  return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }
