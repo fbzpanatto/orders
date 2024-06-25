@@ -1,8 +1,7 @@
 import { dbConn } from './db'
-import { emptyOrRows } from '../helper'
 import { objectResponse } from '../utils/response';
 import { Tables } from '../enums/tables'
-import { deleteFromWhere, insertInto, selectAllFrom, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, update } from '../utils/queries';
+import { deleteFromWhere, insertInto, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, update } from '../utils/queries';
 import { PoolConnection, QueryResult } from 'mysql2/promise';
 import { Request } from 'express';
 
@@ -268,6 +267,7 @@ export const createNormalPerson = async (body: any) => {
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
   catch (error) {
+    console.log('error', error)
     if (conn) await conn.rollback()
     return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
