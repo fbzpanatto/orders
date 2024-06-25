@@ -6,40 +6,66 @@ import { deleteFromWhere, insertInto, selectAllFrom, selectMaxColumn, duplicateK
 import { PoolConnection, QueryResult } from 'mysql2/promise';
 import { Request } from 'express';
 
-export const getLegalCustomers = async (page = 1) => {
+export const getLegalCustomers = async (req: Request) => {
 
-  let connection = null;
+  let conn = null;
+
+  const { company_id } = req.query
 
   try {
+    conn = await dbConn()
 
-    connection = await dbConn()
-
-    const rows = await selectAllFrom(connection, Tables.legal_persons, page)
-    const data = emptyOrRows(rows);
-    const meta = { page };
-
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+    const data = await selectWithJoinsAndWhere(
+      conn,
+      Tables.legal_persons,
+      'l',
+      ['l.*', 'c.corporate_name AS company_name'],
+      company_id ? { company_id } : {},
+      [
+        {
+          table: Tables.companies,
+          alias: 'c',
+          conditions: [
+            { column1: 'l.company_id', column2: 'c.company_id' }
+          ]
+        }
+      ]
+    )
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
-  finally { if (connection) { connection.release() } }
+  finally { if (conn) { conn.release() } }
 }
 
-export const getNormalCustomers = async (page = 1) => {
+export const getNormalCustomers = async (req: Request) => {
 
-  let connection = null;
+  let conn = null;
+
+  const { company_id } = req.query
 
   try {
+    conn = await dbConn()
 
-    connection = await dbConn()
-
-    const rows = await selectAllFrom(connection, Tables.normal_persons, page)
-    const data = emptyOrRows(rows);
-    const meta = { page };
-
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+    const data = await selectWithJoinsAndWhere(
+      conn,
+      Tables.normal_persons,
+      'l',
+      ['l.*', 'c.corporate_name AS company_name'],
+      company_id ? { company_id } : {},
+      [
+        {
+          table: Tables.companies,
+          alias: 'c',
+          conditions: [
+            { column1: 'l.company_id', column2: 'c.company_id' }
+          ]
+        }
+      ]
+    )
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
-  finally { if (connection) { connection.release() } }
+  finally { if (conn) { conn.release() } }
 }
 
 export const getNormalById = async (req: Request) => {

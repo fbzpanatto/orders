@@ -7,12 +7,12 @@ import { Person } from '../interfaces/person'
 const router = Router()
 
 router.get('/normal', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getNormalCustomers()
+  const result = await getNormalCustomers(req)
   return res.status(result.status).json(result)
 })
 
 router.get('/legal', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getLegalCustomers()
+  const result = await getLegalCustomers(req)
   return res.status(result.status).json(result)
 })
 
