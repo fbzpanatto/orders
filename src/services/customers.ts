@@ -72,14 +72,16 @@ export const getNormalCustomers = async (req: Request) => {
 }
 
 export const getNormalById = async (req: Request) => {
-  const { company_id, person_id, custom_fields } = req.query
+  const { company_id, person_id, custom_fields, segments } = req.query
   let conn = null;
-  let extra = null;
+  let extra: { [key: string]: any } = {}
 
   try {
+
     conn = await dbConn()
 
-    if (custom_fields) { extra = await getCustomFields(conn, parseInt(company_id as string)) }
+    if (custom_fields) { extra.custom_fields = await getCustomFields(conn, parseInt(company_id as string)) }
+    if (segments) { extra.segments = {} }
 
     const baseTable = 'persons';
     const baseAlias = 'p';
@@ -129,34 +131,17 @@ export const getNormalById = async (req: Request) => {
   finally { if (conn) { conn.release() } }
 }
 
-const getCustomFields = async (connection: PoolConnection, company_id: number) => {
-
-  const baseTable = 'fields';
-  const baseAlias = 'f';
-  const selectFields = ['f.*']
-  const whereConditions = { company_id }
-  const joins: JoinClause[] = []
-
-  return ((await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
-    .map((row: Field) => {
-      return {
-        id: row.field_id,
-        table: RESOURCE.find(table => table.id === row.table_id)?.label,
-        field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.field, label: row.label
-      }
-    })
-}
-
 export const getLegalById = async (req: Request) => {
-  const { company_id, person_id, custom_fields } = req.query
+  const { company_id, person_id, custom_fields, segments } = req.query
   let conn = null;
-  let extra = null;
+  let extra: { [key: string]: any } = {}
 
   try {
 
     conn = await dbConn()
 
-    if (custom_fields) { extra = await getCustomFields(conn, parseInt(company_id as string)) }
+    if (custom_fields) { extra.custom_fields = await getCustomFields(conn, parseInt(company_id as string)) }
+    if (segments) { extra.segments = await getSegments(conn, parseInt(company_id as string)) }
 
     const baseTable = 'persons';
     const baseAlias = 'p';
@@ -326,11 +311,7 @@ export const createNormalPerson = async (body: any) => {
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
-  catch (error) {
-    console.log('error', error)
-    if (conn) await conn.rollback()
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  catch (error) { return await rollBackCatchBlock(error, conn) }
   finally { if (conn) { conn.release() } }
 }
 
@@ -356,10 +337,7 @@ export const createLegalPerson = async (body: any) => {
 
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: 1 });
   }
-  catch (error) {
-    if (conn) await conn.rollback()
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  catch (error) { return await rollBackCatchBlock(error, conn) }
   finally { if (conn) { conn.release() } }
 }
 
@@ -487,8 +465,27 @@ const createSegments = (body: SegmentBody[], company_id: number, person_id: numb
   })
 }
 
+const getSegments = async (conn: PoolConnection, company_id: number) => { return await selectWithJoinsAndWhere(conn, Tables.segments, 's', ['s.company_id', 's.segment_id', 's.name'], { company_id }) }
+
+const getCustomFields = async (conn: PoolConnection, company_id: number) => {
+
+  const baseTable = 'fields';
+  const baseAlias = 'f';
+  const selectFields = ['f.*']
+  const whereConditions = { company_id }
+  const joins: JoinClause[] = []
+
+  return ((await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
+    .map((row: Field) => {
+      return {
+        id: row.field_id,
+        table: RESOURCE.find(table => table.id === row.table_id)?.label,
+        field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.field, label: row.label
+      }
+    })
+}
+
 const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
-  console.log('rollBackCatchBlock', error)
   if (connection) await connection.rollback()
   return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }
