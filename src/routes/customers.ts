@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { createNormalPerson, createLegalPerson, updateLegalPerson, updateNormalPerson, getNormalCustomers, getLegalCustomers, getLegalById, getNormalById, deleteCustomerContact } from '../services/customers'
+import { createNormalPerson, createLegalPerson, updateLegalPerson, updateNormalPerson, getNormalCustomers, getLegalCustomers, getLegalById, getNormalById, deleteCustomerRelationalItem } from '../services/customers'
 import { validatePostNormal, validatePostLegal, validatePatchLegal, validatePatchNormal, bodyValidationNormal, bodyValidationLegal } from '../middlewares/validators'
 import { legalExistsByDoc, normalExistsByDoc, legalExistsById, normalExistsById } from '../middlewares/customerExists'
 import { Person } from '../interfaces/person'
@@ -47,12 +47,12 @@ router.patch('/normal/patch', validatePatchNormal, bodyValidationNormal, normalE
 })
 
 router.delete('/normal', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await deleteCustomerContact(req)
+  const result = await deleteCustomerRelationalItem(req)
   return res.status(result.status).json(result)
 })
 
 router.delete('/legal', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await deleteCustomerContact(req)
+  const result = await deleteCustomerRelationalItem(req)
   return res.status(result.status).json(result)
 })
 

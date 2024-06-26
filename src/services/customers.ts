@@ -1,9 +1,11 @@
 import { dbConn } from './db'
 import { objectResponse } from '../utils/response';
 import { Tables } from '../enums/tables'
-import { deleteFromWhere, insertInto, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, update } from '../utils/queries';
+import { deleteFromWhere, insertInto, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, update, JoinClause } from '../utils/queries';
 import { PoolConnection, QueryResult } from 'mysql2/promise';
 import { Request } from 'express';
+import { Field } from '../interfaces/field';
+import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from './../enums/resources';
 
 interface SegmentBody { segment_id: number | string | null, company_id: number, segment: string, person_id?: number | null }
 
@@ -70,11 +72,15 @@ export const getNormalCustomers = async (req: Request) => {
 }
 
 export const getNormalById = async (req: Request) => {
-  const { company_id, person_id } = req.query
-  let connection = null;
+  const { company_id, person_id, custom_fields } = req.query
+  let conn = null;
+  let extra = null;
 
   try {
-    connection = await dbConn()
+    conn = await dbConn()
+
+    if (custom_fields) { extra = await getCustomFields(conn, parseInt(company_id as string)) }
+
     const baseTable = 'persons';
     const baseAlias = 'p';
     const selectFields = [
@@ -113,22 +119,45 @@ export const getNormalById = async (req: Request) => {
         conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
       }
     ];
-    const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const queryResult = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
 
     console.log('queryResult', queryResult)
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceNormalQueryResult(queryResult) })
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceNormalQueryResult(queryResult), meta: { extra } })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
-  finally { if (connection) { connection.release() } }
+  finally { if (conn) { conn.release() } }
+}
+
+const getCustomFields = async (connection: PoolConnection, company_id: number) => {
+
+  const baseTable = 'fields';
+  const baseAlias = 'f';
+  const selectFields = ['f.*']
+  const whereConditions = { company_id }
+  const joins: JoinClause[] = []
+
+  return ((await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
+    .map((row: Field) => {
+      return {
+        id: row.field_id,
+        table: RESOURCE.find(table => table.id === row.table_id)?.label,
+        field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.field, label: row.label
+      }
+    })
 }
 
 export const getLegalById = async (req: Request) => {
-  const { company_id, person_id } = req.query
-  let connection = null;
+  const { company_id, person_id, custom_fields } = req.query
+  let conn = null;
+  let extra = null;
 
   try {
-    connection = await dbConn()
+
+    conn = await dbConn()
+
+    if (custom_fields) { extra = await getCustomFields(conn, parseInt(company_id as string)) }
+
     const baseTable = 'persons';
     const baseAlias = 'p';
     const selectFields = [
@@ -167,14 +196,11 @@ export const getLegalById = async (req: Request) => {
         conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
       }
     ];
-    const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
-
-    console.log('queryResult', queryResult)
-
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceLegalQueryResult(queryResult) })
+    const queryResult = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceLegalQueryResult(queryResult), meta: { extra } })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
-  finally { if (connection) { connection.release() } }
+  finally { if (conn) { conn.release() } }
 }
 
 const reduceNormalQueryResult = (queryResult: QueryResult) => {
@@ -398,28 +424,34 @@ export const updateNormalPerson = async (req: Request) => {
   finally { if (conn) { conn.release() } }
 }
 
-export const deleteCustomerContact = async (req: Request) => {
+export const deleteCustomerRelationalItem = async (req: Request) => {
 
   let conn = null;
+  let result = null;
 
-  const { company_id, person_id, contact_id } = req.query
+  const { company_id, person_id, contact_id, segment_id } = req.query
 
   try {
 
     conn = await dbConn()
 
-    const result = await deleteFromWhere(
-      conn, Tables.person_phones,
-      [{ column: 'contact_id', value: parseInt(contact_id as string) }, { column: 'person_id', value: parseInt(person_id as string) }, { column: 'company_id', value: parseInt(company_id as string) }]
-    )
+    if (!isNaN(parseInt(company_id as string)) && !isNaN(parseInt(person_id as string)) && !isNaN(parseInt(contact_id as string))) {
+      result = await deleteFromWhere(
+        conn, Tables.person_phones,
+        [{ column: 'contact_id', value: parseInt(contact_id as string) }, { column: 'person_id', value: parseInt(person_id as string) }, { column: 'company_id', value: parseInt(company_id as string) }]
+      )
+    }
 
-    return objectResponse(200, 'Registro Deletado com sucesso', { affectedRows: result.affectedRows })
+    if (!isNaN(parseInt(company_id as string)) && !isNaN(parseInt(person_id as string)) && !isNaN(parseInt(segment_id as string))) {
+      result = await deleteFromWhere(
+        conn, Tables.person_segments,
+        [{ column: 'segment_id', value: parseInt(segment_id as string) }, { column: 'person_id', value: parseInt(person_id as string) }, { column: 'company_id', value: parseInt(company_id as string) }]
+      )
+    }
 
+    return objectResponse(200, 'Registro Deletado com sucesso', { affectedRows: result?.affectedRows })
   }
-  catch (error) {
-    console.log(error)
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
-  }
+  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (conn) { conn.release() } }
 }
 

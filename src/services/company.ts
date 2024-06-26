@@ -37,6 +37,7 @@ export const getCompanies = async (page: number, request: Request) => {
     }
 
     if (custom_fields && company_id) {
+      
       const baseTable = 'fields';
       const baseAlias = 'f';
       const selectFields = ['f.*']
