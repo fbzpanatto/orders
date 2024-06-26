@@ -8,63 +8,50 @@ import { ResultSetHeader } from 'mysql2';
 import { Field } from '../interfaces/field';
 import { Request } from 'express'
 import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from '../enums/resources';
+import { getCustomFields, getSegments } from './customers';
 
 export const getFields = async (request: Request, page: number) => {
 
-  const { company_id, table_id, field_id, custom_fields } = request.query
+  const { company_id, table_id, field_id, custom_fields, segments } = request.query
 
-  let connection = null;
+  let conn = null;
+  let extra: { [key: string]: any } = {}
 
   try {
 
-    connection = await dbConn()
+    conn = await dbConn()
 
     const baseTable = Tables.fields;
     const baseAlias = 'f';
 
-    if (company_id && table_id && field_id) {
+    if (!isNaN(parseInt(company_id as string)) && table_id && field_id) {
 
       const selectFields = ['f.*'];
       const whereConditions: WhereConditions = { company_id, table_id, field_id };
       const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 'f.company_id', column2: 'c.company_id' }] }]
 
-      const result = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+      const result = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
       const data = (result as Array<{ [key: string]: any }>)[0]
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
-    if (company_id && custom_fields) {
-
-      const baseTable = 'fields';
-      const baseAlias = 'f';
-      const selectFields = ['f.*']
-      const whereConditions = { company_id }
-      const joins: JoinClause[] = []
-
-      const data = ((await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
-        .map((row: Field) => {
-          return {
-            id: row.field_id,
-            table: RESOURCE.find(table => table.id === row.table_id)?.label,
-            field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.field, label: row.label
-          }
-        })
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+    if (!isNaN(parseInt(company_id as string)) && custom_fields && segments) {
+      extra.custom_fields = await getCustomFields(conn, parseInt(company_id as string))
+      extra.segments = await getSegments(conn, parseInt(company_id as string))
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: [], meta: { extra, page } })
     }
 
     const selectFields = ['f.*', 'c.corporate_name'];
-    // TODO: const whereConditions = { company_id: 2 }
-    const whereConditions: WhereConditions = {};
+    const whereConditions: WhereConditions = company_id ? { company_id } : {};
     const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 'f.company_id', column2: 'c.company_id' }] }]
 
-    const rows = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const rows = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
     const data = formatedData(emptyOrRows(rows));
-    const meta = { page };
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta: { extra, page } })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
-  finally { if (connection) { connection.release() } }
+  finally { if (conn) { conn.release() } }
 }
 
 export const createField = async (body: Field) => {

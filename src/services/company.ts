@@ -8,26 +8,22 @@ import { dbConn } from './db';
 import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
 import { Request } from 'express'
-import { CONFIGURABLE_RESOURCES_AND_FIELDS as RESOURCE } from './../enums/resources';
-import { Field } from '../interfaces/field';
 
 interface CompanyRole { company_id: number, corporate_name: string, role_id: number, role_name: string }
 
 export const getCompanies = async (page: number, request: Request) => {
 
-  const { custom_fields, roles, company_id } = request.query
+  const { roles } = request.query
 
   let connection = null;
   let extra = null;
 
   try {
-
-    const baseTable = 'companies';
-    const baseAlias = 'c';
-
     connection = await dbConn()
 
     if (roles) {
+      const baseTable = 'companies';
+      const baseAlias = 'c';
       const selectFields = ['c.company_id', 'c.corporate_name', 'r.role_id', 'r.role_name']
       const whereConditions = {}
       const joins: JoinClause[] = [{ table: 'roles', alias: 'r', conditions: [{ column1: 'c.company_id', column2: 'r.company_id' }] }]
@@ -36,26 +32,7 @@ export const getCompanies = async (page: number, request: Request) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data: companyRoles(queryResult) })
     }
 
-    if (custom_fields && company_id) {
-      
-      const baseTable = 'fields';
-      const baseAlias = 'f';
-      const selectFields = ['f.*']
-      const whereConditions = { company_id }
-      const joins: JoinClause[] = []
-
-      extra = ((await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
-        .map((row: Field) => {
-          return {
-            id: row.field_id,
-            table: RESOURCE.find(table => table.id === row.table_id)?.label,
-            field: RESOURCE.find(table => table.id === row.table_id)?.fields.find(fl => fl.id === row.field_id)?.field, label: row.label
-          }
-        })
-    }
-
     const companies = emptyOrRows(await selectAllFrom<Company>(connection, Tables.companies, page));
-
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: companies, meta: { page, extra } })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }

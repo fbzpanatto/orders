@@ -465,9 +465,9 @@ const createSegments = (body: SegmentBody[], company_id: number, person_id: numb
   })
 }
 
-const getSegments = async (conn: PoolConnection, company_id: number) => { return await selectWithJoinsAndWhere(conn, Tables.segments, 's', ['s.company_id', 's.segment_id', 's.name'], { company_id }) }
+export const getSegments = async (conn: PoolConnection, company_id: number) => { return await selectWithJoinsAndWhere(conn, Tables.segments, 's', ['s.company_id', 's.segment_id', 's.name'], { company_id }) }
 
-const getCustomFields = async (conn: PoolConnection, company_id: number) => {
+export const getCustomFields = async (conn: PoolConnection, company_id: number) => {
 
   const baseTable = 'fields';
   const baseAlias = 'f';
