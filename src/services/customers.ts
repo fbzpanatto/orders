@@ -81,7 +81,7 @@ export const getNormalById = async (req: Request) => {
     conn = await dbConn()
 
     if (custom_fields) { extra.custom_fields = await getCustomFields(conn, parseInt(company_id as string)) }
-    if (segments) { extra.segments = {} }
+    if (segments) { extra.segments = await getSegments(conn, parseInt(company_id as string)) }
 
     const baseTable = 'persons';
     const baseAlias = 'p';
