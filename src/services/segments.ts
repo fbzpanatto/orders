@@ -41,7 +41,10 @@ export const getSegment = async (req: Request) => {
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const createSegment = async (body: Segments) => {
+export const createSegment = async (req: Request) => {
+
+  const { body, query } = req
+
   let connection = null;
 
   try {
@@ -52,7 +55,10 @@ export const createSegment = async (body: Segments) => {
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
-export const updateSegment = async (id: number, req: Request) => {
+export const updateSegment = async (req: Request) => {
+
+  const { body, query } = req
+  const { id } = query
 
   let connection = null;
 
@@ -61,7 +67,7 @@ export const updateSegment = async (id: number, req: Request) => {
     connection = await dbConn()
     await connection.beginTransaction()
 
-    const queryResult = await updateTableSetWhere(connection, Tables.segments, 'id', id, req.body as Segments, [])
+    const queryResult = await updateTableSetWhere(connection, Tables.segments, 'id', parseInt(id as string), req.body as Segments, [])
 
     await connection.commit()
 
