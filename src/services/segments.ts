@@ -27,12 +27,10 @@ export const getSegments = async (req: Request) => {
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
 
-    if (!isNaN(parseInt(company_id as string))) {
-      data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, { company_id }, joins)
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
-    }
+    const whereconditions = !isNaN(parseInt(company_id as string)) ? { company_id } : {}
 
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
+    data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereconditions, joins)
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
