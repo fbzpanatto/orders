@@ -73,7 +73,7 @@ export const legalPOST: Schema = {
   company: { optional: true },
   customer: { exists: true },
   address: { exists: true },
-  person: { optional: true },
+  person: { exists: true },
   contacts: { optional: true },
   segments: { optional: true },
   ...legalCustomerPOST,
