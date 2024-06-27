@@ -6,12 +6,15 @@ import { Segments } from '../interfaces/segments';
 import { objectResponse } from '../utils/response';
 import { updateTableSetWhere, insertInto, selectWithJoinsAndWhere, JoinClause } from '../utils/queries';
 
+interface Segment { cnpj: string, company_id: number, corporate_name?: string, social_name?: string, created_at: string, name: string, segment_id: number, updated_at: string }
+
 export const getSegments = async (req: Request) => {
 
   const { company_id, segment_id } = req.query
 
   let conn = null;
   let data = null;
+  let extra: { [key: string]: any } = {}
 
   try {
 
@@ -23,8 +26,10 @@ export const getSegments = async (req: Request) => {
     const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 's.company_id', column2: 'c.company_id' }] }]
 
     if (!isNaN(parseInt(company_id as string)) && !isNaN(parseInt(segment_id as string))) {
-      data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, { company_id, segment_id }, joins)
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+      const selectFields = ['s.*', 'c.cnpj', 'c.social_name']
+      const response = (await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, { company_id, segment_id }, joins) as Array<any>)[0]
+      extra.companies = await selectWithJoinsAndWhere(conn, Tables.companies, 'c', ['c.*'], { company_id })
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: response, meta: { extra } })
     }
 
     const whereconditions = !isNaN(parseInt(company_id as string)) ? { company_id } : {}
