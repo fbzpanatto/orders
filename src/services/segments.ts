@@ -8,9 +8,10 @@ import { updateTableSetWhere, insertInto, selectWithJoinsAndWhere, JoinClause } 
 
 export const getSegments = async (req: Request) => {
 
-  const { company_id } = req.query
+  const { company_id, segment_id } = req.query
 
   let conn = null;
+  let data = null;
 
   try {
 
@@ -19,34 +20,19 @@ export const getSegments = async (req: Request) => {
     const baseTable = Tables.segments
     const baseAlias = 's'
     const selectFields = ['s.*', 'c.corporate_name']
-    const whereConditions = !isNaN(parseInt(company_id as string)) ? { company_id } : {}
     const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 's.company_id', column2: 'c.company_id' }] }]
 
-    const data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+    if (!isNaN(parseInt(company_id as string)) && !isNaN(parseInt(segment_id as string))) {
+      data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, { company_id, segment_id }, joins)
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+    }
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
-  } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
-}
+    if (!isNaN(parseInt(company_id as string))) {
+      data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, { company_id }, joins)
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+    }
 
-export const getSegment = async (req: Request) => {
-
-  const { segment_id, company_id } = req.query
-
-  let conn = null;
-
-  try {
-
-    conn = await dbConn()
-
-    const baseTable = Tables.segments
-    const baseAlias = 's'
-    const selectFields = ['s.*', 'c.corporate_name']
-    const whereConditions = { company_id, segment_id }
-    const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 's.company_id', column2: 'c.company_id' }] }]
-
-    const data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
-
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
