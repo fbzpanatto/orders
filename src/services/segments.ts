@@ -1,23 +1,29 @@
 import { objectResponse } from '../utils/response';
 import { Segments } from '../interfaces/segments';
-import { updateTableSetWhere, insertInto, selectAllFrom, selectAllWithWhere } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllWithWhere, selectWithJoinsAndWhere, JoinClause } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { Request } from 'express';
-import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
 
-export const getSegments = async (page: number) => {
+export const getSegments = async (req: Request) => {
 
-  let connection = null;
+  const { company_id } = req.query
+
+  let conn = null;
 
   try {
 
-    connection = await dbConn()
-    const rows = await selectAllFrom<Segments>(connection, Tables.segments, page)
-    const data = emptyOrRows(rows);
-    const meta = { page };
+    conn = await dbConn()
 
-    return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta })
+    const baseTable = Tables.segments
+    const baseAlias = 's'
+    const selectFields = ['s.*', 'c.corporate_name']
+    const whereConditions = !isNaN(parseInt(company_id as string)) ? { company_id } : {}
+    const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 's.company_id', column2: 'c.company_id' }] }]
+
+    const data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 

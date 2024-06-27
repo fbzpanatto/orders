@@ -6,7 +6,7 @@ import { Segments } from '../interfaces/segments'
 const router = Router()
 
 router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getSegments(1)
+  const result = await getSegments(req)
   return res.status(result.status).json(result)
 })
 
