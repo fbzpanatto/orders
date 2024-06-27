@@ -1,9 +1,10 @@
-import { objectResponse } from '../utils/response';
-import { Segments } from '../interfaces/segments';
-import { updateTableSetWhere, insertInto, selectAllWithWhere, selectWithJoinsAndWhere, JoinClause } from '../utils/queries';
-import { Tables } from '../enums/tables';
-import { Request } from 'express';
 import { dbConn } from './db';
+import { Request } from 'express';
+import { Tables } from '../enums/tables';
+import { PoolConnection } from 'mysql2/promise';
+import { Segments } from '../interfaces/segments';
+import { objectResponse } from '../utils/response';
+import { updateTableSetWhere, insertInto, selectWithJoinsAndWhere, JoinClause } from '../utils/queries';
 
 export const getSegments = async (req: Request) => {
 
@@ -31,24 +32,31 @@ export const getSegment = async (req: Request) => {
 
   const { segment_id, company_id } = req.query
 
-  let connection = null;
+  let conn = null;
 
   try {
 
-    connection = await dbConn()
-    const result = await selectAllWithWhere(connection, Tables.segments, { segment_id, company_id }) as Array<Segments>
-    return objectResponse(200, 'Consulta realizada com sucesso.', { result })
+    conn = await dbConn()
+
+    const baseTable = Tables.segments
+    const baseAlias = 's'
+    const selectFields = ['s.*', 'c.corporate_name']
+    const whereConditions = { company_id, segment_id }
+    const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 's.company_id', column2: 'c.company_id' }] }]
+
+    const data = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+
+    return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   } catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
 }
 
 export const createSegment = async (req: Request) => {
 
-  const { body, query } = req
+  const { body } = req
 
   let connection = null;
 
   try {
-
     connection = await dbConn()
     const queryResult = await insertInto(connection, Tables.segments, body, [])
     return objectResponse(200, 'Registro criado com sucesso.', { affectedRows: queryResult.affectedRows });
@@ -72,8 +80,12 @@ export const updateSegment = async (req: Request) => {
     await connection.commit()
 
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: queryResult?.affectedRows });
-  } catch (error) {
-    if (connection) await connection.rollback()
-    return objectResponse(400, 'Não foi possível processar a sua solicitação.')
   }
+  catch (error) { return rollBackCatchBlock(error, connection) }
+  finally { if (connection) { connection.release() } }
+}
+
+const rollBackCatchBlock = async (error: any, connection: PoolConnection | null) => {
+  if (connection) await connection.rollback()
+  return objectResponse(400, 'Não foi possível processar a sua solicitação.')
 }
