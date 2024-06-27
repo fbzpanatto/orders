@@ -11,13 +11,13 @@ export const connectionPool = mysql.createPool({
   user: 'fbzpanatto',
   database: process.env.NODE_ENV === 'development' ? 'mydb' : 'mydbTest',
   password: 'fnp181292',
-  // waitForConnections: true,
-  // connectionLimit: 10,
-  // maxIdle: 10,
-  // idleTimeout: config().db.connectTimeout,
-  // queueLimit: 0,
-  // enableKeepAlive: true,
-  // keepAliveInitialDelay: 0,
+  waitForConnections: true,
+  connectionLimit: 10,
+  maxIdle: 10,
+  idleTimeout: config().db.connectTimeout,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
   dateStrings: true
 });
 

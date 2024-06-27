@@ -1,45 +1,36 @@
-import { validateCustomFieldDate } from "../utils/customValidators"
-
 export const segmentsPOST = {
+  segment_id: {
+    optional: true
+  },
+  company_id: {
+    exists: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
   name: {
     exists: true,
-    isLength: { options: { min: 3, max: 100 } },
+    isLength: { options: { min: 3, max: 20 } },
     escape: true
   },
-  created_at: {
-    exists: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  updated_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  }
 }
 
 export const segmentsPATCH = {
+  segment_id: {
+    exists: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
+  company_id: {
+    exists: true,
+    escape: true,
+    isInt: true,
+    toInt: true
+  },
   name: {
     exists: true,
-    isLength: { options: { min: 3, max: 100 } },
+    isLength: { options: { min: 3, max: 20 } },
     escape: true
   },
-  created_at: {
-    optional: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  },
-  updated_at: {
-    exists: true,
-    escape: true,
-    custom: {
-      options: validateCustomFieldDate
-    }
-  }
 }
