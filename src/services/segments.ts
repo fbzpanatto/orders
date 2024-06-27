@@ -19,7 +19,7 @@ export const getSegments = async (req: Request) => {
 
     const baseTable = Tables.segments
     const baseAlias = 's'
-    const selectFields = ['s.*', 'c.corporate_name']
+    const selectFields = ['s.*', 'c.cnpj', 'c.corporate_name']
     const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 's.company_id', column2: 'c.company_id' }] }]
 
     if (!isNaN(parseInt(company_id as string)) && !isNaN(parseInt(segment_id as string))) {
