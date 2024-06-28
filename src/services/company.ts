@@ -5,7 +5,7 @@ import { updateTableSetWhere, insertInto, selectAllFrom, selectJoinsWhere } from
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
-import {PoolConnection, QueryResult} from 'mysql2/promise';
+import { PoolConnection } from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
 import { Request } from 'express'
 
@@ -24,7 +24,7 @@ export const getCompanies = async (page: number, request: Request) => {
     if(status) {
       const baseTable = 'companies';
       const baseAlias = 'c';
-      const selectFields = ['c.corporate_name', 's.company_id, s.status_id, s.name']
+      const selectFields = ['c.company_id', 'c.corporate_name', 's.company_id AS statusCompanyId', 's.status_id', 's.name']
       const whereConditions = {}
       const joins: JoinClause[] = [{ table: Tables.status, alias: 's', conditions: [{ column1: 'c.company_id', column2: 's.company_id' }] }]
 
@@ -46,9 +46,7 @@ export const getCompanies = async (page: number, request: Request) => {
     const companies = emptyOrRows(await selectAllFrom<Company>(connection, Tables.companies, page));
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: companies, meta: { page, extra } })
   }
-  catch (error) {
-    console.log(error)
-    return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
+  catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }
 }
 

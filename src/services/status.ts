@@ -13,8 +13,6 @@ export const getStatus = async (req: Request) => {
   let conn = null;
   let extra: { [key: string]: any } = {}
 
-  console.log('entrando aqui --------------------------------------------------------', company_id, status_id)
-
   try {
 
     conn = await dbConn()
@@ -76,7 +74,7 @@ export const updateStatus = async (req: Request) => {
   try {
     connection = await dbConn()
     await connection.beginTransaction()
-    await update(connection, Tables.status, { status_id, company_id }, { name: body.name }, [])
+    await update(connection, Tables.status, { status_id, company_id }, { next_status_id: body.next_status_id, name: body.name }, [])
     await connection.commit()
     return objectResponse(200, 'Registro atualizado com sucesso.', { affectedRows: 1 });
   }
