@@ -29,9 +29,7 @@ export const getCompanies = async (page: number, request: Request) => {
       const joins: JoinClause[] = [{ table: Tables.status, alias: 's', conditions: [{ column1: 'c.company_id', column2: 's.company_id' }] }]
 
       const queryResult = await selectJoinsWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<any>
-      const data = companyStatus(queryResult)
-
-      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data: companyStatus(queryResult as []) })
     }
 
     if (roles) {
@@ -158,10 +156,10 @@ const companyRoles = (arr: CompanyRole[]) => {
   }, [])
 }
 
-const companyStatus = (queryResult: QueryResult) => {
-  return (queryResult as Array<any>).reduce((acc, curr) => {
-    if(!acc.company) { acc.company = { company_id: curr.company_id, corporate_name: curr.corporate_name, productStatus: [] } }
-    acc.company.productStatus.push({ company_id: curr.company_id, status_id: curr.status_id, name: curr.name })
+const companyStatus = (queryResult: []) => {
+  return queryResult.reduce((acc: any, curr: any) => {
+    if (!acc.find((el: any) => el.company_id === curr.company_id)) { acc.push({ company_id: curr.company_id, corporate_name: curr.corporate_name, productStatus: [] }) }
+    acc.find((el :any) => el.company_id === curr.company_id)?.productStatus.push({ company_id: curr.company_id, status_id: curr.status_id, name: curr.name })
     return acc
-  }, {})
+  }, [])
 }
