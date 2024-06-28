@@ -5,7 +5,7 @@ import { updateTableSetWhere, insertInto, selectAllFrom, selectJoinsWhere } from
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
-import { PoolConnection } from 'mysql2/promise';
+import {PoolConnection, QueryResult} from 'mysql2/promise';
 import { format, ResultSetHeader } from 'mysql2';
 import { Request } from 'express'
 
@@ -13,13 +13,26 @@ interface CompanyRole { company_id: number, corporate_name: string, role_id: num
 
 export const getCompanies = async (page: number, request: Request) => {
 
-  const { roles } = request.query
+  const { roles, status } = request.query
 
   let connection = null;
   let extra = null;
 
   try {
     connection = await dbConn()
+
+    if(status) {
+      const baseTable = 'companies';
+      const baseAlias = 'c';
+      const selectFields = ['c.corporate_name', 's.company_id, s.status_id, s.name']
+      const whereConditions = {}
+      const joins: JoinClause[] = [{ table: Tables.status, alias: 's', conditions: [{ column1: 'c.company_id', column2: 's.company_id' }] }]
+
+      const queryResult = await selectJoinsWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<any>
+      const data = companyStatus(queryResult)
+
+      return objectResponse(200, 'Consulta realizada com sucesso.', { data })
+    }
 
     if (roles) {
       const baseTable = 'companies';
@@ -35,7 +48,9 @@ export const getCompanies = async (page: number, request: Request) => {
     const companies = emptyOrRows(await selectAllFrom<Company>(connection, Tables.companies, page));
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: companies, meta: { page, extra } })
   }
-  catch (error) { return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
+  catch (error) {
+    console.log(error)
+    return objectResponse(400, 'Não foi possível processar sua solicitação.', {}) }
   finally { if (connection) { connection.release() } }
 }
 
@@ -141,4 +156,12 @@ const companyRoles = (arr: CompanyRole[]) => {
     acc.find(el => el.company_id === curr.company_id)?.roles.push({ role_id: curr.role_id, role_name: curr.role_name })
     return acc
   }, [])
+}
+
+const companyStatus = (queryResult: QueryResult) => {
+  return (queryResult as Array<any>).reduce((acc, curr) => {
+    if(!acc.company) { acc.company = { company_id: curr.company_id, corporate_name: curr.corporate_name, productStatus: [] } }
+    acc.company.productStatus.push({ company_id: curr.company_id, status_id: curr.status_id, name: curr.name })
+    return acc
+  }, {})
 }

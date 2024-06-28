@@ -8,6 +8,9 @@ export const statusPOST = {
     isInt: true,
     toInt: true
   },
+  next_status_id: {
+    optional: true
+  },
   name: {
     exists: true,
     isLength: { options: { min: 3, max: 20 } },
@@ -27,6 +30,9 @@ export const statusPATCH = {
     escape: true,
     isInt: true,
     toInt: true
+  },
+  next_status_id: {
+    optional: true
   },
   name: {
     exists: true,
