@@ -1,7 +1,7 @@
-import { JoinClause } from './../utils/queries';
+import { JoinClause } from '../utils/queries';
 import { objectResponse } from '../utils/response';
 import { Company } from '../interfaces/company';
-import { updateTableSetWhere, insertInto, selectAllFrom, selectWithJoinsAndWhere } from '../utils/queries';
+import { updateTableSetWhere, insertInto, selectAllFrom, selectJoinsWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -28,7 +28,7 @@ export const getCompanies = async (page: number, request: Request) => {
       const whereConditions = {}
       const joins: JoinClause[] = [{ table: 'roles', alias: 'r', conditions: [{ column1: 'c.company_id', column2: 'r.company_id' }] }]
 
-      const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<CompanyRole>
+      const queryResult = await selectJoinsWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<CompanyRole>
       return objectResponse(200, 'Consulta realizada com sucesso.', { data: companyRoles(queryResult) })
     }
 

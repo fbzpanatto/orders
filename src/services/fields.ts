@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, update, selectWithJoinsAndWhere, JoinClause, WhereConditions } from '../utils/queries';
+import { insertInto, update, selectJoinsWhere, JoinClause, WhereConditions } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -30,7 +30,7 @@ export const getFields = async (request: Request, page: number) => {
       const whereConditions: WhereConditions = { company_id, table_id, field_id };
       const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 'f.company_id', column2: 'c.company_id' }] }]
 
-      const result = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+      const result = await selectJoinsWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
       const data = (result as Array<{ [key: string]: any }>)[0]
       return objectResponse(200, 'Consulta realizada com sucesso.', { data })
     }
@@ -45,7 +45,7 @@ export const getFields = async (request: Request, page: number) => {
     const whereConditions: WhereConditions = company_id ? { company_id } : {};
     const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 'f.company_id', column2: 'c.company_id' }] }]
 
-    const rows = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const rows = await selectJoinsWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
     const data = formatedData(emptyOrRows(rows));
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta: { extra, page } })

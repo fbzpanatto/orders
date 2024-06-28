@@ -3,7 +3,7 @@ import { Request } from 'express';
 import { Tables } from '../enums/tables';
 import { PoolConnection } from 'mysql2/promise';
 import { objectResponse } from '../utils/response';
-import { insertInto, selectWithJoinsAndWhere, JoinClause, selectMaxColumn, update } from '../utils/queries';
+import { insertInto, selectJoinsWhere, JoinClause, selectMaxColumn, update } from '../utils/queries';
 import { emptyOrRows } from '../helper';
 
 export const getSegments = async (req: Request) => {
@@ -22,14 +22,14 @@ export const getSegments = async (req: Request) => {
     const joins: JoinClause[] = [{ table: Tables.companies, alias: 'c', conditions: [{ column1: 's.company_id', column2: 'c.company_id' }] }]
 
     if (!isNaN(parseInt(company_id as string)) && !isNaN(parseInt(segment_id as string))) {
-      const result = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, ['s.*', 'c.cnpj', 'c.social_name'], { company_id, segment_id }, joins)
+      const result = await selectJoinsWhere(conn, baseTable, baseAlias, ['s.*', 'c.cnpj', 'c.social_name'], { company_id, segment_id }, joins)
       const data = (result as Array<{ [key: string]: any }>)[0]
-      extra.companies = await selectWithJoinsAndWhere(conn, Tables.companies, 'c', ['c.*'], { company_id })
+      extra.companies = await selectJoinsWhere(conn, Tables.companies, 'c', ['c.*'], { company_id })
       return objectResponse(200, 'Consulta realizada com sucesso.', { data, meta: { extra } })
     }
 
     const wherecondition = !isNaN(parseInt(company_id as string)) ? { company_id: parseInt(company_id as string) } : {}
-    const rows = await selectWithJoinsAndWhere(conn, Tables.segments, 's', ['s.*', 'c.corporate_name'], wherecondition, joins)
+    const rows = await selectJoinsWhere(conn, Tables.segments, 's', ['s.*', 'c.corporate_name'], wherecondition, joins)
     const data = emptyOrRows(rows)
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data })

@@ -1,27 +1,21 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { validatePostStatus, validatePatchStatus, bodyValidationStatus, validateId } from '../middlewares/validators'
-import { createStatus, getOneStatus, getStatus, updateStatus } from '../services/status'
-import { Status } from '../interfaces/status'
+import { bodyValidationStatus, validatePostStatus, validatePatchStatus } from '../middlewares/validators'
+import { getStatus, createStatus, updateStatus } from '../services/status'
 
 const router = Router()
 
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getStatus(1)
+router.get('/', async (req: Request, res: Response ) => {
+  const result = await getStatus(req)
   return res.status(result.status).json(result)
 })
 
-router.get('/:id', validateId, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await getOneStatus(req)
+router.post('/', validatePostStatus, bodyValidationStatus, async (req: Request, res: Response) => {
+  const result = await createStatus(req)
   return res.status(result.status).json(result)
 })
 
-router.post('/', validatePostStatus, bodyValidationStatus, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await createStatus(req.body as Status)
-  return res.status(result.status).json(result)
-})
-
-router.patch('/:id', validateId, validatePatchStatus, bodyValidationStatus, async (req: Request, res: Response, next: NextFunction) => {
-  const result = await updateStatus(parseInt(req.params.id), req)
+router.patch('/', validatePatchStatus, bodyValidationStatus, async (req: Request, res: Response) => {
+  const result = await updateStatus(req)
   return res.status(result.status).json(result)
 })
 

@@ -1,5 +1,5 @@
 import { objectResponse } from '../utils/response';
-import { updateTableSetWhere, insertInto, selectMaxColumn, selectWithJoinsAndWhere, update, JoinClause } from '../utils/queries';
+import { insertInto, selectMaxColumn, selectJoinsWhere, update, JoinClause } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
@@ -53,7 +53,7 @@ export const getUsers = async (request: Request, page: number) => {
       const whereConditions = {}
       const joins: JoinClause[] = [{ table: 'roles', alias: 'r', conditions: [{ column1: 'c.company_id', column2: 'r.company_id' }] }]
 
-      const queryResult = await selectWithJoinsAndWhere(conn, Tables.companies, 'c', selectFields, whereConditions, joins) as Array<CompanyRole>
+      const queryResult = await selectJoinsWhere(conn, Tables.companies, 'c', selectFields, whereConditions, joins) as Array<CompanyRole>
       companyRoles = companyRolesFn(queryResult)
     }
 
@@ -61,7 +61,7 @@ export const getUsers = async (request: Request, page: number) => {
 
       const selectFields = ['u.user_id', 'u.name', 'u.username', 'u.password', 'u.active', 'r.role_id', 'c.company_id']
       const whereConditions = { company_id, user_id }
-      const result = (await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<{ [key: string]: any }>)[0]
+      const result = (await selectJoinsWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins) as Array<{ [key: string]: any }>)[0]
 
       return objectResponse(200, 'Consulta realizada com sucesso.', { data: result, meta: { companyRoles } })
     }
@@ -69,7 +69,7 @@ export const getUsers = async (request: Request, page: number) => {
     const selectFields = ['u.user_id', 'u.name', 'u.username', 'u.active', 'u.created_at', 'r.role_id, r.role_name', 'c.company_id', 'c.corporate_name']
     const whereConditions = {}
 
-    const result = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const result = await selectJoinsWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
 
     const data = emptyOrRows(result) as Array<AllUsers>
     const meta = { page };

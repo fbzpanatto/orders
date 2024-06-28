@@ -45,7 +45,7 @@ export const selectAllWithWhereLeft = async (connection: PoolConnection, table: 
   return results;
 };
 
-export const selectWithJoinsAndWhere = async (conn: PoolConnection, baseTable: string, baseAlias: string, selectFields: string[], whereConditions: WhereConditions, joins: JoinClause[] = []) => {
+export const selectJoinsWhere = async (conn: PoolConnection, baseTable: string, baseAlias: string, selectFields: string[], whereConditions: WhereConditions, joins: JoinClause[] = []) => {
 
   const selectClause = selectFields.join(', ');
 
@@ -142,7 +142,7 @@ export const updateTableSetWhere = async (connection: PoolConnection, table: str
 
 export const deleteFromWhere = async (connection: PoolConnection, table: string, whereObject: { column: string, value: number | string }[]) => {
 
-  const whereClause = whereObject.map(({ column, value }) => `${column} = ?`).join(' AND ');
+  const whereClause = whereObject.map(({ column}) => `${column} = ?`).join(' AND ');
   const values = whereObject.map(({ value }) => value);
 
   const queryString = `DELETE FROM ${table} WHERE ${whereClause}`;

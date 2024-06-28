@@ -33,7 +33,7 @@ app.use('/api', (req: Request, res: Response) => { res.status(200).send("Hello W
 
 app.use('/users', usersRouter)
 app.use('/fields', fieldsRouter)
-app.use('/status', statusRouter)
+app.use('/product-status', statusRouter)
 app.use('/orders', ordersRouter)
 app.use('/companies', companies)
 app.use('/persons', customersRouter)
@@ -44,6 +44,6 @@ app.use('/permissions', permissionsRouter)
 app.use('/person-segments', personSegmentsRouter)
 app.use('/order-products-status', orderProductsStatus)
 
-app.use((error: Error, req: Request, res: Response, next: NextFunction) => { res.status(500).send({ status: 500, message: error.message }) })
+app.use((error: Error, req: Request, res: Response ) => { res.status(500).send({ status: 500, message: error.message }) })
 
 export default app

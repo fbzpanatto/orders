@@ -1,12 +1,12 @@
 import { objectResponse } from '../utils/response';
-import { insertInto, duplicateKeyUpdate, selectMaxColumn, update, duplicateKey, selectWithJoinsAndWhere } from '../utils/queries';
+import { insertInto, duplicateKeyUpdate, selectMaxColumn, update, duplicateKey, selectJoinsWhere } from '../utils/queries';
 import { Tables } from '../enums/tables';
 import { emptyOrRows } from '../helper';
 import { dbConn } from './db';
 import { PoolConnection } from 'mysql2/promise';
 import { Permission } from '../interfaces/permission';
 import { Request } from 'express'
-import { RESOURCES_ID_TO_NAME, RESOURCES_NAME_TO_ID } from './../enums/resources';
+import { RESOURCES_ID_TO_NAME, RESOURCES_NAME_TO_ID } from '../enums/resources';
 
 const ROLE_ID = 'role_id'
 const COMPANY_ID = 'company_id'
@@ -50,7 +50,7 @@ export const getRoles = async (request: Request, page: number) => {
         { table: 'companies', alias: 'c', conditions: [{ column1: 'r.company_id', column2: 'c.company_id' }] }
       ];
 
-      const queryResult = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+      const queryResult = await selectJoinsWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
       return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceData(queryResult) })
     }
 
@@ -59,7 +59,7 @@ export const getRoles = async (request: Request, page: number) => {
     const whereConditions = {}
     const joins = [{ table: 'companies', alias: 'c', conditions: [{ column1: 'r.company_id', column2: 'c.company_id' }] }]
 
-    const result = await selectWithJoinsAndWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const result = await selectJoinsWhere(connection, baseTable, baseAlias, selectFields, whereConditions, joins)
     const data = emptyOrRows(result);
     const meta = { page };
 

@@ -1,7 +1,7 @@
 import { dbConn } from './db'
 import { objectResponse } from '../utils/response';
 import { Tables } from '../enums/tables'
-import { deleteFromWhere, insertInto, selectMaxColumn, duplicateKey, selectWithJoinsAndWhere, update, JoinClause } from '../utils/queries';
+import { deleteFromWhere, insertInto, selectMaxColumn, duplicateKey, selectJoinsWhere, update, JoinClause } from '../utils/queries';
 import { PoolConnection, QueryResult } from 'mysql2/promise';
 import { Request } from 'express';
 import { Field } from '../interfaces/field';
@@ -18,7 +18,7 @@ export const getLegalCustomers = async (req: Request) => {
   try {
     conn = await dbConn()
 
-    const data = await selectWithJoinsAndWhere(
+    const data = await selectJoinsWhere(
       conn,
       Tables.legal_persons,
       'l',
@@ -49,7 +49,7 @@ export const getNormalCustomers = async (req: Request) => {
   try {
     conn = await dbConn()
 
-    const data = await selectWithJoinsAndWhere(
+    const data = await selectJoinsWhere(
       conn,
       Tables.normal_persons,
       'l',
@@ -121,7 +121,7 @@ export const getNormalById = async (req: Request) => {
         conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
       }
     ];
-    const queryResult = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const queryResult = await selectJoinsWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
 
     console.log('queryResult', queryResult)
 
@@ -181,7 +181,7 @@ export const getLegalById = async (req: Request) => {
         conditions: [{ column1: 'p.company_id', column2: 'c.company_id' }, { column1: 'p.person_id', column2: 'c.person_id' },]
       }
     ];
-    const queryResult = await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
+    const queryResult = await selectJoinsWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)
     return objectResponse(200, 'Consulta realizada com sucesso.', { data: reduceLegalQueryResult(queryResult), meta: { extra } })
   }
   catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
@@ -447,7 +447,7 @@ const createPerson = async (connection: PoolConnection, body: any, person_id: nu
 
 const createContacts = (body: any[], person_id: number, contact_id: number) => {
   if (!body?.length) { return [] }
-  return body.map((c, index) => {
+  return body.map((c) => {
     if (c.contact_id && c.contact_id != null && c.contact_id != '' && c.contact_id != undefined) { return c }
     const newContact = { person_id, contact_id, company_id: c.company_id, phone_number: c.phone_number, contact: c.contact }
     contact_id += 1
@@ -457,7 +457,7 @@ const createContacts = (body: any[], person_id: number, contact_id: number) => {
 
 const createSegments = (body: SegmentBody[], company_id: number, person_id: number, segment_id: number) => {
   if (!body?.length) { return [] }
-  return body.map((seg, index) => {
+  return body.map((seg) => {
     if (seg.segment_id && seg.segment_id != null && seg.segment_id != '' && seg.segment_id != undefined) { return { company_id: seg.company_id, segment_id: seg.segment_id, name: seg.segment } }
     const newSegment = { company_id, segment_id, name: seg.segment }
     segment_id += 1
@@ -465,7 +465,7 @@ const createSegments = (body: SegmentBody[], company_id: number, person_id: numb
   })
 }
 
-export const getSegments = async (conn: PoolConnection, company_id: number) => { return await selectWithJoinsAndWhere(conn, Tables.segments, 's', ['s.company_id', 's.segment_id', 's.name'], { company_id }) }
+export const getSegments = async (conn: PoolConnection, company_id: number) => { return await selectJoinsWhere(conn, Tables.segments, 's', ['s.company_id', 's.segment_id', 's.name'], { company_id }) }
 
 export const getCustomFields = async (conn: PoolConnection, company_id: number) => {
 
@@ -475,7 +475,7 @@ export const getCustomFields = async (conn: PoolConnection, company_id: number) 
   const whereConditions = { company_id }
   const joins: JoinClause[] = []
 
-  return ((await selectWithJoinsAndWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
+  return ((await selectJoinsWhere(conn, baseTable, baseAlias, selectFields, whereConditions, joins)) as Field[])
     .map((row: Field) => {
       return {
         id: row.field_id,
