@@ -7,7 +7,7 @@
     "test": "NODE_ENV=test jest --watchAll --detectOpenHandles",
     "dev": "NODE_ENV=development npx nodemon src/server.ts --watch 'src/' -e ts",
     "compile": "npx tsc",
-    "start": "node ./dist/server.js"
+    "start": "node ./build/server.js"
   },
   "keywords": [],
   "author": "",
