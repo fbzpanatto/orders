@@ -8,7 +8,8 @@ const promise_1 = __importDefault(require("mysql2/promise"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 exports.connectionPool = promise_1.default.createPool({
-    host: 'localhost',
+    // host: 'localhost',
+    host: 'mydb.cts1jr1mgndt.us-east-1.rds.amazonaws.com',
     user: 'fbzpanatto',
     // database: process.env.NODE_ENV === 'development' ? 'mydb' : 'mydbTest',
     database: 'mydb',

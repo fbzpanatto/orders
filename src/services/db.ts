@@ -3,7 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const connectionPool = mysql.createPool({
-  host: 'localhost',
+  // host: 'localhost',
+  host: 'mydb.cts1jr1mgndt.us-east-1.rds.amazonaws.com',
   user: 'fbzpanatto',
   // database: process.env.NODE_ENV === 'development' ? 'mydb' : 'mydbTest',
   database: 'mydb',
