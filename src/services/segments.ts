@@ -34,7 +34,9 @@ export const getSegments = async (req: Request) => {
 
     return objectResponse(200, 'Consulta realizada com sucesso.', { data })
   }
-  catch (error) { return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
+  catch (error) {
+    console.log('error', error)
+    return objectResponse(400, 'Não foi possível processar a sua solicitação.') }
   finally { if (conn) { conn.release() } }
 }
 

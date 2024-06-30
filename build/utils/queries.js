@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.duplicateKey = exports.duplicateKeyUpdate = exports.deleteFromWhere = exports.updateTableSetWhere = exports.update = exports.insertInto = exports.selectAllWithWhere = exports.selectJoinsWhere = exports.selectAllWithWhereLeft = exports.selectAllFrom = exports.selectMaxColumn = void 0;
 const mysql2_1 = require("mysql2");
 const helper_1 = require("../helper");
-const config_1 = require("../config");
 const formatDate_1 = require("./formatDate");
 const selectMaxColumn = async (conn, table, columnName, maxColumnAlias, whereColumn, whereColumnValue) => {
     const query = `SELECT MAX(${columnName}) as ${maxColumnAlias} FROM ${table} WHERE ${whereColumn} = ?`;
@@ -15,8 +14,8 @@ const selectMaxColumn = async (conn, table, columnName, maxColumnAlias, whereCol
 };
 exports.selectMaxColumn = selectMaxColumn;
 async function selectAllFrom(connection, table, page = 1, paramQuery) {
-    const offset = (0, helper_1.getOffset)(page, (0, config_1.config)().listPerPage);
-    const limit = `LIMIT ${offset},${(0, config_1.config)().listPerPage}`;
+    const offset = (0, helper_1.getOffset)(page, 10);
+    const limit = `LIMIT ${offset},10`;
     let queryString = paramQuery ? `${paramQuery} ${limit}` : `SELECT * FROM ${table} ${limit}`;
     const [results,] = await connection.query((0, mysql2_1.format)(queryString));
     return results;

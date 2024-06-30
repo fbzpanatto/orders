@@ -1,6 +1,5 @@
 import { ResultSetHeader, format } from 'mysql2';
 import { getOffset } from '../helper';
-import { config } from '../config'
 import { formatDate } from './formatDate';
 import { PoolConnection } from 'mysql2/promise';
 
@@ -20,8 +19,8 @@ export const selectMaxColumn = async (conn: PoolConnection, table: string, colum
 
 export async function selectAllFrom<T>(connection: PoolConnection, table: string, page = 1, paramQuery?: string) {
 
-  const offset = getOffset(page, config().listPerPage);
-  const limit = `LIMIT ${offset},${config().listPerPage}`
+  const offset = getOffset(page, 10);
+  const limit = `LIMIT ${offset},10`
 
   let queryString = paramQuery ? `${paramQuery} ${limit}` : `SELECT * FROM ${table} ${limit}`
 

@@ -27,6 +27,7 @@ const getSegments = async (req) => {
         return (0, response_1.objectResponse)(200, 'Consulta realizada com sucesso.', { data });
     }
     catch (error) {
+        console.log('error', error);
         return (0, response_1.objectResponse)(400, 'Não foi possível processar a sua solicitação.');
     }
     finally {
