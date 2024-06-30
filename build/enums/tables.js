@@ -1,0 +1,23 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Tables = void 0;
+var Tables;
+(function (Tables) {
+    Tables["companies"] = "companies";
+    Tables["company_address"] = "company_address";
+    Tables["legal_persons"] = "legal_persons";
+    Tables["normal_persons"] = "normal_persons";
+    Tables["order_products_status"] = "order_products_status";
+    Tables["orders"] = "orders";
+    Tables["person_addresses"] = "person_addresses";
+    Tables["person_phones"] = "person_phones";
+    Tables["person_segments"] = "person_segments";
+    Tables["persons"] = "persons";
+    Tables["products"] = "products";
+    Tables["roles"] = "roles";
+    Tables["segments"] = "segments";
+    Tables["status"] = "status";
+    Tables["permissions"] = "permissions";
+    Tables["users"] = "users";
+    Tables["fields"] = "fields";
+})(Tables || (exports.Tables = Tables = {}));

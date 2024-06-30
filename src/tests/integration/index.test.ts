@@ -1,23 +1,26 @@
 import { formatDate } from "../../utils/formatDate";
 import { describe, expect } from "@jest/globals"
-import { query } from "../../services/db";
+import { dbConn } from "../../services/db";
 import request from 'supertest'
 import app from '../../app'
 
 async function dataBaseTestSettings() {
-  await query('SET FOREIGN_KEY_CHECKS = 0')
-  await query('TRUNCATE TABLE legal_persons')
-  await query('TRUNCATE TABLE normal_persons')
-  await query('TRUNCATE TABLE persons')
-  await query('TRUNCATE TABLE status')
-  await query('TRUNCATE TABLE person_addresses')
-  await query('TRUNCATE TABLE person_phones')
-  await query('TRUNCATE TABLE segments')
-  await query('TRUNCATE TABLE person_segments')
-  await query('TRUNCATE TABLE products')
-  await query('TRUNCATE TABLE orders')
-  await query('TRUNCATE TABLE order_products_status')
-  await query('SET FOREIGN_KEY_CHECKS = 1')
+
+  const conn = await dbConn()
+
+  await conn.query('SET FOREIGN_KEY_CHECKS = 0')
+  await conn.query('TRUNCATE TABLE legal_persons')
+  await conn.query('TRUNCATE TABLE normal_persons')
+  await conn.query('TRUNCATE TABLE persons')
+  await conn.query('TRUNCATE TABLE status')
+  await conn.query('TRUNCATE TABLE person_addresses')
+  await conn.query('TRUNCATE TABLE person_phones')
+  await conn.query('TRUNCATE TABLE segments')
+  await conn.query('TRUNCATE TABLE person_segments')
+  await conn.query('TRUNCATE TABLE products')
+  await conn.query('TRUNCATE TABLE orders')
+  await conn.query('TRUNCATE TABLE order_products_status')
+  await conn.query('SET FOREIGN_KEY_CHECKS = 1')
 }
 
 beforeAll(async () => { await dataBaseTestSettings() })
